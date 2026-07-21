@@ -1667,7 +1667,7 @@
 
         // GANTI DENGAN URL WEB APP DARI GOOGLE APPS SCRIPT-MU
         const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzNLOtC8E4i5PXkj4dHjWURJNcJKAafSb9VH-j6BWxouRGiG0xBDlNJfTbrUv0logl-KQ/exec";
-
+        
         // ==========================================
         // OFFLINE-FIRST SYNC SYSTEM
         // ==========================================
@@ -1681,32 +1681,44 @@
         }
 
         // Fungsi mengeksekusi antrean ke Google Sheets
+        let isSyncing = false; // Tambahkan Gembok Penanda
+
         async function processSyncQueue() {
-            if (!navigator.onLine || syncQueue.length === 0) return;
+            // Hentikan jika sedang offline, antrean kosong, atau SINKRONISASI MASIH BERJALAN
+            if (!navigator.onLine || syncQueue.length === 0 || isSyncing) return;
+            
+            isSyncing = true; // Kunci gembok agar proses lain tidak ikut menembak
             
             try {
+                // Ambil data antrean saat ini saja
+                const currentPayload = [...syncQueue];
+
                 const response = await fetch(GOOGLE_SCRIPT_URL, {
                     method: "POST",
-                    // TAMBAHKAN HEADER INI AGAR TIDAK KENA CORS BLOCKED
                     headers: {
                         "Content-Type": "text/plain;charset=utf-8", 
                     },
-                    // TAMBAHKAN REDIRECT FOLLOW
                     redirect: "follow",
-                    body: JSON.stringify({ action: "SYNC", payload: syncQueue })
+                    body: JSON.stringify({ action: "SYNC", payload: currentPayload })
                 });
                 
                 const result = await response.json();
                 
                 if (result.status === "success") {
-                    syncQueue = []; // Kosongkan queue jika sukses
+                    // Hanya hapus antrean yang BARU SAJA berhasil dikirim
+                    syncQueue = syncQueue.slice(currentPayload.length); 
                     localStorage.setItem("maryn_sync_queue", JSON.stringify(syncQueue));
-                    showToast("✅ Data offline berhasil disinkronisasi ke Google Sheets!");
-                } else {
-                    console.error("Error dari server:", result.message);
+                    console.log("✅ Background Sync berhasil");
                 }
             } catch (e) {
-                console.error("Sync gagal, akan dicoba lagi nanti", e);
+                console.error("Sync gagal, aman di localStorage dan akan dicoba lagi", e);
+            } finally {
+                isSyncing = false; // Buka gembok kembali
+                
+                // Cek apakah ada antrean baru saat proses tadi berlangsung
+                if (syncQueue.length > 0) {
+                    setTimeout(processSyncQueue, 1500); 
+                }
             }
         }
 
@@ -2016,15 +2028,26 @@
                             didOpen: () => Swal.showLoading()
                         });
                         
-                        fetch("transactions").doc(id).delete()
-                        .then(() => {
+                        // 1. Cari transaksi yang mau dihapus dari array lokal
+                        const tx = transactions.find(t => t.id === id);
+                        if (tx) {
+                            // 2. Hapus langsung dari array & update localStorage (Instan!)
+                            transactions = transactions.filter(t => t.id !== id);
+                            localStorage.setItem("maryn_transactions", JSON.stringify(transactions));
+                            
+                            // 3. Kirim perintah hapus ke Google Sheets diam-diam di background
+                            enqueueSync("DELETE_TX", { id: id, type: tx.type });
+                            
+                            // 4. Update tampilan & tutup loading
+                            renderBukuList(currentBukuTab);
+                            updateDashboard();
+                            
                             Swal.close();
                             showToast("Transaksi berhasil dihapus!");
-                        })
-                        .catch(err => {
+                        } else {
                             Swal.close();
-                            showToast("Gagal menghapus transaksi.");
-                        });
+                            showToast("Data tidak ditemukan!");
+                        }
                     }
                 });
                 return;
