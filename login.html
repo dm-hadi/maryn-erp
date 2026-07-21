@@ -1,116 +1,186 @@
-<!doctype html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+    <!doctype html>
+    <html lang="id">
+    <head>
+        <meta charset="UTF-8" />
+        <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+        />
 
-    <link rel="manifest" href="manifest.json">
-    <!-- Meta tag untuk poni/status bar HP -->
-    <meta name="theme-color" id="meta-theme-color" content="#fcf8f9">
+        <link rel="manifest" href="manifest.json" />
+        <!-- Meta tag untuk poni/status bar HP -->
+        <meta name="theme-color" id="meta-theme-color" content="#fcf8f9" />
 
-    <title>Login | MARYN POS</title>
-    
-    <!-- Font Inter -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Memanggil file CSS Eksternal -->
-    <link rel="stylesheet" href="style.css">
-    
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Konfigurasi Tailwind untuk Dark Mode -->
-    <script>
+        <title>Login | MARYN POS</title>
+
+        <!-- Font Inter -->
+        <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+        />
+
+        <!-- Memanggil file CSS Eksternal -->
+        <link rel="stylesheet" href="style.css" />
+
+        <!-- Tailwind CSS -->
+        <script src="https://cdn.tailwindcss.com"></script>
+
+        <!-- Konfigurasi Tailwind untuk Dark Mode -->
+        <script>
         tailwind.config = {
-            darkMode: 'class', // Menggunakan class 'dark' pada tag <html>
+            darkMode: "class", // Menggunakan class 'dark' pada tag <html>
             theme: {
-                extend: {
-                    fontFamily: { sans: ['Inter', 'sans-serif'] },
-                    colors: {
-                        darkBg: '#0f0a0c', // Warna background dark mode
-                        darkCard: '#1a1114',
-                    }
-                }
-            }
-        }
-    </script>
-    
-    <!-- SweetAlert2 -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+            extend: {
+                fontFamily: { sans: ["Inter", "sans-serif"] },
+                colors: {
+                darkBg: "#0f0a0c", // Warna background dark mode
+                darkCard: "#1a1114",
+                },
+            },
+            },
+        };
+        </script>
 
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
-</head>
+        <!-- SweetAlert2 -->
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-<!-- Default background menyesuaikan tema -->
-<body class="bg-[#fcf8f9] dark:bg-darkBg min-h-screen flex items-center justify-center p-5 relative transition-colors duration-500">
+        <!-- Firebase SDK -->
+        <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    </head>
 
-    <!-- Tombol Toggle Tema (Kanan Atas) -->
-<!-- Tombol Toggle Tema (Kanan Atas) -->
-    <button onclick="toggleTheme()" class="absolute top-5 right-5 p-3 rounded-full bg-white dark:bg-[#2a1d22] shadow-md dark:shadow-pink-900/20 text-gray-800 dark:text-pink-300 hover:scale-110 transition-transform">
-        
+    <!-- Default background menyesuaikan tema -->
+    <body
+        class="bg-[#fcf8f9] dark:bg-darkBg min-h-screen flex items-center justify-center p-5 relative transition-colors duration-500"
+    >
+        <!-- Tombol Toggle Tema (Kanan Atas) -->
+        <!-- Tombol Toggle Tema (Kanan Atas) -->
+        <button
+        onclick="toggleTheme()"
+        class="absolute top-5 right-5 p-3 rounded-full bg-white dark:bg-[#2a1d22] shadow-md dark:shadow-pink-900/20 text-gray-800 dark:text-pink-300 hover:scale-110 transition-transform"
+        >
         <!-- Icon Matahari (Sun) - Muncul di Light Mode -->
-        <svg id="icon-sun" class="w-5 h-5 block dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+        <svg
+            id="icon-sun"
+            class="w-5 h-5 block dark:hidden"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+        >
+            <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
+            ></path>
         </svg>
 
         <!-- Icon Bulan (Moon) - Muncul di Dark Mode -->
-        <svg id="icon-moon" class="w-5 h-5 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+        <svg
+            id="icon-moon"
+            class="w-5 h-5 hidden dark:block"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+        >
+            <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
+            ></path>
         </svg>
-        
-    </button>
+        </button>
 
-    <!-- KOTAK FORM RESPONSIF -->
-    <main class="w-full max-w-lg md:max-w-xl lg:max-w-2xl p-8 sm:p-12 md:p-14 rounded-[2.5rem] 
-                 bg-white shadow-[0_10px_40px_rgba(236,72,153,0.1)] border border-pink-100
-                 dark:bg-darkCard dark:shadow-[0_10px_40px_rgba(236,72,153,0.15)] dark:border dark:border-pink-900/40">
-        
-        <header class="text-center mb-10 flex flex-col items-center justify-center">
+        <!-- KOTAK FORM RESPONSIF -->
+        <main
+        class="w-full max-w-lg md:max-w-xl lg:max-w-2xl p-8 sm:p-12 md:p-14 rounded-[2.5rem] bg-white shadow-[0_10px_40px_rgba(236,72,153,0.1)] border border-pink-100 dark:bg-darkCard dark:shadow-[0_10px_40px_rgba(236,72,153,0.15)] dark:border dark:border-pink-900/40"
+        >
+        <header
+            class="text-center mb-10 flex flex-col items-center justify-center"
+        >
             <!-- GANTI "logo.png" DI BAWAH INI DENGAN NAMA FILE GAMBARMU -->
-            <img src="login.png" alt="Logo Maryn" class="h-[135px] w-auto object-contain mb-3 dark:drop-shadow-[0_0_15px_rgba(236,72,153,0.3)] transition-all">
-            <p class="text-sm mt-2 text-gray-500 dark:text-pink-200/60 font-medium">Silahkan Masuk ke sistem Anda</p>
+            <img
+            src="login.png"
+            alt="Logo Maryn"
+            class="h-[135px] w-auto object-contain mb-3 dark:drop-shadow-[0_0_15px_rgba(236,72,153,0.3)] transition-all"
+            />
+            <p class="text-sm mt-2 text-gray-500 dark:text-pink-200/60 font-medium">
+            Silahkan Masuk ke sistem Anda
+            </p>
         </header>
 
         <form id="loginForm" class="space-y-5">
             <div>
-                <input type="email" id="email" placeholder="Username / Email" required
-                    class="w-full px-6 py-4 md:py-4 md:text-base rounded-2xl border focus:outline-none focus:ring-2 transition-all text-sm
-                           bg-gray-50 border-gray-200 text-gray-800 focus:ring-pink-400 placeholder:text-gray-400
-                           dark:bg-[#25171c] dark:border-pink-900/30 dark:text-pink-100 dark:focus:ring-pink-500 dark:placeholder:text-pink-300/30">
-            </div>
-            
-            <div>
-                <input type="password" id="password" placeholder="Password" required
-                    class="w-full px-6 py-4 md:py-4 md:text-base rounded-2xl border focus:outline-none focus:ring-2 transition-all text-sm
-                           bg-gray-50 border-gray-200 text-gray-800 focus:ring-pink-400 placeholder:text-gray-400
-                           dark:bg-[#25171c] dark:border-pink-900/30 dark:text-pink-100 dark:focus:ring-pink-500 dark:placeholder:text-pink-300/30">
+            <input
+                type="email"
+                id="email"
+                placeholder="Username / Email"
+                required
+                class="w-full px-6 py-4 md:py-4 md:text-base rounded-2xl border focus:outline-none focus:ring-2 transition-all text-sm bg-gray-50 border-gray-200 text-gray-800 focus:ring-pink-400 placeholder:text-gray-400 dark:bg-[#25171c] dark:border-pink-900/30 dark:text-pink-100 dark:focus:ring-pink-500 dark:placeholder:text-pink-300/30"
+            />
             </div>
 
-            <div class="flex justify-between items-center text-xs md:text-sm mt-4 mb-8 pt-2 
-                        text-gray-500 dark:text-pink-300/60">
-            <label class="flex items-center gap-2 cursor-pointer hover:text-pink-500 dark:hover:text-pink-300">
-                <input type="checkbox" id="rememberMe" class="w-4 h-4 md:w-5 md:h-5 rounded border-gray-300 dark:border-pink-800/50"> 
+            <div>
+            <!-- Ganti bagian input password dengan kode ini -->
+            <div class="relative">
+                <input
+                    type="password"
+                    id="password"
+                    placeholder="Password"
+                    required
+                    class="w-full px-6 py-4 md:py-4 md:text-base rounded-2xl border focus:outline-none focus:ring-2 transition-all text-sm bg-gray-50 border-gray-200 text-gray-800 focus:ring-pink-400 placeholder:text-gray-400 dark:bg-[#25171c] dark:border-pink-900/30 dark:text-pink-100 dark:focus:ring-pink-500 dark:placeholder:text-pink-300/30 pr-14"
+                />
+                <button 
+                    type="button" 
+                    onclick="togglePassword()"
+                    class="absolute right-5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-pink-300/50 hover:text-pink-500 dark:hover:text-pink-300 transition-colors"
+                >
+                    <!-- Icon Mata Tertutup -->
+                    <svg id="eye-closed" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18"></path></svg>
+                    <!-- Icon Mata Terbuka (Disembunyikan secara default) -->
+                    <svg id="eye-open" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                </button>
+            </div>
+
+            <div
+            class="flex justify-between items-center text-xs md:text-sm mt-4 mb-8 pt-2 text-gray-500 dark:text-pink-300/60"
+            >
+            <label
+                class="flex items-center gap-2 cursor-pointer hover:text-pink-500 dark:hover:text-pink-300"
+            >
+                <input
+                type="checkbox"
+                id="rememberMe"
+                class="w-4 h-4 md:w-5 md:h-5 rounded border-gray-300 dark:border-pink-800/50"
+                />
                 Remember me
             </label>
-                <button type="button" onclick="showForgot()" class="hover:text-pink-500 dark:hover:text-pink-300 transition font-medium">Forgot password?</button>
+            <button
+                type="button"
+                onclick="showForgot()"
+                class="hover:text-pink-500 dark:hover:text-pink-300 transition font-medium"
+            >
+                Forgot password?
+            </button>
             </div>
-            
-            <button type="submit"
-                class="w-full text-white py-4 md:py-4 md:text-lg rounded-2xl font-bold shadow-lg transition-all active:scale-[0.98]
-                       bg-pink-500 hover:bg-pink-600 shadow-pink-200
-                       dark:bg-gradient-to-r dark:from-pink-600 dark:to-rose-700 dark:shadow-pink-900/40 dark:hover:shadow-pink-900/60">
-                Login
+
+            <button
+            type="submit"
+            class="w-full text-white py-4 md:py-4 md:text-lg rounded-2xl font-bold shadow-lg transition-all active:scale-[0.98] bg-pink-500 hover:bg-pink-600 shadow-pink-200 dark:bg-gradient-to-r dark:from-pink-600 dark:to-rose-700 dark:shadow-pink-900/40 dark:hover:shadow-pink-900/60"
+            >
+            Login
             </button>
         </form>
 
-        <footer class="text-center text-[10px] md:text-xs mt-10 uppercase tracking-widest font-semibold text-gray-400 dark:text-pink-900">
+        <footer
+            class="text-center text-[10px] md:text-xs mt-10 uppercase tracking-widest font-semibold text-gray-400 dark:text-pink-900"
+        >
             © 2026 ERP System
         </footer>
-    </main>
+        </main>
 
-    <script>
+        <script>
         // --- 1. PENGATURAN TEMA (DARK/LIGHT MODE) ---
         // --- 1. PENGATURAN TEMA (DARK/LIGHT MODE) ---
         const htmlDoc = document.documentElement;
@@ -119,35 +189,38 @@
         // Fungsi untuk mengubah warna poni HP
         function updateStatusBarColor(isDark) {
             if (isDark) {
-                // Warna saat Dark Mode (mengikuti warna darkBg di Tailwind)
-                metaThemeColor.setAttribute("content", "#0f0a0c"); 
+            // Warna saat Dark Mode (mengikuti warna darkBg di Tailwind)
+            metaThemeColor.setAttribute("content", "#0f0a0c");
             } else {
-                // Warna saat Light Mode (mengikuti bg default)
-                metaThemeColor.setAttribute("content", "#fcf8f9"); 
+            // Warna saat Light Mode (mengikuti bg default)
+            metaThemeColor.setAttribute("content", "#fcf8f9");
             }
         }
 
         // Cek Local Storage (Apakah user sebelumnya sudah milih tema?)
-        const isInitialDark = localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches);
-        
+        const isInitialDark =
+            localStorage.theme === "dark" ||
+            (!("theme" in localStorage) &&
+            window.matchMedia("(prefers-color-scheme: dark)").matches);
+
         if (isInitialDark) {
-            htmlDoc.classList.add('dark');
+            htmlDoc.classList.add("dark");
             updateStatusBarColor(true); // Set poni ke gelap saat awal load
         } else {
-            htmlDoc.classList.remove('dark');
+            htmlDoc.classList.remove("dark");
             updateStatusBarColor(false); // Set poni ke terang saat awal load
         }
 
         // Fungsi Tombol Switch Tema
         function toggleTheme() {
-            htmlDoc.classList.toggle('dark');
-            
-            if (htmlDoc.classList.contains('dark')) {
-                localStorage.theme = 'dark';
-                updateStatusBarColor(true); // Ubah poni jadi gelap saat tombol ditekan
+            htmlDoc.classList.toggle("dark");
+
+            if (htmlDoc.classList.contains("dark")) {
+            localStorage.theme = "dark";
+            updateStatusBarColor(true); // Ubah poni jadi gelap saat tombol ditekan
             } else {
-                localStorage.theme = 'light';
-                updateStatusBarColor(false); // Ubah poni jadi terang saat tombol ditekan
+            localStorage.theme = "light";
+            updateStatusBarColor(false); // Ubah poni jadi terang saat tombol ditekan
             }
         }
 
@@ -161,6 +234,7 @@
         appId: "1:937284639769:web:fa2f1522b11729aaf01e88"
         };
 
+
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
 
@@ -170,106 +244,131 @@
 
         // --- 3. HELPER SWEETALERT AGAR MENGIKUTI TEMA ---
         function getSwalTheme() {
-            const isDark = document.documentElement.classList.contains('dark');
+            const isDark = document.documentElement.classList.contains("dark");
             return {
-                background: isDark ? '#1a1114' : '#ffffff',
-                color: isDark ? '#fbcfe8' : '#1f2937',
-                confirmButtonColor: '#ec4899' // Pink-500
+            background: isDark ? "#1a1114" : "#ffffff",
+            color: isDark ? "#fbcfe8" : "#1f2937",
+            confirmButtonColor: "#ec4899", // Pink-500
             };
         }
 
         // --- 4. PROSES LOGIN (DENGAN SESI PERMANEN) ---
         // --- 4. PROSES LOGIN ---
-        document.getElementById('loginForm').addEventListener('submit', async function(e) {
-            e.preventDefault(); 
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
+        document
+            .getElementById("loginForm")
+            .addEventListener("submit", async function (e) {
+            e.preventDefault();
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
             // Ambil status apakah checkbox dicentang atau tidak (menghasilkan true/false)
-            const isRemembered = document.getElementById('rememberMe').checked; 
+            const isRemembered = document.getElementById("rememberMe").checked;
             const themeStyle = getSwalTheme();
 
             Swal.fire({
-                title: 'Memproses...',
+                title: "Memproses...",
                 allowOutsideClick: false,
                 background: themeStyle.background,
                 color: themeStyle.color,
-                didOpen: () => Swal.showLoading()
+                didOpen: () => Swal.showLoading(),
             });
 
             try {
                 // 1. Atur Persistence berdasarkan Checkbox Remember Me
-                const persistenceType = isRemembered 
-                    ? firebase.auth.Auth.Persistence.LOCAL   // Jika dicentang: Sesi tersimpan permanen
-                    : firebase.auth.Auth.Persistence.SESSION; // Jika tidak: Sesi hilang saat browser/tab ditutup
+                const persistenceType = isRemembered
+                ? firebase.auth.Auth.Persistence.LOCAL // Jika dicentang: Sesi tersimpan permanen
+                : firebase.auth.Auth.Persistence.SESSION; // Jika tidak: Sesi hilang saat browser/tab ditutup
 
                 await auth.setPersistence(persistenceType);
-                
+
                 // 2. Eksekusi login
                 await auth.signInWithEmailAndPassword(email, password);
-                
+
                 Swal.fire({
-                    icon: 'success',
-                    title: 'Berhasil!',
-                    text: 'Mengalihkan ke halaman utama...',
-                    background: themeStyle.background,
-                    color: themeStyle.color,
-                    showConfirmButton: false,
-                    timer: 1500
+                icon: "success",
+                title: "Berhasil!",
+                text: "Mengalihkan ke halaman utama...",
+                background: themeStyle.background,
+                color: themeStyle.color,
+                showConfirmButton: false,
+                timer: 1500,
                 });
 
                 setTimeout(() => {
-                    window.location.href = 'index.html';
+                window.location.href = "index.html";
                 }, 1500);
-
             } catch (error) {
                 // ... (bagian catch error biarkan sama persis seperti kodemu sebelumnya)
-                let errorMessage = 'Terjadi kesalahan pada sistem.';
-                if(error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
-                    errorMessage = 'Email atau Password salah!';
-                } else if (error.code === 'auth/too-many-requests') {
-                    errorMessage = 'Terlalu banyak percobaan. Silakan coba lagi nanti.';
-                } else if (error.code === 'auth/invalid-email') {
-                    errorMessage = 'Format email tidak valid!';
+                let errorMessage = "Terjadi kesalahan pada sistem.";
+                if (
+                error.code === "auth/user-not-found" ||
+                error.code === "auth/wrong-password" ||
+                error.code === "auth/invalid-credential"
+                ) {
+                errorMessage = "Email atau Password salah!";
+                } else if (error.code === "auth/too-many-requests") {
+                errorMessage =
+                    "Terlalu banyak percobaan. Silakan coba lagi nanti.";
+                } else if (error.code === "auth/invalid-email") {
+                errorMessage = "Format email tidak valid!";
                 }
 
                 Swal.fire({
-                    icon: 'error',
-                    title: 'Login Gagal',
-                    text: errorMessage, 
-                    background: themeStyle.background,
-                    color: themeStyle.color,
-                    confirmButtonColor: themeStyle.confirmButtonColor
+                icon: "error",
+                title: "Login Gagal",
+                text: errorMessage,
+                background: themeStyle.background,
+                color: themeStyle.color,
+                confirmButtonColor: themeStyle.confirmButtonColor,
                 });
             }
-        });
+            });
 
         // --- 5. FUNGSI LUPA PASSWORD ---
         function showForgot() {
             const themeStyle = getSwalTheme();
             Swal.fire({
-                title: 'Butuh Bantuan?',
-                text: 'Silakan hubungi Administrator untuk akses akun Anda.',
-                background: themeStyle.background,
-                color: themeStyle.color,
-                confirmButtonColor: themeStyle.confirmButtonColor
+            title: "Butuh Bantuan?",
+            text: "Silakan hubungi Administrator untuk akses akun Anda.",
+            background: themeStyle.background,
+            color: themeStyle.color,
+            confirmButtonColor: themeStyle.confirmButtonColor,
             });
         }
-    </script>
+        </script>
 
-    <script>
+        <script>
         // Mendaftarkan Service Worker
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js')
-                    .then(registration => {
-                        console.log('ServiceWorker registered dengan scope: ', registration.scope);
-                    })
-                    .catch(error => {
-                        console.log('ServiceWorker registration gagal: ', error);
-                    });
+        if ("serviceWorker" in navigator) {
+            window.addEventListener("load", () => {
+            navigator.serviceWorker
+                .register("sw.js")
+                .then((registration) => {
+                console.log(
+                    "ServiceWorker registered dengan scope: ",
+                    registration.scope,
+                );
+                })
+                .catch((error) => {
+                console.log("ServiceWorker registration gagal: ", error);
+                });
             });
         }
-    </script>
 
-</body>
-</html>
+        function togglePassword() {
+            const passwordInput = document.getElementById("password");
+            const eyeClosed = document.getElementById("eye-closed");
+            const eyeOpen = document.getElementById("eye-open");
+
+            if (passwordInput.type === "password") {
+                passwordInput.type = "text";
+                eyeClosed.classList.add("hidden");
+                eyeOpen.classList.remove("hidden");
+            } else {
+                passwordInput.type = "password";
+                eyeClosed.classList.remove("hidden");
+                eyeOpen.classList.add("hidden");
+            }
+        }
+        </script>
+    </body>
+    </html>
