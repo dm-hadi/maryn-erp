@@ -1667,7 +1667,7 @@
 
         // GANTI DENGAN URL WEB APP DARI GOOGLE APPS SCRIPT-MU
         const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzNLOtC8E4i5PXkj4dHjWURJNcJKAafSb9VH-j6BWxouRGiG0xBDlNJfTbrUv0logl-KQ/exec";
-        
+
         // ==========================================
         // OFFLINE-FIRST SYNC SYSTEM
         // ==========================================
@@ -1681,44 +1681,32 @@
         }
 
         // Fungsi mengeksekusi antrean ke Google Sheets
-        let isSyncing = false; // Tambahkan Gembok Penanda
-
         async function processSyncQueue() {
-            // Hentikan jika sedang offline, antrean kosong, atau SINKRONISASI MASIH BERJALAN
-            if (!navigator.onLine || syncQueue.length === 0 || isSyncing) return;
-            
-            isSyncing = true; // Kunci gembok agar proses lain tidak ikut menembak
+            if (!navigator.onLine || syncQueue.length === 0) return;
             
             try {
-                // Ambil data antrean saat ini saja
-                const currentPayload = [...syncQueue];
-
                 const response = await fetch(GOOGLE_SCRIPT_URL, {
                     method: "POST",
+                    // TAMBAHKAN HEADER INI AGAR TIDAK KENA CORS BLOCKED
                     headers: {
                         "Content-Type": "text/plain;charset=utf-8", 
                     },
+                    // TAMBAHKAN REDIRECT FOLLOW
                     redirect: "follow",
-                    body: JSON.stringify({ action: "SYNC", payload: currentPayload })
+                    body: JSON.stringify({ action: "SYNC", payload: syncQueue })
                 });
                 
                 const result = await response.json();
                 
                 if (result.status === "success") {
-                    // Hanya hapus antrean yang BARU SAJA berhasil dikirim
-                    syncQueue = syncQueue.slice(currentPayload.length); 
+                    syncQueue = []; // Kosongkan queue jika sukses
                     localStorage.setItem("maryn_sync_queue", JSON.stringify(syncQueue));
-                    console.log("✅ Background Sync berhasil");
+                    showToast("✅ Data offline berhasil disinkronisasi ke Google Sheets!");
+                } else {
+                    console.error("Error dari server:", result.message);
                 }
             } catch (e) {
-                console.error("Sync gagal, aman di localStorage dan akan dicoba lagi", e);
-            } finally {
-                isSyncing = false; // Buka gembok kembali
-                
-                // Cek apakah ada antrean baru saat proses tadi berlangsung
-                if (syncQueue.length > 0) {
-                    setTimeout(processSyncQueue, 1500); 
-                }
+                console.error("Sync gagal, akan dicoba lagi nanti", e);
             }
         }
 
@@ -1749,6 +1737,16 @@
                         products = data.products || [];
                         transactions = data.transactions || [];
                         
+                        let needsSave = false;
+                        products.forEach(p => {
+                            if (!p.id) {
+                                p.id = generateProductId(); // Berikan ID baru jika kosong
+                                needsSave = true;
+                            }
+                        });
+                        if (needsSave) {
+                            localStorage.setItem("maryn_products", JSON.stringify(products));
+                        }
                         // --- TAMBAHKAN KODE INI UNTUK UPDATE FEE ---
                         if (data.fees) {
                             feeCategories = data.fees;
@@ -1943,7 +1941,7 @@
             });
         }
 
-        const DATA_VERSION = "1.0.05"; 
+        const DATA_VERSION = "1.0.5"; 
         let feeCategories = JSON.parse(localStorage.getItem("maryn_fees"));
         let savedVersion = localStorage.getItem("maryn_data_version");
 
@@ -2028,26 +2026,15 @@
                             didOpen: () => Swal.showLoading()
                         });
                         
-                        // 1. Cari transaksi yang mau dihapus dari array lokal
-                        const tx = transactions.find(t => t.id === id);
-                        if (tx) {
-                            // 2. Hapus langsung dari array & update localStorage (Instan!)
-                            transactions = transactions.filter(t => t.id !== id);
-                            localStorage.setItem("maryn_transactions", JSON.stringify(transactions));
-                            
-                            // 3. Kirim perintah hapus ke Google Sheets diam-diam di background
-                            enqueueSync("DELETE_TX", { id: id, type: tx.type });
-                            
-                            // 4. Update tampilan & tutup loading
-                            renderBukuList(currentBukuTab);
-                            updateDashboard();
-                            
+                        fetch("transactions").doc(id).delete()
+                        .then(() => {
                             Swal.close();
                             showToast("Transaksi berhasil dihapus!");
-                        } else {
+                        })
+                        .catch(err => {
                             Swal.close();
-                            showToast("Data tidak ditemukan!");
-                        }
+                            showToast("Gagal menghapus transaksi.");
+                        });
                     }
                 });
                 return;
@@ -2692,7 +2679,10 @@ let promoScrollInterval;
             const search = (document.getElementById("product-search")?.value || "").toLowerCase();
             const sort = document.getElementById("product-sort")?.value || "newest";
             
-            let filtered = products.filter((p) => p.name.toLowerCase().includes(search) || (p.barcode || "").toLowerCase().includes(search));
+            let filtered = products.filter((p) => 
+                (p.name || "").toLowerCase().includes(search) || 
+                (p.barcode || "").toLowerCase().includes(search)
+            );
             
             if (sort === "az") filtered.sort((a, b) => a.name.localeCompare(b.name));
             if (sort === "za") filtered.sort((a, b) => b.name.localeCompare(a.name));
@@ -2843,8 +2833,13 @@ let promoScrollInterval;
         }
 
         function editProduct(id) {
-            const p = products.find((x) => x.id === id);
-            if (!p) return;
+            // Ubah baris pencarian menjadi seperti ini:
+            const p = products.find((x) => String(x.id) === String(id));
+            
+            if (!p) {
+                showToast("Error: Produk tidak ditemukan!");
+                return; 
+            }
             editingProductId = id;
             document.getElementById("product-modal-title").textContent = "✎ Edit Produk";
             document.getElementById("prod-barcode").value = p.barcode || "";
@@ -2960,25 +2955,45 @@ let promoScrollInterval;
 
         function importCSV() {
             const input = document.createElement("input");
-            input.type = "file"; input.accept = ".csv";
+            input.type = "file"; 
+            input.accept = ".csv";
             input.onchange = function (e) {
                 const reader = new FileReader();
                 reader.onload = function (ev) {
-                    const lines = ev.target.result.split("\n"); let count = 0;
+                    const lines = ev.target.result.split("\n"); 
+                    let count = 0;
+                    
                     lines.slice(1).forEach(function (line) {
                         if (!line.trim()) return; 
                         const cols = line.split(",");
                         if (cols.length >= 5) {
-                            fetch("products").add({
-                                barcode: (cols[0] || "").trim(), name: (cols[1] || "").trim(), modal: parseFloat(cols[2]) || 0,
-                                supplier: (cols[3] || "").trim(), markup: parseFloat(cols[4]) || 30, shopeeFee: (cols[5] || "").trim(),
-                                lazadaFee: (cols[6] || "").trim(), blibliFee: (cols[7] || "").trim(), tiktokFee: (cols[8] || "").trim(),
-                                stock: parseInt(cols[9]) || 0, photo: (cols[10] || "").trim().replace(/\r/g, ''), createdAt: Date.now(),
-                            });
+                            // Masukkan ke array lokal sesuai standar kodemu
+                            const newProduct = {
+                                id: generateProductId(), // WAJIB berikan ID baru
+                                barcode: (cols[0] || "").trim(), 
+                                name: (cols[1] || "").trim(), 
+                                modal: parseFloat(cols[2]) || 0,
+                                supplier: (cols[3] || "").trim(), 
+                                markup: parseFloat(cols[4]) || 30, 
+                                shopeeFee: (cols[5] || "").trim(),
+                                lazadaFee: (cols[6] || "").trim(), 
+                                blibliFee: (cols[7] || "").trim(), 
+                                tiktokFee: (cols[8] || "").trim(),
+                                stock: parseInt(cols[9]) || 0, 
+                                photo: (cols[10] || "").trim().replace(/\r/g, ''), 
+                                createdAt: Date.now(),
+                            };
+                            
+                            products.push(newProduct);
+                            enqueueSync("ADD_PRODUCT", newProduct);
                             count++;
                         }
                     });
-                    showToast(count + " produk sedang diimport ke Cloud!");
+                    
+                    // Simpan ke memori dan render ulang
+                    localStorage.setItem("maryn_products", JSON.stringify(products));
+                    renderProducts();
+                    showToast(count + " produk berhasil diimport!");
                 };
                 reader.readAsText(e.target.files[0]);
             };
@@ -3139,7 +3154,9 @@ let promoScrollInterval;
             results.style.display = "block";
             results.querySelectorAll(".search-result-item").forEach((el) => {
                 el.addEventListener("click", function () { 
-                    const p = products.find((x) => x.id === this.dataset.txId);
+                    const clickedId = this.dataset.txId;
+                    const p = products.find((x) => String(x.id) === String(clickedId));
+                    
                     if(p) {
                         document.getElementById("tx-search").value = p.name;
                         document.getElementById("tx-price").value = this.dataset.txPrice;
@@ -3598,23 +3615,6 @@ function generateStruk(tx) {
                 drawChart();
             }
         });
-        
-        function simpanEditProduk(dataEdit) {
-            // 1. Update data di dalam Array lokal
-            const index = products.findIndex(p => p.id === dataEdit.id);
-            if (index !== -1) {
-                products[index] = dataEdit; // Ini akan menimpa kategori lama dengan kategori baru
-            }
-
-            // 2. KOSONGKAN WADAH HTML (INI PALING PENTING AGAR TIDAK DOUBLE)
-            document.getElementById("wadah-list-produk").innerHTML = "";
-
-            // 3. Render ulang dari awal
-            renderProducts();
-
-            // 4. Baru kirim perubahannya ke Google Sheets via Fetch
-            // fetch(...)
-        }
 
         
 // Fungsi mengubah SEGALA MACAM format tanggal menjadi angka untuk diurutkan
