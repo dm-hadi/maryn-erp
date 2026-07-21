@@ -2743,7 +2743,7 @@ let promoScrollInterval;
                     '<div class="product-img">' + (p.photo ? '<img src="' + p.photo + '" style="width:100%;height:100%;object-fit:cover;border-radius:14px">' : "IMG") + "</div>" +
                     '<div class="product-info" style="width:100%;">' +
                     '<div class="product-name">' + escapeHtml(p.name) + "</div>" +
-                    '<div class="product-meta">' + escapeHtml(p.barcode || "") + " &middot; Modal: <b>" + formatRupiah(p.modal) + "</b> &middot; Stok: <b style='color: " + ((p.stock || 0) <= 3 ? "var(--danger)" : "var(--positive)") + "'>" + (p.stock || 0) + "</b> &middot; " + escapeHtml(p.supplier || "") + "</div>" +
+                    '<div class="product-meta">' + escapeHtml(p.barcode || "") + "  ︱  Modal : <b>" + formatRupiah(p.modal) + "</b>  ︱  Stok : <b style='color: " + ((p.stock || 0) <= 3 ? "var(--danger)" : "var(--positive)") + "'>" + (p.stock || 0) + "</b>  ︱  " + escapeHtml(p.supplier || "") + "  ︱  " + (p.category)+ "</div>" +
                     '<div class="product-prices">' + pricesHtml.join("") + "</div>" +
                     "</div></div>"
                 );
