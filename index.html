@@ -1156,6 +1156,17 @@
                         <option value="az">A - Z</option>
                         <option value="za">Z - A</option>
                     </select>
+                    
+                    <!-- Dropdown Filter Kategori -->
+                    <select id="category-filter" class="input" style="width: auto; margin-bottom: 0; padding: 8px 8px; border-radius: 20px; color: var(--text); border: 1px solid var(--border-color);">
+                        <option value="all">Semua Kategori</option>
+                        <option value="Personal Care">Personal Care</option>
+                        <option value="Home Care">Home Care</option>
+                        <option value="Mom & Baby">Mom & Baby</option>
+                        <option value="Pantry Essentials">Pantry Essentials</option>
+                        <option value="Food and Beverages">Food & Beverages</option>
+                    </select>
+
                 </div>
 
                 <!-- Info Total Produk -->
@@ -2236,6 +2247,11 @@
                 renderProducts();
             });
 
+            document.getElementById("category-filter")?.addEventListener("change", () => {
+                currentProductPage = 1;
+                renderProducts();
+            });
+
             document.getElementById("btn-logout").addEventListener("click", () => {
             // 1. Cek tema halaman saat ini (Dark atau Light) agar warna alert menyesuaikan
             const isDark = document.documentElement.classList.contains('dark');
@@ -2836,10 +2852,18 @@ let promoScrollInterval;
             const search = (document.getElementById("product-search")?.value || "").toLowerCase();
             const sort = document.getElementById("product-sort")?.value || "newest";
             
-            let filtered = products.filter((p) => 
-                (p.name || "").toLowerCase().includes(search) || 
-                (p.barcode || "").toLowerCase().includes(search)
-            );
+            // Ambil nilai kategori yang sedang dipilih (default "all")
+            const selectedCategory = document.getElementById("category-filter")?.value || "all";
+            
+            let filtered = products.filter((p) => {
+                const matchesSearch = (p.name || "").toLowerCase().includes(search) || 
+                                    (p.barcode || "").toLowerCase().includes(search);
+                
+                // Logika penyaringan berdasarkan kategori
+                const matchesCategory = selectedCategory === "all" || p.category === selectedCategory;
+
+                return matchesSearch && matchesCategory;
+            });
             
             if (sort === "az") filtered.sort((a, b) => a.name.localeCompare(b.name));
             if (sort === "za") filtered.sort((a, b) => b.name.localeCompare(a.name));
@@ -2847,7 +2871,7 @@ let promoScrollInterval;
             if (sort === "oldest") filtered.sort((a, b) => parseIndonesianDate(a.createdAt) - parseIndonesianDate(b.createdAt));
 
             if (totalInfo) {
-                if (search) {
+                if (search || selectedCategory !== "all") {
                     totalInfo.innerHTML = `Ditemukan: <b style="color: var(--accent)">${filtered.length}</b> dari <b style="color: var(--text)">${products.length}</b> total produk`;
                 } else {
                     totalInfo.innerHTML = `Total Keseluruhan: <b style="color: var(--text)">${products.length} Produk</b>`;
