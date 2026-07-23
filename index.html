@@ -1031,6 +1031,77 @@
             color-scheme: light;
         }
 
+
+        /* Styling Modal Preview Gambar */
+        .image-modal-overlay {
+            display: none; /* Sembunyikan secara bawaan */
+            position: fixed;
+            z-index: 9999; /* Z-index tinggi agar menutupi bottom navigation dan header */
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.75); /* Hitam transparan */
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            backdrop-filter: blur(3px); /* Efek blur estetik pada background */
+        }
+
+        .image-modal-content {
+            max-width: 90%;
+            max-height: 80%;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            object-fit: contain;
+            animation: zoomIn 0.3s ease;
+        }
+
+        .close-modal-btn {
+            position: absolute;
+            top: 20px;
+            right: 25px;
+            color: #fff;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .close-modal-btn:hover {
+            color: #ff1493; /* Warna pink senada dengan tema aplikasimu */
+        }
+
+        /* Animasi membesar saat dibuka */
+        @keyframes zoomIn {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+    /* Container untuk menyejajarkan ikon dan teks */
+    .header-datetime-container {
+        display: flex;
+        align-items: center;
+        gap: 8px; /* Jarak antara ikon dan teks */
+    }
+
+    /* Style untuk ikon SVG Kalender */
+    .calendar-icon {
+        width: 15px; /* Ukuran ikon, bisa disesuaikan */
+        height: 15px;
+        fill: var(--text-tert); /* Mengambil warna tersier dari :root */
+        transition: fill 0.3s ease; /* Transisi halus kalau ganti mode */
+    }
+
+    /* Style untuk teks tanggal dan waktu */
+    #header-datetime-text {
+        font-size: 10px; /* Sesuaikan dengan ukuran font header-mu */
+        font-weight: 500;
+        color: var(--text-tert); /* Mengambil warna tersier dari :root */
+        letter-spacing: 0.5px;
+        transition: color 0.3s ease;
+    }
+
     </style>
 </head>
 <body>
@@ -1047,6 +1118,12 @@
                 </button>
                 <span class="brand">Maryn</span>
             </div>
+
+            <div class="header-datetime-container">
+
+                <span id="header-datetime-text">Memuat waktu...</span>
+            </div>
+
             <button class="theme-btn" id="btn-theme" title="Mode Gelap/Terang">
                 <svg id="theme-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="12" cy="12" r="5" />
@@ -1172,9 +1249,15 @@
                 <!-- Info Total Produk -->
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding: 0 8px; font-size: 13px; font-weight: 700; color: var(--text-sec);">
                     <div id="product-total-info">Total: 0 Produk</div>
-                </div>
+                </div>  
 
                 <div id="product-list"></div>
+
+                <!-- Modal Preview Gambar -->
+                <div id="imagePreviewModal" class="image-modal-overlay" onclick="closeImagePreview()">
+                    <span class="close-modal-btn">&times;</span>
+                    <img id="previewModalImage" class="image-modal-content" src="" alt="Preview Produk">
+                </div>
 
                 <!-- Navigasi Halaman (Paginasi) -->
                 <div id="product-pagination" style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px; display: none;">
@@ -1455,6 +1538,7 @@
 
                 <span class="label">Kategori (Sheet)</span>
                 <select class="select" id="prod-category" style="border-radius: 12px;">
+                    <option value="" disabled selected>-- Pilih Kategori --</option>
                     <option value="Personal Care">Personal Care</option>
                     <option value="Mom & Baby">Mom & Baby</option>
                     <option value="Home Care">Home Care</option>
@@ -2096,18 +2180,30 @@
                             didOpen: () => Swal.showLoading()
                         });
                         
-                        fetch("transactions").doc(id).delete()
-                        .then(() => {
-                            Swal.close();
-                            showToast("Transaksi berhasil dihapus!");
-                        })
-                        .catch(err => {
+                        // --- KODE PERBAIKAN MULAI DARI SINI ---
+                        try {
+                            const txToDelete = transactions.find(t => t.id === id);
+                            
+                            if (txToDelete) {
+                                transactions = transactions.filter(t => t.id !== id);
+                                localStorage.setItem("maryn_transactions", JSON.stringify(transactions));
+                                enqueueSync("DELETE_TX", { id: id, type: txToDelete.type });
+                                renderBukuList(currentBukuTab);
+                                updateDashboard();
+                                Swal.close();
+                                showToast("Transaksi berhasil dihapus!");
+                            } else {
+                                Swal.close();
+                                showToast("Data transaksi tidak ditemukan.");
+                            }
+                        } catch (err) {
+                            console.error(err);
                             Swal.close();
                             showToast("Gagal menghapus transaksi.");
-                        });
+                        }
+                        // --- SAMPAI SINI ---
                     }
                 });
-                return;
             }
                 const btnEdit = e.target.closest(".btn-edit-tx");
                 if (btnEdit) { editTx(btnEdit.dataset.id); return; }
@@ -2135,17 +2231,33 @@
                 document.getElementById("home-filters").addEventListener("click", function (e) {
                     const tab = e.target.closest(".filter-tab");
                     if (!tab) return;
+                    
                     document.querySelectorAll("#home-filters .filter-tab").forEach((t) => t.classList.remove("active"));
                     tab.classList.add("active");
                     
                     const calendarBtn = document.getElementById("calendar-btn");
-                    if (calendarBtn && tab !== calendarBtn) calendarBtn.classList.remove("active");
+                    if (calendarBtn && tab !== calendarBtn) {
+                        calendarBtn.classList.remove("active");
+                        // HAPUS BARIS RESET TANGGAL DISINI AGAR KALENDER TETAP JADI REFERENSI
+                    }
                     
-                    currentHomeFilter = tab.dataset.filter;
-                    
-                    const dateInput = document.getElementById("home-custom-date");
-                    if (dateInput && tab !== calendarBtn) dateInput.value = "";
-                    
+                    currentHomeFilter = tab.dataset.filter || "custom";
+                    updateDashboard();
+                });
+
+                document.getElementById("home-custom-date")?.addEventListener("change", function () {
+                    const calendarBtn = document.getElementById("calendar-btn");
+                    if (this.value) {
+                        document.querySelectorAll("#home-filters .filter-tab").forEach((t) => t.classList.remove("active"));
+                        if (calendarBtn) calendarBtn.classList.add("active");
+                        currentHomeFilter = "custom";
+                    } else {
+                        // Jika user mengosongkan kalender, kembalikan ke filter Hari (Hari ini)
+                        if (calendarBtn) calendarBtn.classList.remove("active");
+                        const dayTab = document.querySelector('.filter-tab[data-filter="day"]');
+                        if (dayTab) dayTab.classList.add("active");
+                        currentHomeFilter = "day";
+                    }
                     updateDashboard();
                 });
 
@@ -2461,32 +2573,29 @@
         }
 
         function calculateTotals(filter) {
-            const now = new Date();
-            const targetDateStr = document.getElementById("home-custom-date")?.value;
-            
+            const refDate = getFilterReferenceDate(); // Gunakan kalender sebagai jangkar
+
             let sales = 0, buy = 0, totalModal = 0, totalOrders = 0;
             let prevSales = 0, prevBuy = 0, prevModal = 0;
 
-            let prevDay = new Date(now); prevDay.setDate(now.getDate() - 1);
-            let prevMonth = new Date(now); prevMonth.setMonth(now.getMonth() - 1);
-            let prevYear = now.getFullYear() - 1;
+            let prevDay = new Date(refDate); prevDay.setDate(refDate.getDate() - 1);
+            let prevMonth = new Date(refDate); prevMonth.setMonth(refDate.getMonth() - 1);
+            let prevYear = refDate.getFullYear() - 1;
 
             transactions.forEach((tx) => {
-                const txDate = new Date(tx.date);
+                const txDate = getLocalTxDate(tx.date); // Ambil tanggal bersih
                 let match = false;
                 let isPrev = false;
 
-                if (filter === "custom" && targetDateStr) {
-                    // Jika format YYYY-MM-DD (tanggal spesifik), cocokkan tanggal persis
-                    // Jika ingin berbasis bulan/tahun dari input, bisa disesuaikan dengan substring
-                    match = tx.date === targetDateStr || tx.date.startsWith(targetDateStr);
-                } else {
-                    if (filter === "day") match = txDate.toDateString() === now.toDateString();
-                    if (filter === "month") match = txDate.getMonth() === now.getMonth() && txDate.getFullYear() === now.getFullYear();
-                    if (filter === "year") match = txDate.getFullYear() === now.getFullYear();
+                if (filter === "custom" || filter === "day") {
+                    match = txDate.toDateString() === refDate.toDateString();
+                } else if (filter === "month") {
+                    match = txDate.getMonth() === refDate.getMonth() && txDate.getFullYear() === refDate.getFullYear();
+                } else if (filter === "year") {
+                    match = txDate.getFullYear() === refDate.getFullYear();
                 }
 
-                if (filter === "day") isPrev = txDate.toDateString() === prevDay.toDateString();
+                if (filter === "custom" || filter === "day") isPrev = txDate.toDateString() === prevDay.toDateString();
                 if (filter === "month") isPrev = txDate.getMonth() === prevMonth.getMonth() && txDate.getFullYear() === prevMonth.getFullYear();
                 if (filter === "year") isPrev = txDate.getFullYear() === prevYear;
 
@@ -2502,7 +2611,7 @@
                     }
                 }
 
-                if (isPrev && filter !== "custom") {
+                if (isPrev) {
                     if (tx.type === "penjualan") {
                         prevSales += tx.total;
                         tx.items.forEach(item => {
@@ -2535,20 +2644,23 @@
 
         function renderDashboardTx() {
             const list = document.getElementById("dash-tx-list");
-            if (!list) return;
-            const now = new Date();
-            const targetDateStr = document.getElementById("home-custom-date")?.value;
+                if (!list) return;
+                const refDate = getFilterReferenceDate();
 
-            const filtered = transactions.filter(tx => {
-                const txDate = new Date(tx.date);
-                if (currentHomeFilter === "custom" && targetDateStr) {
-                    return tx.date === targetDateStr || tx.date.startsWith(targetDateStr);
-                }
-                if (currentHomeFilter === "day") return txDate.toDateString() === now.toDateString();
-                if (currentHomeFilter === "month") return txDate.getMonth() === now.getMonth() && txDate.getFullYear() === now.getFullYear();
-                if (currentHomeFilter === "year") return txDate.getFullYear() === now.getFullYear();
-                return true;
-            });
+                const filtered = transactions.filter(tx => {
+                    const txDate = getLocalTxDate(tx.date);
+                    
+                    if (currentHomeFilter === "custom" || currentHomeFilter === "day") {
+                        return txDate.toDateString() === refDate.toDateString();
+                    }
+                    if (currentHomeFilter === "month") {
+                        return txDate.getMonth() === refDate.getMonth() && txDate.getFullYear() === refDate.getFullYear();
+                    }
+                    if (currentHomeFilter === "year") {
+                        return txDate.getFullYear() === refDate.getFullYear();
+                    }
+                    return true;
+                });
             
             const recent = filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
             
@@ -2593,22 +2705,24 @@
 
         function renderTopItems() {
             const list = document.getElementById("dash-top-items");
-            if (!list) return;
+                if (!list) return;
+                const refDate = getFilterReferenceDate();
 
-            const now = new Date();
-            const targetDateStr = document.getElementById("home-custom-date")?.value;
-
-            const filtered = transactions.filter(tx => {
-                if (tx.type !== "penjualan") return false;
-                const txDate = new Date(tx.date);
-                if (currentHomeFilter === "custom" && targetDateStr) {
-                    return tx.date === targetDateStr || tx.date.startsWith(targetDateStr);
-                }
-                if (currentHomeFilter === "day") return txDate.toDateString() === now.toDateString();
-                if (currentHomeFilter === "month") return txDate.getMonth() === now.getMonth() && txDate.getFullYear() === now.getFullYear();
-                if (currentHomeFilter === "year") return txDate.getFullYear() === now.getFullYear();
-                return true;
-            });
+                const filtered = transactions.filter(tx => {
+                    if (tx.type !== "penjualan") return false;
+                    const txDate = getLocalTxDate(tx.date);
+                    
+                    if (currentHomeFilter === "custom" || currentHomeFilter === "day") {
+                        return txDate.toDateString() === refDate.toDateString();
+                    }
+                    if (currentHomeFilter === "month") {
+                        return txDate.getMonth() === refDate.getMonth() && txDate.getFullYear() === refDate.getFullYear();
+                    }
+                    if (currentHomeFilter === "year") {
+                        return txDate.getFullYear() === refDate.getFullYear();
+                    }
+                    return true;
+                });
 
             const itemCounts = {};
             filtered.forEach(tx => {
@@ -2772,7 +2886,7 @@ let promoScrollInterval;
             if (days < 5) days = 5;
             if (days > 31) days = 31;
 
-            const data = [];
+          const data = [];
             for (let i = days - 1; i >= 0; i--) {
                 const d = new Date(); d.setDate(d.getDate() - i);
                 let sum = 0;
@@ -2921,7 +3035,7 @@ let promoScrollInterval;
                 });
                 return (
                     '<div class="product-item" data-id="' + p.id + '" style="align-items:flex-start;">' +
-                    '<div class="product-img">' + (p.photo ? '<img src="' + p.photo + '" style="width:100%;height:100%;object-fit:cover;border-radius:14px">' : "IMG") + "</div>" +
+                    '<div class="product-img">' + (p.photo ? '<img src="' + p.photo + '" onclick="openImagePreview(this, event)" style="width:100%;height:100%;object-fit:cover;border-radius:14px">' : "IMG") + "</div>" +
                     '<div class="product-info" style="width:100%;">' +
                     '<div class="product-name">' + escapeHtml(p.name) + "</div>" +
                     '<div class="product-meta">' + escapeHtml(p.barcode || "") + "  ︱  Modal : <b>" + formatRupiah(p.modal) + "</b>  ︱  Stok : <b style='color: " + ((p.stock || 0) <= 3 ? "var(--danger)" : "var(--positive)") + "'>" + (p.stock || 0) + "</b>  ︱  " + escapeHtml(p.supplier || "") + "  ︱  " + (p.category)+ "</div>" +
@@ -3001,6 +3115,7 @@ let promoScrollInterval;
             document.getElementById("product-modal-title").textContent = "+ Tambah Produk";
             ["prod-barcode", "prod-name", "prod-modal", "prod-supplier"].forEach(id => document.getElementById(id).value = "");
             document.getElementById("prod-stock").value = "0"; 
+            document.getElementById("prod-category").value = "";
             ["shopee", "lazada", "blibli", "tiktok"].forEach(p => { document.getElementById("prod-" + p).value = ""; document.getElementById("display-" + p).value = ""; });
             document.getElementById("prod-markup").value = "30";
             document.getElementById("prod-preview").style.display = "none";
@@ -3025,6 +3140,9 @@ let promoScrollInterval;
             document.getElementById("product-modal-title").textContent = "✎ Edit Produk";
             document.getElementById("prod-barcode").value = p.barcode || "";
             document.getElementById("prod-name").value = p.name || "";
+            //kategory sheet
+            document.getElementById("prod-category").value = p.category || "";
+
             document.getElementById("prod-modal").value = p.modal || "";
             document.getElementById("prod-stock").value = p.stock || 0; 
             document.getElementById("prod-supplier").value = p.supplier || "";
@@ -3237,16 +3355,18 @@ let promoScrollInterval;
 
         function renderBukuList(tab) {
             const list = document.getElementById("buku-list");
-            if (!list) return;
-            const now = new Date();
-            let filtered = transactions.filter(function (tx) {
-                if (tx.type !== tab) return false;
-                const txDate = new Date(tx.date);
-                if (currentBukuFilter === "day") return txDate.toDateString() === now.toDateString();
-                if (currentBukuFilter === "month") return txDate.getMonth() === now.getMonth() && txDate.getFullYear() === now.getFullYear();
-                if (currentBukuFilter === "year") return txDate.getFullYear() === now.getFullYear();
-                return true;
-            }).sort((a, b) => new Date(b.date) - new Date(a.date));
+                if (!list) return;
+                const refDate = getFilterReferenceDate(); // Tarik sinkronisasi kalender
+
+                let filtered = transactions.filter(function (tx) {
+                    if (tx.type !== tab) return false;
+                    const txDate = getLocalTxDate(tx.date);
+                    
+                    if (currentBukuFilter === "day") return txDate.toDateString() === refDate.toDateString();
+                    if (currentBukuFilter === "month") return txDate.getMonth() === refDate.getMonth() && txDate.getFullYear() === refDate.getFullYear();
+                    if (currentBukuFilter === "year") return txDate.getFullYear() === refDate.getFullYear();
+                    return true;
+                }).sort((a, b) => new Date(b.date) - new Date(a.date));
 
             if (filtered.length === 0) {
                 list.innerHTML = '<div style="grid-column: 1 / -1; text-align:center; color:var(--text-tert); font-size:13px; font-weight:600; padding:30px;">Tidak ada data transaksi</div>';
@@ -3298,7 +3418,8 @@ let promoScrollInterval;
             editingTxId = null; currentTxItems = [];
             document.querySelector("#modal-tx .modal-title").textContent = "+ Tambah Transaksi";
             document.getElementById("tx-item-list").innerHTML = ""; document.getElementById("tx-total").textContent = "Rp 0";
-            document.getElementById("tx-date").valueAsDate = new Date(); document.getElementById("tx-type").value = "penjualan";
+            const today = new Date();
+            document.getElementById("tx-date").value = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
             document.getElementById("tx-platform").value = "Offline"; document.getElementById("tx-search").value = "";
             document.getElementById("tx-qty").value = "1"; document.getElementById("tx-price").value = "";
             document.getElementById("tx-search-results").style.display = "none";
@@ -3492,10 +3613,16 @@ let promoScrollInterval;
             }
         }
 
-function generateStruk(tx) {
-            const dailyTxs = transactions.filter(t => t.date === tx.date && t.type === tx.type).sort((a,b) => a.createdAt - b.createdAt);
+        function generateStruk(tx) {
+            // 1. FIX TANGGAL: Hapus embel-embel 'T17:00:00.000Z'
+            const cleanDate = tx.date.split('T')[0];
+            
+            // Gunakan cleanDate untuk memfilter transaksi harian
+            const dailyTxs = transactions.filter(t => t.date.split('T')[0] === cleanDate && t.type === tx.type).sort((a,b) => a.createdAt - b.createdAt);
             const index = dailyTxs.findIndex(t => t.id === tx.id) + 1;
-            const noInvoice = (tx.type === 'penjualan' ? "INV" : "EXP") + "/" + tx.date.replace(/-/g, '') + "/" + String(index).padStart(3, '0');
+            
+            // Gunakan cleanDate untuk nomor invoice
+            const noInvoice = (tx.type === 'penjualan' ? "INV" : "EXP") + "/" + cleanDate.replace(/-/g, '') + "/" + String(index).padStart(3, '0');
 
             // ==================================================
             // VERSI 1: TAMPILAN LAYAR (Rapi dengan Spasi)
@@ -3507,18 +3634,30 @@ function generateStruk(tx) {
             struk += "Medan Helvetia, Sumatera Utara\n";
             struk += "-------------------------------------\n";
             struk += "No. Transaksi: " + noInvoice + "\n";
-            struk += "Tanggal      : " + tx.date + "\n";
+            struk += "Tanggal      : " + cleanDate + "\n"; // Sudah bersih dari format Z
             struk += "-------------------------------------\n";
             if (tx.type === 'penjualan') { struk += "          STRUK PEMBELIAN\n"; } else { struk += "         NOTA BELANJA MARYN\n"; }
             struk += "-------------------------------------\n";
-            struk += "Nama Barang                Qty x Harga\n";
+            struk += "Nama Barang               Qty x Harga\n"; // Penyesuaian jarak header
             struk += "-------------------------------------\n";
             
             tx.items.forEach((item) => {
-                const name = item.name.substring(0, 20).padEnd(20);
+                // 2. FIX NAMA BARANG: Buat sistem teks turun ke bawah
+                let remainingName = item.name;
                 const qty = String(item.qty).padStart(3);
-                const price = formatRupiah(item.price).padStart(8);
-                struk += name + " " + qty + " x " + price + "\n";
+                const price = formatRupiah(item.price).padStart(9); // Dirapikan sedikit
+                const rightSide = " " + qty + " x " + price;
+
+                // Cetak 20 karakter pertama beserta quantity & harganya
+                let firstLineName = remainingName.substring(0, 20).padEnd(20);
+                struk += firstLineName + rightSide + "\n";
+                remainingName = remainingName.substring(20);
+
+                // Jika nama barang masih panjang, cetak sisanya di baris baru
+                while (remainingName.length > 0) {
+                    struk += remainingName.substring(0, 20) + "\n";
+                    remainingName = remainingName.substring(20);
+                }
             });
             
             struk += "-------------------------------------\n";
@@ -3543,13 +3682,12 @@ function generateStruk(tx) {
             shareText += "Medan Helvetia\n";
             shareText += "------------------------\n";
             shareText += "No: " + noInvoice + "\n";
-            shareText += "Tgl: " + tx.date + "\n";
+            shareText += "Tgl: " + cleanDate + "\n"; // Update juga di sini
             shareText += "------------------------\n";
             if (tx.type === 'penjualan') { shareText += "STRUK PEMBELIAN\n"; } else { shareText += "NOTA BELANJA\n"; }
             shareText += "------------------------\n";
             
             tx.items.forEach((item) => {
-                // Susun nama barang di baris pertama, qty & harga di baris kedua
                 shareText += item.name + "\n";
                 shareText += item.qty + " x " + formatRupiah(item.price) + "\n";
             });
@@ -3569,7 +3707,6 @@ function generateStruk(tx) {
             const strukContent = document.getElementById("struk-content");
             if(strukContent) {
                 strukContent.textContent = struk;
-                // Simpan Versi 2 secara rahasia di dalam elemen
                 strukContent.setAttribute("data-share-text", shareText);
             }
             
@@ -3627,7 +3764,6 @@ function generateStruk(tx) {
 
         function deleteProduct() {
             if (!editingProductId) return;
-            
             Swal.fire({
                 title: 'Hapus Produk?',
                 text: "Produk ini akan dihapus secara permanen dari Cloud Database.",
@@ -3657,15 +3793,6 @@ function generateStruk(tx) {
                     showToast("Produk berhasil dihapus!"); 
                 }
             });
-        }
-
-        function hitungBiasa() {
-            const input = document.getElementById('calc-input').value;
-            try { 
-                document.getElementById('hasil-biasa').innerText = "Hasil: " + eval(input).toLocaleString('id-ID'); 
-            } catch { 
-                document.getElementById('hasil-biasa').innerText = "Error: Cek kembali input"; 
-            }
         }
 
         function cariAdminSim() {
@@ -3798,39 +3925,115 @@ function generateStruk(tx) {
         });
 
         
-// Fungsi mengubah SEGALA MACAM format tanggal menjadi angka untuk diurutkan
-function parseIndonesianDate(val) {
-    if (!val) return 0; // Kalau kosong
-    
-    // 1. Jika data berupa angka timestamp (Data dari Web versi lama)
-    if (!isNaN(val) && typeof val !== "boolean") return Number(val);
-    
-    let str = String(val).trim();
-    
-    // 2. Jika formatnya Teks Indonesia (DD/MM/YYYY HH:mm:ss) dari onEdit
-    if (str.includes("/") && str.includes(" ")) {
-        let parts = str.split(" ");
-        let dateParts = parts[0].split("/");
-        let timeParts = parts[1].split(":");
-        
-        if (dateParts.length === 3 && timeParts.length >= 2) {
-            return new Date(
-                parseInt(dateParts[2], 10),
-                parseInt(dateParts[1], 10) - 1, // Bulan di JS mulai dari 0
-                parseInt(dateParts[0], 10),
-                parseInt(timeParts[0], 10),
-                parseInt(timeParts[1], 10),
-                parseInt(timeParts[2] || 0, 10)
-            ).getTime();
+        // Fungsi mengubah SEGALA MACAM format tanggal menjadi angka untuk diurutkan
+        function parseIndonesianDate(val) {
+            if (!val) return 0; // Kalau kosong
+            
+            // 1. Jika data berupa angka timestamp (Data dari Web versi lama)
+            if (!isNaN(val) && typeof val !== "boolean") return Number(val);
+            
+            let str = String(val).trim();
+            
+            // 2. Jika formatnya Teks Indonesia (DD/MM/YYYY HH:mm:ss) dari onEdit
+            if (str.includes("/") && str.includes(" ")) {
+                let parts = str.split(" ");
+                let dateParts = parts[0].split("/");
+                let timeParts = parts[1].split(":");
+                
+                if (dateParts.length === 3 && timeParts.length >= 2) {
+                    return new Date(
+                        parseInt(dateParts[2], 10),
+                        parseInt(dateParts[1], 10) - 1, // Bulan di JS mulai dari 0
+                        parseInt(dateParts[0], 10),
+                        parseInt(timeParts[0], 10),
+                        parseInt(timeParts[1], 10),
+                        parseInt(timeParts[2] || 0, 10)
+                    ).getTime();
+                }
+            }
+            
+            let nativeDate = new Date(str);
+            if (!isNaN(nativeDate.getTime())) return nativeDate.getTime();
+            
+            return 0; // Jika format benar-benar hancur, taruh paling bawah
         }
-    }
-    
-    // 3. Jika format bawaan Google Sheets (ISO 8601 seperti 2026-07-20T...)
-    let nativeDate = new Date(str);
-    if (!isNaN(nativeDate.getTime())) return nativeDate.getTime();
-    
-    return 0; // Jika format benar-benar hancur, taruh paling bawah
-}
+
+        // HELPER 1: Mengambil tanggal akurat tanpa meleset
+        function getLocalTxDate(dateVal) {
+            if (!dateVal) return new Date();
+            if (typeof dateVal === 'string' && dateVal.includes('/')) {
+                let parts = dateVal.split(' ')[0].split('/');
+                if (parts.length === 3) {
+                    // (Tahun, Bulan, Hari) - Bulan di JS dikurangi 1
+                    return new Date(parts[2], parts[1] - 1, parts[0]);
+                }
+            }
+
+            if (typeof dateVal === 'string' && dateVal.match(/^\d{4}-\d{2}-\d{2}$/)) {
+                let parts = dateVal.split('-');
+                return new Date(parts[0], parts[1] - 1, parts[2]);
+            }
+            return new Date(dateVal);
+        }
+
+        function getFilterReferenceDate() {
+            const customDateStr = document.getElementById("home-custom-date")?.value;
+            if (customDateStr) {
+                return getLocalTxDate(customDateStr); // Patokan dari kalender
+            }
+            return new Date(); 
+        }
+
+        // Fungsi untuk membuka preview gambar
+        function openImagePreview(imageElement, event) {
+            if(event) event.stopPropagation(); 
+
+            const modal = document.getElementById("imagePreviewModal");
+            const modalImg = document.getElementById("previewModalImage");
+            modalImg.src = imageElement.src;
+            modal.style.display = "flex";
+        }
+
+        // Fungsi untuk menutup preview gambar
+        function closeImagePreview() {
+            const modal = document.getElementById("imagePreviewModal");
+            modal.style.display = "none";
+        }
+
+        function updateHeaderDateTime() {
+            const now = new Date();
+            
+            // 1. Format Nama Hari
+            const namaHari = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+            const hari = namaHari[now.getDay()];
+            
+            // 2. Format Tanggal, Bulan, Tahun
+            const tanggal = now.getDate();
+            const namaBulan = [
+                'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 
+                'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+            ];
+            const bulan = namaBulan[now.getMonth()];
+            const tahun = now.getFullYear();
+            
+            // 3. Format Jam, Menit, Detik (tambah angka 0 di depan jika di bawah 10)
+            const jam = String(now.getHours()).padStart(2, '0');
+            const menit = String(now.getMinutes()).padStart(2, '0');
+            const detik = String(now.getSeconds()).padStart(2, '0');
+            
+            // 4. Susun Format Akhir
+            const formatTanggal = `${hari}, ${tanggal} ${bulan} ${tahun}`;
+            const formatWaktu = `${jam}:${menit}:${detik} WIB`;
+            
+            // 5. Tampilkan ke HTML
+            const element = document.getElementById("header-datetime-text");
+            if (element) {
+                element.innerHTML = `${formatTanggal}  |  ${formatWaktu}`;
+            }
+        }
+        setInterval(updateHeaderDateTime, 1000);
+        updateHeaderDateTime();
+
 
     </script>
 </body>
