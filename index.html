@@ -3440,15 +3440,28 @@ let promoScrollInterval;
         }
 
         function openAddTx() {
-            editingTxId = null; currentTxItems = [];
+            editingTxId = null; 
+            currentTxItems = [];
             document.querySelector("#modal-tx .modal-title").textContent = "+ Tambah Transaksi";
-            document.getElementById("tx-item-list").innerHTML = ""; document.getElementById("tx-total").textContent = "Rp 0";
+            document.getElementById("tx-item-list").innerHTML = ""; 
+            document.getElementById("tx-total").textContent = "Rp 0";
+            
+            // --- FIX 1: Default ke Hari Ini (Real-Time Lokal) ---
             const today = new Date();
-            document.getElementById("tx-date").value = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
-            document.getElementById("tx-platform").value = "Offline"; document.getElementById("tx-search").value = "";
-            document.getElementById("tx-qty").value = "1"; document.getElementById("tx-price").value = "";
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+            document.getElementById("tx-date").value = `${year}-${month}-${day}`;
+            // ---------------------------------------------------
+
+            document.getElementById("tx-platform").value = ""; 
+            document.getElementById("tx-search").value = "";
+            document.getElementById("tx-qty").value = "1"; 
+            document.getElementById("tx-price").value = "";
             document.getElementById("tx-search-results").style.display = "none";
-            txTypeChanged(); document.getElementById("modal-tx").classList.add("active");
+            
+            txTypeChanged(); 
+            document.getElementById("modal-tx").classList.add("active");
         }
 
         function editTx(id) {
@@ -3456,10 +3469,24 @@ let promoScrollInterval;
             if (!tx) return;
             editingTxId = id; 
             document.querySelector("#modal-tx .modal-title").textContent = "✎ Edit Transaksi";
-            document.getElementById("tx-date").value = tx.date; document.getElementById("tx-type").value = tx.type;
+            
+            // --- FIX 2: Mencegah Tanggal Hilang/Berubah Saat Edit ---
+            let safeDate = tx.date;
+            // Jika formatnya kecolongan mengandung jam (T), buang jamnya ambil YYYY-MM-DD saja
+            if (safeDate && safeDate.includes('T')) {
+                safeDate = safeDate.split('T')[0];
+            }
+            document.getElementById("tx-date").value = safeDate; 
+            // --------------------------------------------------------
+
+            document.getElementById("tx-type").value = tx.type;
             document.getElementById("tx-platform").value = tx.platform || "Offline"; 
+            
             currentTxItems = JSON.parse(JSON.stringify(tx.items));
-            txTypeChanged(); renderTxItems(); document.getElementById("modal-tx").classList.add("active");
+            txTypeChanged(); 
+            renderTxItems(); 
+            
+            document.getElementById("modal-tx").classList.add("active");
         }
 
         function txTypeChanged() {
