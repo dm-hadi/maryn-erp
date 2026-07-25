@@ -2095,7 +2095,7 @@
             });
         }
 
-        const DATA_VERSION = "1.0.5"; 
+        const DATA_VERSION = "1.0.6"; 
         let feeCategories = JSON.parse(localStorage.getItem("maryn_fees"));
         let savedVersion = localStorage.getItem("maryn_data_version");
 
@@ -2603,8 +2603,14 @@
                     if (tx.type === "penjualan") {
                         sales += tx.total; totalOrders++; 
                         tx.items.forEach(item => {
-                            const p = products.find(x => x.name === item.name);
-                            totalModal += ((p ? p.modal : 0) * item.qty);
+                            // Cek apakah data transaksi ini sudah memiliki harga modal tersimpan (untuk transaksi baru)
+                            if (item.modal !== undefined && item.modal > 0) {
+                                totalModal += (item.modal * item.qty);
+                            } else {
+                                // Fallback: Untuk transaksi lama yang belum diupdate strukturnya
+                                const p = products.find(x => x.name.trim().toLowerCase() === item.name.trim().toLowerCase());
+                                totalModal += ((p ? p.modal : 0) * item.qty);
+                            }
                         });
                     } else {
                         buy += tx.total;
@@ -3535,10 +3541,21 @@ let promoScrollInterval;
             const name = document.getElementById("tx-search").value.trim();
             const qty = parseInt(document.getElementById("tx-qty").value) || 1;
             const price = parseFloat(document.getElementById("tx-price").value) || 0;
+            
             if (!name || !price) { showToast("Nama dan harga wajib diisi!"); return; }
-            currentTxItems.push({ name, qty, price });
+
+            // TAMBAHAN: Cari produk untuk mengunci harga modal saat transaksi terjadi
+            const p = products.find(x => x.name === name);
+            const modalValue = p ? p.modal : 0;
+            const productId = p ? p.id : null;
+
+            // PERBAIKAN: Masukkan 'modal' dan 'id' ke dalam array currentTxItems
+            currentTxItems.push({ id: productId, name: name, qty: qty, price: price, modal: modalValue });
+            
             renderTxItems();
-            document.getElementById("tx-search").value = ""; document.getElementById("tx-qty").value = "1"; document.getElementById("tx-price").value = "";
+            document.getElementById("tx-search").value = ""; 
+            document.getElementById("tx-qty").value = "1"; 
+            document.getElementById("tx-price").value = "";
         }
 
         function renderTxItems() {
