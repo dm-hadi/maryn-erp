@@ -2621,7 +2621,7 @@
                                 totalModal += (item.modal * item.qty);
                             } else {
                                 // Fallback: Untuk transaksi lama yang belum diupdate strukturnya
-                                const p = products.find(x => x.name.trim().toLowerCase() === item.name.trim().toLowerCase());
+                                const p = products.find(x => String(x.name || "").trim().toLowerCase() === String(item.name || "").trim().toLowerCase());
                                 totalModal += ((p ? p.modal : 0) * item.qty);
                             }
                         });
@@ -3014,8 +3014,8 @@ let promoScrollInterval;
             const selectedCategory = document.getElementById("category-filter")?.value || "all";
             
             let filtered = products.filter((p) => {
-                const matchesSearch = (p.name || "").toLowerCase().includes(search) || 
-                                    (p.barcode || "").toLowerCase().includes(search);
+                const matchesSearch = String (p.name || "").toLowerCase().includes(search) || 
+                                    String (p.barcode || "").toLowerCase().includes(search);
                 
                 // Logika penyaringan berdasarkan kategori
                 const matchesCategory = selectedCategory === "all" || p.category === selectedCategory;
@@ -3569,7 +3569,10 @@ let promoScrollInterval;
             const results = document.getElementById("tx-search-results");
             if (!results) return;
             if (!query) { results.style.display = "none"; return; }
-            const matches = products.filter((p) => p.name.toLowerCase().includes(query) || (p.barcode || "").toLowerCase().includes(query)).slice(0, 5);
+            const matches = products.filter((p) => 
+                String(p.name || "").toLowerCase().includes(query) || 
+                String(p.barcode || "").toLowerCase().includes(query)
+            ).slice(0, 5);
             if (matches.length === 0) { results.style.display = "none"; return; }
             results.innerHTML = matches.map((p) => {
                 return ('<div class="search-result-item" data-tx-id="' + p.id + '" data-tx-price="' + p.modal + '">' + escapeHtml(p.name) + " - Modal: " + formatRupiah(p.modal) + "</div>");
