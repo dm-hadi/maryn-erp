@@ -187,7 +187,7 @@
             border-top: 1px solid var(--border-color);
             display: flex;
             justify-content: space-around;
-            padding: 12px 8px 24px 8px;
+            padding: 8px 8px 0px 8px;
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             box-shadow: 0 -10px 30px rgba(0,0,0,0.03);
@@ -438,7 +438,7 @@
         /* PRODUCT ITEMS */
         .product-item {
             display: flex; gap: 12px; padding: 12px; border: 1px solid var(--border-color); border-radius: var(--radius-sm);
-            margin-bottom: 8px; background: var(--card-bg); align-items: center; cursor: pointer; transition: all 0.3s ease;
+            margin-bottom: 5px; background: var(--card-bg); align-items: center; cursor: pointer; transition: all 0.3s ease;
             box-shadow: var(--shadow-sm);
         }
         .product-item:hover { 
@@ -466,7 +466,6 @@
             display: grid; 
             grid-template-columns: repeat(auto-fit, minmax(135px, 1fr)); 
             gap: 10px; 
-            margin-top: 12px; 
             width: 100%;
         }
 
@@ -3098,9 +3097,9 @@ let promoScrollInterval;
                                 // Supplier (Jika ada)
                                 (p.supplier ? ' <span style="opacity: 0.4;">|</span> <span>' +"Supplier : "+ escapeHtml(p.supplier) + '</span>' : '') +
                                 
-                                // Kategori dibuat jadi bentuk Badge (Kotak dengan background transparan)
-                                '<span style="background: rgba(255, 255, 255, 0.1); padding: 2px 8px; border-radius: 4px; font-size: 0.85em; margin-left: auto;">' + escapeHtml(p.category) + '</span>' +
-                            '</div>' +
+                                // Kategori dibuat jadi bentuk Badge (Kotak dengan background transparan abu-abu netral)
+                                '<span style="background: rgba(128, 128, 128, 0.15); border: 1px solid rgba(128, 128, 128, 0.2); padding: 2px 10px; border-radius: 6px; font-size: 0.85em; margin-left: auto;">' + escapeHtml(p.category) + '</span>' +
+                                '</div>' +
                             // ============================================================
                             
                             '<div class="product-prices">' + pricesHtml.join("") + '</div>' +
