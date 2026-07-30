@@ -1536,6 +1536,18 @@
                 <span class="label">Nama Produk</span>
                 <input class="input" type="text" placeholder="Nama produk" id="prod-name" style="border-radius: 12px;" />
 
+                <!-- ================= TAMBAHAN BARU: DESKRIPSI & DIMENSI ================= -->
+                <span class="label">Deskripsi Produk</span>
+                <textarea class="input" id="prod-description" placeholder="Masukkan detail atau deskripsi produk..." style="border-radius: 12px; min-height: 80px; resize: vertical;"></textarea>
+
+                <span class="label">Ukuran Dimensi (cm) - Panjang x Lebar x Tinggi </span>
+                <div style="display: flex; gap: 10px; margin-bottom: 16px;">
+                    <input class="input" type="number" placeholder="Panjang (P)" id="prod-length" style="border-radius: 12px; margin-bottom: 0;" />
+                    <input class="input" type="number" placeholder="Lebar (L)" id="prod-width" style="border-radius: 12px; margin-bottom: 0;" />
+                    <input class="input" type="number" placeholder="Tinggi (T)" id="prod-height" style="border-radius: 12px; margin-bottom: 0;" />
+                </div>
+                <!-- ===================================================================== -->
+
                 <span class="label">Kategori (Sheet)</span>
                 <select class="select" id="prod-category" style="border-radius: 12px;">
                     <option value="" disabled selected>-- Pilih Kategori --</option>
@@ -3066,12 +3078,34 @@ let promoScrollInterval;
                 });
                 return (
                     '<div class="product-item" data-id="' + p.id + '" style="align-items:flex-start;">' +
-                    '<div class="product-img">' + (p.photo ? '<img src="' + p.photo + '" onclick="openImagePreview(this, event)" style="width:100%;height:100%;object-fit:cover;border-radius:14px">' : "IMG") + "</div>" +
-                    '<div class="product-info" style="width:100%;">' +
-                    '<div class="product-name">' + escapeHtml(p.name) + "</div>" +
-                    '<div class="product-meta">' + escapeHtml(p.barcode || "") + "  ︱  Modal : <b>" + formatRupiah(p.modal) + "</b>  ︱  Stok : <b style='color: " + ((p.stock || 0) <= 3 ? "var(--danger)" : "var(--positive)") + "'>" + (p.stock || 0) + "</b>  ︱  " + escapeHtml(p.supplier || "") + "  ︱  " + (p.category)+ "</div>" +
-                    '<div class="product-prices">' + pricesHtml.join("") + "</div>" +
-                    "</div></div>"
+                        '<div class="product-img">' + 
+                            (p.photo ? '<img src="' + p.photo + '" onclick="openImagePreview(this, event)" style="width:100%;height:100%;object-fit:cover;border-radius:14px">' : "IMG") + 
+                        '</div>' +
+                        '<div class="product-info" style="width:100%;">' +
+                            '<div class="product-name" style="margin-bottom: 6px;">' + escapeHtml(p.name) + '</div>' +
+                            
+                            // ================= PERUBAHAN DESAIN DI SINI =================
+                            '<div class="product-meta" style="display: flex; flex-wrap: wrap; gap: 8px 10px; align-items: center; margin-bottom: 8px; font-size: 0.9em; opacity: 0.9;">' +
+                                // Barcode
+                                (p.barcode ? '<span>' + escapeHtml(p.barcode) + '</span> <span style="opacity: 0.4;">|</span>' : '') +
+                                
+                                // Modal (Warna diperbaiki jadi agak oranye/gold agar tidak terlalu mencolok tapi tetap terbaca)
+                                '<span>Modal : <b style="color: #f39c12;">' + formatRupiah(p.modal) + '</b></span> <span style="opacity: 0.4;">|</span>' +
+                                
+                                // Stok
+                                '<span>Stok : <b style="color: ' + ((p.stock || 0) <= 3 ? "var(--danger)" : "var(--positive)") + ';">' + (p.stock || 0) + '</b></span>' +
+                                
+                                // Supplier (Jika ada)
+                                (p.supplier ? ' <span style="opacity: 0.4;">|</span> <span>' +"Supplier : "+ escapeHtml(p.supplier) + '</span>' : '') +
+                                
+                                // Kategori dibuat jadi bentuk Badge (Kotak dengan background transparan)
+                                '<span style="background: rgba(255, 255, 255, 0.1); padding: 2px 8px; border-radius: 4px; font-size: 0.85em; margin-left: auto;">' + escapeHtml(p.category) + '</span>' +
+                            '</div>' +
+                            // ============================================================
+                            
+                            '<div class="product-prices">' + pricesHtml.join("") + '</div>' +
+                        '</div>' +
+                    '</div>'
                 );
             }).join("");
         }
@@ -3145,6 +3179,9 @@ let promoScrollInterval;
             editingProductId = null;
             document.getElementById("product-modal-title").textContent = "+ Tambah Produk";
             ["prod-barcode", "prod-name", "prod-modal", "prod-supplier"].forEach(id => document.getElementById(id).value = "");
+            // --- TAMBAHAN BARU ---
+            ["prod-description", "prod-length", "prod-width", "prod-height"].forEach(id => document.getElementById(id).value = "");
+            // ---------------------
             document.getElementById("prod-stock").value = "0"; 
             document.getElementById("prod-category").value = "";
             ["shopee", "lazada", "blibli", "tiktok"].forEach(p => { document.getElementById("prod-" + p).value = ""; document.getElementById("display-" + p).value = ""; });
@@ -3171,6 +3208,13 @@ let promoScrollInterval;
             document.getElementById("product-modal-title").textContent = "✎ Edit Produk";
             document.getElementById("prod-barcode").value = p.barcode || "";
             document.getElementById("prod-name").value = p.name || "";
+
+            // --- TAMBAHAN BARU ---
+            document.getElementById("prod-description").value = p.description || "";
+            document.getElementById("prod-length").value = p.length || "";
+            document.getElementById("prod-width").value = p.width || "";
+            document.getElementById("prod-height").value = p.height || "";
+            // ---------------------
             //kategory sheet
             document.getElementById("prod-category").value = p.category || "";
 
@@ -3234,7 +3278,14 @@ let promoScrollInterval;
             const productData = { 
                 id: editingProductId || generateProductId(),
                 barcode: document.getElementById("prod-barcode").value.trim(), 
-                name: name, modal: modal, category: category,
+                name: name, 
+                // --- TAMBAHAN BARU ---
+                description: document.getElementById("prod-description").value.trim(),
+                length: parseFloat(document.getElementById("prod-length").value) || 0,
+                width: parseFloat(document.getElementById("prod-width").value) || 0,
+                height: parseFloat(document.getElementById("prod-height").value) || 0,
+                // ---------------------
+                modal: modal, category: category,
                 supplier: document.getElementById("prod-supplier").value.trim(), 
                 promoModal: parseFloat(document.getElementById("prod-promo-modal").value) || 0,
                 promoStartDate: document.getElementById("prod-promo-start").value || "",
