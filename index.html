@@ -872,8 +872,8 @@
         @media (min-width: 1400px) {
             .app { max-width: 1300px; }
             .header, .bottom-nav { max-width: 1300px; }
-            #product-list { grid-template-columns: repeat(4, 1fr); gap: 12px; }
-            #buku-list, #dash-tx-list { grid-template-columns: repeat(4, 1fr); }
+            #product-list { grid-template-columns: repeat(3, 1fr); gap: 12px; }
+            #buku-list, #dash-tx-list { grid-template-columns: repeat(3, 1fr); }
         }
 
         @keyframes popInModal {
@@ -1003,7 +1003,7 @@
         #dash-tx-list, 
         #buku-list {
             display: grid !important;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)) !important;
+            /* grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)) !important; */
             gap: 12px !important; 
             width: 100% !important;
             box-sizing: border-box !important;
@@ -1101,6 +1101,142 @@
         transition: color 0.3s ease;
     }
 
+    /* Styling Form Variasi */
+.variant-container {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px dashed var(--border-color);
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 20px;
+}
+.variant-row {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 12px;
+    margin-bottom: 12px;
+    position: relative;
+}
+.variant-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 8px;
+}
+.variant-img-preview {
+    width: 60px;
+    height: 60px;
+    border-radius: 8px;
+    background: var(--hover-bg);
+    object-fit: cover;
+    border: 1px solid var(--border-color);
+}
+.bulk-apply-box {
+    display: flex;
+    gap: 8px;
+    background: rgba(255, 0, 127, 0.05);
+    padding: 10px;
+    border-radius: 12px;
+    margin-bottom: 16px;
+    align-items: center;
+}
+
+/* =========================================================
+   PERBAIKAN STYLING CARD & PREVIEW PRODUK
+========================================================= */
+
+/* 1. Jadikan product-card sebagai wadah utama yang responsif terhadap Grid */
+.product-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    margin-bottom: 5px;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    position: relative;
+    overflow: hidden; /* Agar sudut preview tidak keluar batas border */
+}
+.product-card:hover {
+    border-color: var(--accent);
+    box-shadow: var(--glow);
+    transform: translateY(-2px);
+}
+
+/* 2. Matikan style product-item bawaan SAAT berada di dalam product-card agar tidak double border */
+.product-card .product-item {
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    margin-bottom: 0 !important;
+}
+.product-card .product-item:hover {
+    transform: none !important; /* Matikan efek melayang ganda */
+}
+
+/* 3. Area Preview yang Terbuka */
+.product-preview {
+    display: none;
+    padding: 16px;
+    background: rgba(128, 128, 128, 0.05); /* Transparan lembut */
+    border-top: 1px dashed var(--border-color);
+    position: relative;
+    cursor: default; /* Kursor normal di area detail */
+    flex: 1; /* Mengisi sisa ruang jika grid ditarik */
+}
+[data-theme="dark"] .product-preview {
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.product-card.active-preview .product-preview {
+    display: block;
+    animation: fadeIn 0.3s ease;
+}
+
+/* 4. Tombol Edit (Posisi masuk ke dalam agar 100% bisa diklik) */
+.btn-edit-corner {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 11px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(255, 0, 127, 0.3);
+    z-index: 10;
+    transition: 0.2s;
+}
+.btn-edit-corner:hover {
+    transform: scale(1.05);
+    filter: brightness(1.1);
+}
+
+.variant-preview-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 12px;
+    margin-top: 12px;
+}
+.variant-preview-header {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
     </style>
 </head>
 <body>
@@ -1181,8 +1317,8 @@
                     
                     <div class="stat-card net">
                         <div class="stat-info">
-                            <span class="stat-label">Total Pesanan</span>
-                            <span class="stat-value" id="dash-net">0 Pesanan</span>
+                            <span class="stat-label">Total Keluar</span>
+                            <span class="stat-value" id="dash-net">0 Barang</span>
                         </div>
                         <div class="stat-icon-wrapper">📦</div>
                     </div>
@@ -1523,6 +1659,7 @@
                 <div style="display: flex; gap: 10px; margin-bottom: 16px">
                     <button class="btn btn-outline btn-sm" id="btn-prod-upload" style="border-radius: 12px;">&#128444; Upload</button>
                     <input type="file" id="prod-file" style="display: none" accept="image/*" />
+                    <input type="file" id="var-file-global" style="display: none" accept="image/*" />
                     <button class="btn btn-outline btn-sm" id="btn-prod-link" style="border-radius: 12px;">&#128279; Link</button>
                 </div>
                 <div id="prod-preview" style="width: 90px; height: 90px; border-radius: 16px; background: var(--hover-bg); display: none; align-items: center; justify-content: center; margin-bottom: 16px; overflow: hidden; border: 1px solid var(--border-color);">
@@ -1558,11 +1695,35 @@
                     <option value="Food and Beverages">Food and Beverages</option>
                     <option value="Pet Care">Pet Care</option>
                 </select>
-                
-                <span class="label">Harga Modal (Rp)</span>
-                <input class="input" type="number" placeholder="0" id="prod-modal" style="border-radius: 12px;" />
-                <span class="label">Stok</span>
-                <input class="input" type="number" placeholder="0" id="prod-stock" style="border-radius: 12px;" />
+
+                <!-- AREA VARIASI YANG SUDAH DIBUAT SEBELUMNYA -->
+                <div class="variant-container">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <span class="label" style="margin: 0;">Varian Produk (Opsional)</span>
+                        <button class="btn btn-outline btn-sm" id="btn-add-variant-row" style="border-radius: 12px; font-size: 11px;">+ Tambah Varian</button>
+                    </div>
+                    
+                    <!-- Kotak Terapkan Semua (Akan muncul jika ada varian) -->
+                    <div class="bulk-apply-box" id="bulk-apply-box" style="display: none;">
+                        <input type="number" class="input" id="bulk-modal" placeholder="Harga Modal Sama" style="margin:0; border-radius:8px; font-size: 12px; height: 32px;">
+                        <input type="number" class="input" id="bulk-stock" placeholder="Stok Sama" style="margin:0; border-radius:8px; font-size: 12px; height: 32px;">
+                        <button class="btn btn-primary btn-sm" onclick="applyBulkVariants()" style="border-radius: 8px; height: 32px; white-space: nowrap;">Terapkan</button>
+                    </div>
+
+                    <!-- Container Daftar Varian -->
+                    <div id="variant-list-container"></div>
+                </div>
+
+                <!-- ========================================================= -->
+                <!-- BUNGKUS HARGA MODAL & STOK UTAMA AGAR BISA DIHILANGKAN -->
+                <div id="main-price-stock-container">
+                    <span class="label">Harga Modal Utama (Rp) <span style="color: var(--danger);">*</span></span>
+                    <input class="input" type="number" placeholder="Wajib diisi (Tanpa Varian)" id="prod-modal" style="border-radius: 12px;" />
+                    
+                    <span class="label">Stok Utama <span style="color: var(--danger);">*</span></span>
+                    <input class="input" type="number" placeholder="Wajib diisi (Tanpa Varian)" id="prod-stock" style="border-radius: 12px;" />
+                </div>
+                <!-- ========================================================= -->
                 <span class="label">Supplier</span>
                 <input class="input" type="text" placeholder="Nama supplier" id="prod-supplier" style="border-radius: 12px;" />
                 
@@ -2297,10 +2458,10 @@
                 if (header) openFeeDetail(header.dataset.platform);
             });
 
-            document.getElementById("product-list").addEventListener("click", function (e) {
-                const item = e.target.closest(".product-item");
-                if (item) editProduct(item.dataset.id);
-            });
+            // document.getElementById("product-list").addEventListener("click", function (e) {
+            //     const item = e.target.closest(".product-item");
+            //     if (item) editProduct(item.dataset.id);
+            // });
 
             document.querySelectorAll(".close-btn[data-close], .btn[data-close]").forEach((btn) => {
                 btn.addEventListener("click", function () { closeModal(this.dataset.close); });
@@ -2563,7 +2724,7 @@
             salesEl.textContent = formatRupiah(totals.sales);
             document.getElementById("dash-buy").textContent = formatRupiah(totals.buy);
             document.getElementById("dash-gross").textContent = formatRupiah(totals.netProfit);
-            document.getElementById("dash-net").textContent = totals.totalOrders + " Pesanan";
+            document.getElementById("dash-net").textContent = totals.totalOrders + " Barang";
 
             // Fungsi helper untuk mewarnai arah persentase (Naik = Hijau, Turun = Merah)
             const renderTrend = (elId, trendValue) => {
@@ -2614,8 +2775,10 @@
 
                 if (match) {
                     if (tx.type === "penjualan") {
-                        sales += tx.total; totalOrders++; 
+                        sales += tx.total; // totalOrders++ dihapus dari sini
                         tx.items.forEach(item => {
+                            // --- KODE BARU: Menghitung jumlah barang (Qty) yang keluar ---
+                            totalOrders += parseInt(item.qty) || 0;
                             // Cek apakah data transaksi ini sudah memiliki harga modal tersimpan (untuk transaksi baru)
                             if (item.modal !== undefined && item.modal > 0) {
                                 totalModal += (item.modal * item.qty);
@@ -3057,57 +3220,96 @@ let promoScrollInterval;
             }
 
             list.innerHTML = paginatedProducts.map((p) => {
-                const pricesHtml = [];
-                ["shopee", "lazada", "blibli", "tiktok"].forEach(platform => {
-                    const sellPrice = calculateSellPrice(p, platform);
-                    if (sellPrice) {
-                        const netPrice = calculateNetPrice(p, platform);
-                        const profit = calculateProfit(p, platform);
-                        let tagColor = "var(--chart2)"; let bgLight = "var(--bg)";
-                        if (platform === "lazada") { tagColor = "var(--chart1)"; } 
-                        if (platform === "blibli") { tagColor = "var(--chart3)"; }
-                        if (platform === "tiktok") { tagColor = "var(--text)"; }
-                        const platName = platform.charAt(0).toUpperCase() + platform.slice(1);
-                        pricesHtml.push(
-                            `<div style="background:${bgLight}; border: 1px solid var(--border-color); border-left:4px solid ${tagColor}; padding:8px 10px; border-radius:8px; font-size:11px; color:var(--text);">
-                                <div style="font-weight:800; font-size:12px; color:${tagColor}; margin-bottom:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${platName}: ${formatRupiah(sellPrice)}</div>
-                                <div style="display:flex; justify-content:space-between; margin-bottom:2px;"><span style="color:var(--text-sec);">Hasil:</span><span style="font-weight:700;">${formatRupiah(netPrice)}</span></div>
-                                <div style="display:flex; justify-content:space-between;"><span style="color:var(--text-sec);">Profit:</span><span style="font-weight:800; color:var(--positive);">${formatRupiah(profit)}</span></div>
-                            </div>`
-                        );
-                    }
-                });
-                return (
-                    '<div class="product-item" data-id="' + p.id + '" style="align-items:flex-start;">' +
-                        '<div class="product-img">' + 
-                            (p.photo ? '<img src="' + p.photo + '" onclick="openImagePreview(this, event)" style="width:100%;height:100%;object-fit:cover;border-radius:14px">' : "IMG") + 
-                        '</div>' +
-                        '<div class="product-info" style="width:100%;">' +
-                            '<div class="product-name" style="margin-bottom: 4px;">' + escapeHtml(p.name) + '</div>' +
+                
+                // Fungsi bantuan untuk men-generate 4 Kotak Platform berdasarkan Modal tertentu
+const generatePlatformBoxes = (modalPrice) => {
+    const dummyProduct = { ...p, modal: modalPrice, promoModal: null }; 
+    const pricesHtml = [];
+    ["shopee", "lazada", "blibli", "tiktok"].forEach(platform => {
+        const sellPrice = calculateSellPrice(dummyProduct, platform);
+        if (sellPrice) {
+            const netPrice = calculateNetPrice(dummyProduct, platform);
+            const profit = calculateProfit(dummyProduct, platform);
+            let tagColor = platform === "lazada" ? "var(--chart1)" : platform === "blibli" ? "var(--chart3)" : platform === "tiktok" ? "var(--text)" : "var(--chart2)";
+            const platName = platform.charAt(0).toUpperCase() + platform.slice(1);
+            pricesHtml.push(
+                `<div style="background:var(--bg); border: 1px solid var(--border-color); border-left:4px solid ${tagColor}; padding:8px; border-radius:8px; font-size:11px;">
+                    <div style="font-weight:800; font-size:12px; color:${tagColor}; margin-bottom:4px;">${platName}: ${formatRupiah(sellPrice)}</div>
+                    <div style="display:flex; justify-content:space-between; margin-bottom:2px;"><span style="color:var(--text-sec);">Hasil:</span><span style="font-weight:700;">${formatRupiah(netPrice)}</span></div>
+                    <div style="display:flex; justify-content:space-between;"><span style="color:var(--text-sec);">Profit:</span><span style="font-weight:800; color:var(--positive);">${formatRupiah(profit)}</span></div>
+                </div>`
+            ); 
+        }
+    });
+    
+    // INILAH YANG SEHARUSNYA DI-RETURN OLEH FUNGSI INI
+    return `<div class="product-prices">${pricesHtml.join("")}</div>`;
+};
+
+                // Render List Varian di dalam Preview
+                let variantPreviewHtml = "";
+                if (p.variations && p.variations.length > 0) {
+                    variantPreviewHtml = p.variations.map((v, i) => `
+                        <div class="variant-preview-card">
+                            <div class="variant-preview-header">
+                                ${v.photo ? `<img src="${v.photo}" onclick="openImagePreview(this, event)" style="width: 40px; height: 40px; border-radius: 8px; object-fit: cover; cursor: zoom-in; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">` : `<div style="width:40px;height:40px;border-radius:8px;background:var(--hover-bg);display:flex;align-items:center;justify-content:center;font-size:10px;">IMG</div>`}
+                                <div style="flex: 1;">
+                                    <div style="font-weight: bold; font-size: 13px;">${escapeHtml(v.name)}</div>
+                                    <div style="font-size: 11px; color: var(--text-sec);">Modal: <b style="color: #FFB300; font-weight: 900; font-size: 13px;">${formatRupiah(v.modal)}</b> | Stok: <b style="color:${v.stock <= 3 ? 'var(--danger)' : 'var(--positive)'}">${v.stock}</b></div>
+                                </div>
+                            </div>
+                            ${generatePlatformBoxes(v.modal)}
+                        </div>
+                    `).join("");
+                } else {
+                    // Jika tidak ada varian, tampilkan 4 kotak berdasarkan modal utama
+                    variantPreviewHtml = generatePlatformBoxes(p.modal);
+                }
+
+                return `
+                <div class="product-card" onclick="this.classList.toggle('active-preview')" style="cursor: pointer; position: relative;">
+                    
+                    <!-- Bagian Muka Card (Terlihat tanpa diklik) -->
+                    <div class="product-item" style="border: none; margin-bottom: 0; align-items: center;">
+                        <div class="product-img">
+                            ${p.photo ? `<img src="${p.photo}" onclick="openImagePreview(this, event)" style="width:100%;height:100%;object-fit:cover;border-radius:14px; cursor: zoom-in;">` : "IMG"}
+                        </div>
+                        <div class="product-info" style="width:100%;">
+                            <div class="product-name" style="margin-bottom: 4px;">${escapeHtml(p.name)}</div>
+                            <div class="product-meta" style="display: flex; gap: 8px; font-size: 0.85em; opacity: 0.9;">
+                                <span>Stok Total: <b style="color: ${p.stock <= 3 ? 'var(--danger)' : 'var(--positive)'};">${p.stock || 0}</b></span>
+                                <span style="opacity: 0.4;">|</span>
+                                <span style="background: rgba(128, 128, 128, 0.15); padding: 2px 8px; border-radius: 6px;">${escapeHtml(p.category)}</span>
+                            </div>
+                            ${p.variations && p.variations.length > 0 ? `<div style="font-size: 10px; color: var(--accent); margin-top: 4px;">Terdapat ${p.variations.length} Variasi</div>` : ''}
+                        </div>
+                    </div>
+
+                    <!-- Bagian Preview Detail (Tersembunyi, muncul saat di-klik) -->
+                    <div class="product-preview" onclick="event.stopPropagation();">
+                        
+                        <!-- Tombol Edit di Sudut Kanan Atas Preview -->
+                        <button class="btn-edit-corner" onclick="editProduct('${p.id}')" title="Edit Produk">✏️</button>
+
+                    <!-- Informasi Lengkap Produk -->
+                        <div style="font-size: 12px; margin-bottom: 12px; line-height: 1.5;">
+                            <div><strong>Barcode:</strong> ${escapeHtml(p.barcode || '-')}</div>
+                            <div><strong>Dimensi:</strong> ${p.length || 0} x ${p.width || 0} x ${p.height || 0} cm</div>
+                            <div style="margin-top: 4px;"><strong>Deskripsi:</strong><br>${escapeHtml(p.description || 'Tidak ada deskripsi')}</div>
                             
-                            // ================= PERUBAHAN DESAIN DI SINI =================
-                            '<div class="product-meta" style="display: flex; flex-wrap: wrap; gap: 5px 5px; align-items: center; margin-bottom: 8px; font-size: 0.8em; opacity: 0.9;">' +
-                                // Barcode
-                                (p.barcode ? '<span>' + escapeHtml(p.barcode) + '</span> <span style="opacity: 0.4;">|</span>' : '') +
-                                
-                                // Modal (Warna diperbaiki jadi agak oranye/gold agar tidak terlalu mencolok tapi tetap terbaca)
-                                '<span>Modal : <b style="color: #f39c12;">' + formatRupiah(p.modal) + '</b></span> <br>' +
-                                
-                                // Stok
-                                '<span>Stok : <b style="color: ' + ((p.stock || 0) <= 3 ? "var(--danger)" : "var(--positive)") + ';">' + (p.stock || 0) + '</b></span>' +
-                                
-                                // Supplier (Jika ada)
-                                (p.supplier ? ' <span style="opacity: 0.4;">|</span> <span>' +"Sup : "+ escapeHtml(p.supplier) + '</span>' : '') +
-                                
-                                // Kategori dibuat jadi bentuk Badge (Kotak dengan background transparan abu-abu netral)
-                                '<span style="background: rgba(128, 128, 128, 0.15); border: 1px solid rgba(128, 128, 128, 0.2); padding: 2px 10px; border-radius: 6px; font-size: 0.85em; margin-left: auto;">' + escapeHtml(p.category) + '</span>' +
-                                '</div>' +
-                            // ============================================================
+                            <!-- KODE BARU: Memunculkan Harga Modal jika tidak ada variasi -->
+                            ${(!p.variations || p.variations.length === 0) ? 
+                                `<div style="margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--border-color);">
+                                    <div style="color: var(--text-sec);">Harga Modal Utama: <strong style="color: #FFB300; font-weight: 900; font-size: 15px; text-shadow: 0 1px 2px rgba(0,0,0,0.1);">${formatRupiah(p.modal)}</strong></div>
+                                </div>` 
+                            : ''}
                             
-                            '<div class="product-prices">' + pricesHtml.join("") + '</div>' +
-                        '</div>' +
-                    '</div>'
-                );
+                        </div>
+
+                        <!-- List Varian & Harga (4 Kotak Fee akan muncul di dalam sini) -->
+                        ${variantPreviewHtml}
+                    </div>
+                </div>`;
             }).join("");
         }
 
@@ -3177,6 +3379,9 @@ let promoScrollInterval;
         }
 
         function openAddProduct() {
+            currentVariations = [];
+            renderVariantForm();
+
             editingProductId = null;
             document.getElementById("product-modal-title").textContent = "+ Tambah Produk";
             ["prod-barcode", "prod-name", "prod-modal", "prod-supplier"].forEach(id => document.getElementById(id).value = "");
@@ -3198,13 +3403,18 @@ let promoScrollInterval;
         }
 
         function editProduct(id) {
-            // Ubah baris pencarian menjadi seperti ini:
-            const p = products.find((x) => String(x.id) === String(id));
-            
+            // 1. PINDAHKAN PENCARIAN VARIABEL 'p' KE PALING ATAS
+            const p = products.find(x => x.id === id);
+
             if (!p) {
                 showToast("Error: Produk tidak ditemukan!");
                 return; 
             }
+
+            // 2. Baru jalankan logika variasi setelah 'p' ditemukan
+            currentVariations = p.variations ? JSON.parse(JSON.stringify(p.variations)) : [];
+            renderVariantForm();
+
             editingProductId = id;
             document.getElementById("product-modal-title").textContent = "✎ Edit Produk";
             document.getElementById("prod-barcode").value = p.barcode || "";
@@ -3268,25 +3478,56 @@ let promoScrollInterval;
         async function saveProduct() {
             const name = document.getElementById("prod-name").value.trim();
             const modal = parseFloat(document.getElementById("prod-modal").value) || 0;
-            const category = document.getElementById("prod-category").value; // Ambil nilai Kategori
-            
-            if (!name || !modal) { showToast("Nama dan harga modal wajib diisi!"); return; }
+            const category = document.getElementById("prod-category").value;
 
+            const isVarActive = currentVariations.length > 0;
+            let finalModal = 0;
+            let finalStock = 0;
+
+            // 1. LAKUKAN VALIDASI TERLEBIH DAHULU
+            if (isVarActive) {
+                for (let i = 0; i < currentVariations.length; i++) {
+                    const v = currentVariations[i];
+                    if (!v.name || !v.modal || !v.stock) {
+                        alert(`Data Varian ke-${i + 1} belum lengkap! Harap isi Nama, Modal, dan Stok.`);
+                        return; // Berhenti dengan aman tanpa mengunci tombol
+                    }
+                }
+                finalStock = currentVariations.reduce((sum, v) => sum + parseInt(v.stock), 0);
+                finalModal = parseFloat(currentVariations[0].modal); 
+            } else {
+                const inputModal = document.getElementById("prod-modal").value;
+                const inputStock = document.getElementById("prod-stock").value;
+                if (!inputModal || !inputStock) {
+                    alert("⚠️ Karena Anda tidak menggunakan Varian, Harga Modal Utama dan Stok Utama WAJIB diisi!");
+                    return; // Berhenti dengan aman tanpa mengunci tombol
+                }
+                finalStock = parseInt(inputStock);
+                finalModal = parseFloat(inputModal);
+            }
+
+            // 2. SETELAH VALIDASI LOLOS, BARU KUNCI TOMBOL
             const btnSave = document.getElementById("btn-save-product");
             const originalText = btnSave.innerHTML;
-            btnSave.disabled = true; btnSave.innerHTML = "⏳ Menyimpan...";
+            btnSave.disabled = true; 
+            btnSave.innerHTML = "⏳ Menyimpan...";
 
             const productData = { 
                 id: editingProductId || generateProductId(),
                 barcode: document.getElementById("prod-barcode").value.trim(), 
                 name: name, 
-                // --- TAMBAHAN BARU ---
                 description: document.getElementById("prod-description").value.trim(),
                 length: parseFloat(document.getElementById("prod-length").value) || 0,
                 width: parseFloat(document.getElementById("prod-width").value) || 0,
                 height: parseFloat(document.getElementById("prod-height").value) || 0,
-                // ---------------------
-                modal: modal, category: category,
+                
+                // Data Varian dimasukkan ke objek
+                variations: JSON.parse(JSON.stringify(currentVariations)),
+                
+                modal: finalModal, // Menyimpan modal varian pertama sebagai fallback
+                stock: finalStock, // Menyimpan total keseluruhan stok
+                
+                category: category,
                 supplier: document.getElementById("prod-supplier").value.trim(), 
                 promoModal: parseFloat(document.getElementById("prod-promo-modal").value) || 0,
                 promoStartDate: document.getElementById("prod-promo-start").value || "",
@@ -3295,7 +3536,7 @@ let promoScrollInterval;
                 shopeeFee: document.getElementById("prod-shopee").value, lazadaFee: document.getElementById("prod-lazada").value, 
                 blibliFee: document.getElementById("prod-blibli").value, tiktokFee: document.getElementById("prod-tiktok").value, 
                 photo: document.getElementById("prod-preview-img").src || "", 
-                stock: parseInt(document.getElementById("prod-stock").value) || 0, 
+                // stock: parseInt(document.getElementById("prod-stock").value) || 0, 
                 createdAt: editingProductId ? products.find(p=>p.id===editingProductId).createdAt : Date.now() 
             };
 
@@ -3748,6 +3989,8 @@ let promoScrollInterval;
             }
         }
 
+        
+        //TERBARU INI DIA 
         function generateStruk(tx) {
             // 1. FIX TANGGAL: Hapus embel-embel 'T17:00:00.000Z'
             const cleanDate = tx.date.split('T')[0];
@@ -3762,9 +4005,10 @@ let promoScrollInterval;
             // ==================================================
             // VERSI 1: TAMPILAN LAYAR (Rapi dengan Spasi)
             // ==================================================
-            let struk = "=====================================\n";
-            struk += "        MARYN GHANIYAH MAHADI\n";
-            struk += "=====================================\n";
+            let struk = "\n";
+            // PERUBAHAN 1: Menambahkan tag <span> untuk memperbesar huruf
+            struk += '      <span style="font-size: 18px; font-weight: 900;">MARYN GHANIYAH MAHADI</span>\n';
+            struk += " \n";
             struk += "Jl.Jawa, Sei Sikambing C II\n";
             struk += "Medan Helvetia, Sumatera Utara\n";
             struk += "-------------------------------------\n";
@@ -3800,8 +4044,10 @@ let promoScrollInterval;
             struk += "=====================================\n";
             
             if (tx.type === 'penjualan') {
-                struk += "    Terima Kasih Sudah Berbelanja\n";
-                struk += "      Semoga harimu menyenangkan\n";
+                struk += " Periksa Kembali Struk Belanjaan Anda\n";
+                struk += "    Sebelum Meninggalkan Kasir/Toko\n";
+                struk += "     Terima Kasih Sudah Berbelanja\n";
+                struk += "       Semoga harimu menyenangkan\n";
                 struk += "=====================================\n";
                 struk += "       Nota di Cetak Oleh System \n";
                 struk += "         ©All rights reserved.\n";
@@ -3841,13 +4087,118 @@ let promoScrollInterval;
             // Tampilkan Versi 1 ke Layar
             const strukContent = document.getElementById("struk-content");
             if(strukContent) {
-                strukContent.textContent = struk;
+                // PERUBAHAN 2: textContent diubah menjadi innerHTML
+                strukContent.innerHTML = struk;
                 strukContent.setAttribute("data-share-text", shareText);
             }
             
             const modalStruk = document.getElementById("modal-struk");
             if(modalStruk) modalStruk.classList.add("active");
         }
+        
+        
+        // function generateStruk(tx) {
+        //     // 1. FIX TANGGAL: Hapus embel-embel 'T17:00:00.000Z'
+        //     const cleanDate = tx.date.split('T')[0];
+            
+        //     // Gunakan cleanDate untuk memfilter transaksi harian
+        //     const dailyTxs = transactions.filter(t => t.date.split('T')[0] === cleanDate && t.type === tx.type).sort((a,b) => a.createdAt - b.createdAt);
+        //     const index = dailyTxs.findIndex(t => t.id === tx.id) + 1;
+            
+        //     // Gunakan cleanDate untuk nomor invoice
+        //     const noInvoice = (tx.type === 'penjualan' ? "INV" : "EXP") + "/" + cleanDate.replace(/-/g, '') + "/" + String(index).padStart(3, '0');
+
+        //     // ==================================================
+        //     // VERSI 1: TAMPILAN LAYAR (Rapi dengan Spasi)
+        //     // ==================================================
+        //     let struk = "\n";
+        //     struk += "        MARYN GHANIYAH MAHADI\n";
+        //     struk += " \n";
+        //     struk += "Jl.Jawa, Sei Sikambing C II\n";
+        //     struk += "Medan Helvetia, Sumatera Utara\n";
+        //     struk += "-------------------------------------\n";
+        //     struk += "No. Transaksi: " + noInvoice + "\n";
+        //     struk += "Tanggal      : " + cleanDate + "\n"; // Sudah bersih dari format Z
+        //     struk += "-------------------------------------\n";
+        //     if (tx.type === 'penjualan') { struk += "          STRUK PEMBELIAN\n"; } else { struk += "         NOTA BELANJA MARYN\n"; }
+        //     struk += "-------------------------------------\n";
+        //     struk += "Nama Barang               Qty x Harga\n"; // Penyesuaian jarak header
+        //     struk += "-------------------------------------\n";
+            
+        //     tx.items.forEach((item) => {
+        //         // 2. FIX NAMA BARANG: Buat sistem teks turun ke bawah
+        //         let remainingName = item.name;
+        //         const qty = String(item.qty).padStart(3);
+        //         const price = formatRupiah(item.price).padStart(9); // Dirapikan sedikit
+        //         const rightSide = " " + qty + " x " + price;
+
+        //         // Cetak 20 karakter pertama beserta quantity & harganya
+        //         let firstLineName = remainingName.substring(0, 20).padEnd(20);
+        //         struk += firstLineName + rightSide + "\n";
+        //         remainingName = remainingName.substring(20);
+
+        //         // Jika nama barang masih panjang, cetak sisanya di baris baru
+        //         while (remainingName.length > 0) {
+        //             struk += remainingName.substring(0, 20) + "\n";
+        //             remainingName = remainingName.substring(20);
+        //         }
+        //     });
+            
+        //     struk += "-------------------------------------\n";
+        //     struk += "Total".padEnd(20) + " " + formatRupiah(tx.total).padStart(16) + "\n";
+        //     struk += "=====================================\n";
+            
+        //     if (tx.type === 'penjualan') {
+        //         struk += " Periksa Kembali Struk Belanjaan Anda\n";
+        //         struk += "    Sebelum Meninggalkan Kasir/Toko\n";
+        //         struk += "     Terima Kasih Sudah Berbelanja\n";
+        //         struk += "       Semoga harimu menyenangkan\n";
+        //         struk += "=====================================\n";
+        //         struk += "       Nota di Cetak Oleh System \n";
+        //         struk += "         ©All rights reserved.\n";
+        //     } else {
+        //         struk += "      Catatan Pembelian MARYN\n";
+        //     }
+
+        //     // ==================================================
+        //     // VERSI 2: UNTUK SHARE KE THERMER (Susun Bawah Tanpa Spasi)
+        //     // ==================================================
+        //     let shareText = "MARYN GHANIYAH MAHADI\n";
+        //     shareText += "Jl. Jawa, Sei Sikambing C II\n";
+        //     shareText += "Medan Helvetia\n";
+        //     shareText += "------------------------\n";
+        //     shareText += "No: " + noInvoice + "\n";
+        //     shareText += "Tgl: " + cleanDate + "\n"; // Update juga di sini
+        //     shareText += "------------------------\n";
+        //     if (tx.type === 'penjualan') { shareText += "STRUK PEMBELIAN\n"; } else { shareText += "NOTA BELANJA\n"; }
+        //     shareText += "------------------------\n";
+            
+        //     tx.items.forEach((item) => {
+        //         shareText += item.name + "\n";
+        //         shareText += item.qty + " x " + formatRupiah(item.price) + "\n";
+        //     });
+            
+        //     shareText += "------------------------\n";
+        //     shareText += "Total: " + formatRupiah(tx.total) + "\n";
+        //     shareText += "------------------------\n";
+            
+        //     if (tx.type === 'penjualan') {
+        //         shareText += "Terima Kasih Berbelanja\n";
+        //         shareText += "Semoga menyenangkan\n";
+        //     } else {
+        //         shareText += "Catatan Pembelian\n";
+        //     }
+
+        //     // Tampilkan Versi 1 ke Layar
+        //     const strukContent = document.getElementById("struk-content");
+        //     if(strukContent) {
+        //         strukContent.textContent = struk;
+        //         strukContent.setAttribute("data-share-text", shareText);
+        //     }
+            
+        //     const modalStruk = document.getElementById("modal-struk");
+        //     if(modalStruk) modalStruk.classList.add("active");
+        // }
 
         function exportPenjualan() {
             const filtered = transactions.filter((t) => t.type === "penjualan");
@@ -4169,6 +4520,115 @@ let promoScrollInterval;
         setInterval(updateHeaderDateTime, 1000);
         updateHeaderDateTime();
 
+
+        let currentVariations = []; // Menyimpan state varian saat form dibuka
+let activeVariantIndexForUpload = null;
+
+// Event Listener Utama untuk Varian
+document.getElementById("btn-add-variant-row").addEventListener("click", function(e) {
+    e.preventDefault();
+    currentVariations.push({ id: "VAR-" + Date.now(), name: "", modal: "", stock: "", photo: "" });
+    renderVariantForm();
+});
+
+document.getElementById("var-file-global").addEventListener("change", function(e) {
+    const file = e.target.files[0];
+    if (!file || activeVariantIndexForUpload === null) return;
+    const reader = new FileReader();
+    reader.onload = function(ev) {
+        currentVariations[activeVariantIndexForUpload].photo = ev.target.result;
+        renderVariantForm();
+    };
+    reader.readAsDataURL(file);
+});
+
+function renderVariantForm() {
+    const container = document.getElementById("variant-list-container");
+    const bulkBox = document.getElementById("bulk-apply-box");
+    const mainContainer = document.getElementById("main-price-stock-container"); // Ambil pembungkus utama
+    
+    const isVarActive = currentVariations.length > 0;
+    
+    // Tampilkan tombol apply massal jika ada varian
+    bulkBox.style.display = isVarActive ? "flex" : "none";
+    
+    // LOGIKA PENYEMBUNYIAN FORM UTAMA
+    if(isVarActive) {
+        // HILANGKAN form utama karena kita pakai data varian
+        mainContainer.style.display = "none"; 
+        // Kosongkan nilainya agar tidak bocor ke database
+        document.getElementById("prod-modal").value = ""; 
+        document.getElementById("prod-stock").value = ""; 
+    } else {
+        // MUNCULKAN kembali jika tidak ada varian
+        mainContainer.style.display = "block"; 
+    }
+
+    container.innerHTML = currentVariations.map((v, index) => `
+        <div class="variant-row">
+            <div class="variant-header">
+                <span style="font-size: 12px; font-weight: bold; color: var(--accent);">Varian ${index + 1}</span>
+                <button class="btn btn-danger btn-sm" onclick="removeVariant(${index})" style="padding: 4px 8px; font-size: 10px; border-radius: 6px;">Hapus</button>
+            </div>
+            <!-- ... sisa kode desain varian sama seperti sebelumnya ... -->
+            <div style="display: flex; gap: 10px; align-items: flex-start;">
+                <div style="display: flex; flex-direction: column; gap: 5px; align-items: center; width: 65px;">
+                    <img src="${v.photo || ''}" class="variant-img-preview" style="display: ${v.photo ? 'block' : 'none'}">
+                    <div class="variant-img-preview" style="display: ${!v.photo ? 'flex' : 'none'}; align-items:center; justify-content:center; font-size: 10px; color: var(--text-tert);">No Img</div>
+                    
+                    <!-- Tombol Upload & Link Bersebelahan -->
+                    <div style="display: flex; gap: 4px; width: 100%;">
+                        <button class="btn btn-outline btn-sm" onclick="triggerVariantUpload(${index})" style="font-size: 9px; padding: 2px 0; flex: 1;" title="Upload dari Galeri">Up</button>
+                        <button class="btn btn-outline btn-sm" onclick="promptVariantLink(${index})" style="font-size: 9px; padding: 2px 0; flex: 1;" title="Gunakan Link URL">Link</button>
+                    </div>
+                    
+                    <!-- Tombol Hapus Foto (Muncul otomatis jika ada foto) -->
+                    ${v.photo ? `<button class="btn btn-danger btn-sm" onclick="hapusFotoVarian(${index})" style="font-size: 9px; padding: 2px 4px; width: 100%; border-radius: 6px;">Hapus</button>` : ''}
+                </div>
+                <div style="flex: 1; display: flex; flex-direction: column; gap: 8px;">
+                    <input type="text" class="input" placeholder="Nama Varian (Mis: Merah XL)" value="${v.name}" oninput="updateVarData(${index}, 'name', this.value)" style="margin:0; height: 34px; font-size:12px;">
+                    <div style="display: flex; gap: 8px;">
+                        <input type="number" class="input" placeholder="Modal Varian" value="${v.modal}" oninput="updateVarData(${index}, 'modal', this.value)" style="margin:0; height: 34px; font-size:12px;">
+                        <input type="number" class="input" placeholder="Stok Varian" value="${v.stock}" oninput="updateVarData(${index}, 'stock', this.value)" style="margin:0; height: 34px; font-size:12px;">
+                    </div>
+                </div>
+            </div>
+        </div>
+    `).join("");
+}
+
+function updateVarData(index, key, value) { currentVariations[index][key] = value; }
+function removeVariant(index) { currentVariations.splice(index, 1); renderVariantForm(); }
+function triggerVariantUpload(index) { activeVariantIndexForUpload = index; document.getElementById("var-file-global").click(); }
+
+// Fungsi untuk memunculkan pop-up input URL/Link gambar
+function promptVariantLink(index) {
+    const url = prompt("Tempel URL/Link gambar untuk varian ini:\n(Pastikan link diawali dengan http/https)");
+    
+    if (url && url.trim() !== "") {
+        // Langsung simpan link ke dalam memori array
+        currentVariations[index].photo = url.trim();
+        // Render ulang tampilan agar gambar langsung muncul
+        renderVariantForm();
+    }
+}
+
+// Fungsi untuk mengosongkan gambar varian
+function hapusFotoVarian(index) {
+    currentVariations[index].photo = "";
+    renderVariantForm();
+}
+
+function applyBulkVariants() {
+    const bModal = document.getElementById("bulk-modal").value;
+    const bStock = document.getElementById("bulk-stock").value;
+    currentVariations.forEach(v => {
+        if(bModal) v.modal = bModal;
+        if(bStock) v.stock = bStock;
+    });
+    renderVariantForm();
+    showToast("Data massal diterapkan ke semua varian!");
+}
 
     </script>
 </body>
