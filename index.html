@@ -3275,12 +3275,21 @@ const generatePlatformBoxes = (modalPrice) => {
                             ${p.photo ? `<img src="${p.photo}" onclick="openImagePreview(this, event)" style="width:100%;height:100%;object-fit:cover;border-radius:14px; cursor: zoom-in;">` : "IMG"}
                         </div>
                         <div class="product-info" style="width:100%;">
-                            <div class="product-name" style="margin-bottom: 4px;">${escapeHtml(p.name)}</div>
-                            <div class="product-meta" style="display: flex; gap: 8px; font-size: 0.85em; opacity: 0.9;">
-                                <span>Stok Total: <b style="color: ${p.stock <= 3 ? 'var(--danger)' : 'var(--positive)'};">${p.stock || 0}</b></span>
+                            <div class="product-name" style="margin-bottom: 3px;">${escapeHtml(p.name)}</div>
+
+                            <div class="product-meta" style="display: flex; gap: 8px; font-size: 0.7em; opacity: 0.9; align-items: center; flex-wrap: wrap;">
+                                <!-- LOGIKA PINTAR: CEK APAKAH ADA VARIASI -->
+                                ${(!p.variations || p.variations.length === 0) 
+                                    ? `<span>Modal : <b style="color: #FFB300; font-weight: 900; font-size: 1.1em; text-shadow: 0 1px 2px rgba(0,0,0,0.1);">${formatRupiah(p.modal)}</b></span>`
+                                    : `<span>Modal : <b style="color: var(--accent); font-weight: 900; font-size: 1.1em;"> Variasi</b></span>`
+                                }
+                                
+                                <span style="opacity: 0.4;">|</span>
+                                <span>Stok: <b style="color: ${p.stock <= 3 ? 'var(--danger)' : 'var(--positive)'};">${p.stock || 0}</b></span>
                                 <span style="opacity: 0.4;">|</span>
                                 <span style="background: rgba(128, 128, 128, 0.15); padding: 2px 8px; border-radius: 6px;">${escapeHtml(p.category)}</span>
                             </div>
+
                             ${p.variations && p.variations.length > 0 ? `<div style="font-size: 10px; color: var(--accent); margin-top: 4px;">Terdapat ${p.variations.length} Variasi</div>` : ''}
                         </div>
                     </div>
@@ -3294,6 +3303,7 @@ const generatePlatformBoxes = (modalPrice) => {
                     <!-- Informasi Lengkap Produk -->
                         <div style="font-size: 12px; margin-bottom: 12px; line-height: 1.5;">
                             <div><strong>Barcode:</strong> ${escapeHtml(p.barcode || '-')}</div>
+                            <div><strong>Supplier:</strong> ${escapeHtml(p.supplier || '-')}</div>
                             <div><strong>Dimensi:</strong> ${p.length || 0} x ${p.width || 0} x ${p.height || 0} cm</div>
                             <div style="margin-top: 4px;"><strong>Deskripsi:</strong><br>${escapeHtml(p.description || 'Tidak ada deskripsi')}</div>
                             
