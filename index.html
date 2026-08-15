@@ -1717,93 +1717,117 @@
                 <!-- ========================================================= -->
                 <!-- BUNGKUS HARGA MODAL & STOK UTAMA AGAR BISA DIHILANGKAN -->
                 <div id="main-price-stock-container">
-                    <span class="label">Harga Modal Utama (Rp) <span style="color: var(--danger);">*</span></span>
-                    <input class="input" type="number" placeholder="Wajib diisi (Tanpa Varian)" id="prod-modal" style="border-radius: 12px;" />
-                    
-                    <span class="label">Stok Utama <span style="color: var(--danger);">*</span></span>
-                    <input class="input" type="number" placeholder="Wajib diisi (Tanpa Varian)" id="prod-stock" style="border-radius: 12px;" />
+                    <!-- BUNGKUS DALAM UNTUK GRID (Aman dari gangguan JavaScript) -->
+                    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 12px; margin-bottom: 16px;">
+                        <div>
+                            <span class="label">Harga Modal Utama (Rp) <span style="color: var(--danger);">*</span></span>
+                            <input class="input" type="number" placeholder="Wajib diisi" id="prod-modal" style="border-radius: 12px; margin-bottom: 0;" />
+                        </div>
+                        <div>
+                            <span class="label">Stok Utama <span style="color: var(--danger);">*</span></span>
+                            <input class="input" type="number" placeholder="Isi Stok" id="prod-stock" style="border-radius: 12px; margin-bottom: 0;" />
+                        </div>
+                    </div>
                 </div>
                 <!-- ========================================================= -->
-                <span class="label">Supplier</span>
-                <input class="input" type="text" placeholder="Nama supplier" id="prod-supplier" style="border-radius: 12px;" />
-                
-                <div style="background: var(--bg); padding: 16px; border-radius: 16px; margin: 20px 0; border: 1px dashed var(--accent);">
-                    <div style="font-size: 13px; font-weight: 800; margin-bottom: 12px; color: var(--accent); text-shadow: var(--glow);">⚡ Set Promo Supplier (Opsional)</div>
-                    <span class="label">Harga Modal Diskon (Rp)</span>
-                    <input class="input" type="number" placeholder="Kosongkan jika tidak ada promo" id="prod-promo-modal" style="border-radius: 12px;" />
-                    <div style="display: flex; gap: 12px;">
-                        <div style="flex:1;">
-                            <span class="label">Mulai Promo</span>
-                            <input class="input" type="date" id="prod-promo-start" style="border-radius: 12px;" />
-                        </div>
-                        <div style="flex:1;">
-                            <span class="label">Akhir Promo</span>
-                            <input class="input" type="date" id="prod-promo-end" style="border-radius: 12px;" />
-                        </div>
+                <!-- GRID 2x2 UNTUK SUPPLIER & MARKUP -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
+                    <div>
+                        <span class="label">Supplier</span>
+                        <input class="input" type="text" placeholder="Nama supplier" id="prod-supplier" style="border-radius: 12px; margin-bottom: 0;" />
+                    </div>
+                    <div>
+                        <span class="label">Markup (%)</span>
+                        <input class="input" type="number" placeholder="Markup keuntungan" value="30" id="prod-markup" style="border-radius: 12px; margin-bottom: 0;" />
                     </div>
                 </div>
                 
-                <span class="label">Admin Shopee</span>
-                <div style="position: relative; margin-bottom: 16px;">
-                    <input class="input" type="text" id="display-shopee" placeholder="Ketik kategori Shopee..." autocomplete="off" style="margin-bottom:0; border-radius: 12px;" />
-                    <input type="hidden" id="prod-shopee" />
-                    <div id="drop-shopee" style="display:none; position:absolute; top:calc(100% + 4px); left:0; width:100%; max-height:200px; overflow-y:auto; background:var(--card-bg); border:1px solid var(--border-color); border-radius:12px; z-index:100; box-shadow:var(--shadow-lg);"></div>
-                </div>
-
-                <span class="label">Admin Lazada</span>
-                <div style="position: relative; margin-bottom: 16px;">
-                    <input class="input" type="text" id="display-lazada" placeholder="Ketik kategori Lazada..." autocomplete="off" style="margin-bottom:0; border-radius: 12px;" />
-                    <input type="hidden" id="prod-lazada" />
-                    <div id="drop-lazada" style="display:none; position:absolute; top:calc(100% + 4px); left:0; width:100%; max-height:200px; overflow-y:auto; background:var(--card-bg); border:1px solid var(--border-color); border-radius:12px; z-index:100; box-shadow:var(--shadow-lg);"></div>
-                </div>
-
-                <span class="label">Admin Blibli</span>
-                <div style="position: relative; margin-bottom: 16px;">
-                    <input class="input" type="text" id="display-blibli" placeholder="Ketik kategori Blibli..." autocomplete="off" style="margin-bottom:0; border-radius: 12px;" />
-                    <input type="hidden" id="prod-blibli" />
-                    <div id="drop-blibli" style="display:none; position:absolute; top:calc(100% + 4px); left:0; width:100%; max-height:200px; overflow-y:auto; background:var(--card-bg); border:1px solid var(--border-color); border-radius:12px; z-index:100; box-shadow:var(--shadow-lg);"></div>
-                </div>
-
-                <span class="label">Admin TikTok</span>
-                <div style="position: relative; margin-bottom: 16px;">
-                    <input class="input" type="text" id="display-tiktok" placeholder="Ketik kategori TikTok..." autocomplete="off" style="margin-bottom:0; border-radius: 12px;" />
-                    <input type="hidden" id="prod-tiktok" />
-                    <div id="drop-tiktok" style="display:none; position:absolute; top:calc(100% + 4px); left:0; width:100%; max-height:200px; overflow-y:auto; background:var(--card-bg); border:1px solid var(--border-color); border-radius:12px; z-index:100; box-shadow:var(--shadow-lg);"></div>
-                </div>
-
-                <span class="label">Markup (%)</span>
-                <input class="input" type="number" placeholder="Markup keuntungan" value="30" id="prod-markup" style="border-radius: 12px;" />
-
-                <div style="background: var(--bg); padding: 16px; border-radius: 16px; margin: 16px 0 24px 0; display:flex; flex-direction:column; gap:12px; border: 1px solid var(--border-color);">
-                    <div>
-                        <div style="font-size: 11px; color: var(--text-tert); font-weight:800; margin-bottom:4px;">SHOPEE</div>
-                        <div style="font-size: 16px; font-weight: 800; color:var(--chart2); text-shadow:var(--glow);" id="preview-shopee-harga">Rp 0</div>
-                        <div style="font-size: 12px; color: var(--text-sec); margin-top:4px; font-weight:600;">
-                            Hasil Akhir: <b id="preview-shopee-hasil">Rp 0</b> &middot; Profit: <b style="color: var(--positive)" id="preview-shopee-profit">Rp 0</b>
+                <div style="background: var(--bg); padding: 16px; border-radius: 16px; margin: 0 0 20px 0; border: 1px dashed var(--accent);">
+                    <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 800; color: var(--accent); cursor: pointer; text-shadow: var(--glow); margin: 0;">
+                        <input type="checkbox" id="check-promo-global" onchange="toggleGlobalPromo(this.checked)" style="width: 18px; height: 18px; accent-color: var(--accent); cursor: pointer;">
+                        ⚡ Set Promo Supplier (Opsional)
+                    </label>
+                    
+                    <div id="global-promo-container" style="display: none; margin-top: 16px; border-top: 1px dashed rgba(255, 51, 119, 0.3); padding-top: 16px;">
+                        <span class="label">Harga Modal Diskon (Rp)</span>
+                        <input class="input" type="number" placeholder="Kosongkan jika tidak ada promo" id="prod-promo-modal" style="border-radius: 12px;" />
+                        <div style="display: flex; gap: 12px;">
+                            <div style="flex:1;">
+                                <span class="label">Mulai Promo</span>
+                                <input class="input" type="date" id="prod-promo-start" style="border-radius: 12px;" />
+                            </div>
+                            <div style="flex:1;">
+                                <span class="label">Akhir Promo</span>
+                                <input class="input" type="date" id="prod-promo-end" style="border-radius: 12px;" />
+                            </div>
                         </div>
                     </div>
-                    <div style="height:1px; background:var(--border-color);"></div>
+                </div>
+                
+                <!-- GRID 2x2 UNTUK KATEGORI ADMIN FEE -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
                     <div>
-                        <div style="font-size: 11px; color: var(--text-tert); font-weight:800; margin-bottom:4px;">LAZADA</div>
-                        <div style="font-size: 16px; font-weight: 800; color:var(--chart1); text-shadow:var(--glow);" id="preview-lazada-harga">Rp 0</div>
-                        <div style="font-size: 12px; color: var(--text-sec); margin-top:4px; font-weight:600;">
-                            Hasil Akhir: <b id="preview-lazada-hasil">Rp 0</b> &middot; Profit: <b style="color: var(--positive)" id="preview-lazada-profit">Rp 0</b>
+                        <span class="label">Admin Shopee</span>
+                        <div style="position: relative;">
+                            <input class="input" type="text" id="display-shopee" placeholder="Ketik kategori..." autocomplete="off" style="margin-bottom:0; border-radius: 12px;" />
+                            <input type="hidden" id="prod-shopee" />
+                            <div id="drop-shopee" style="display:none; position:absolute; top:calc(100% + 4px); left:0; width:100%; max-height:200px; overflow-y:auto; background:var(--card-bg); border:1px solid var(--border-color); border-radius:12px; z-index:100; box-shadow:var(--shadow-lg);"></div>
                         </div>
                     </div>
-                    <div style="height:1px; background:var(--border-color);"></div>
                     <div>
-                        <div style="font-size: 11px; color: var(--text-tert); font-weight:800; margin-bottom:4px;">BLIBLI</div>
-                        <div style="font-size: 16px; font-weight: 800; color:var(--chart3); text-shadow:var(--glow);" id="preview-blibli-harga">Rp 0</div>
-                        <div style="font-size: 12px; color: var(--text-sec); margin-top:4px; font-weight:600;">
-                            Hasil Akhir: <b id="preview-blibli-hasil">Rp 0</b> &middot; Profit: <b style="color: var(--positive)" id="preview-blibli-profit">Rp 0</b>
+                        <span class="label">Admin Lazada</span>
+                        <div style="position: relative;">
+                            <input class="input" type="text" id="display-lazada" placeholder="Ketik kategori..." autocomplete="off" style="margin-bottom:0; border-radius: 12px;" />
+                            <input type="hidden" id="prod-lazada" />
+                            <div id="drop-lazada" style="display:none; position:absolute; top:calc(100% + 4px); left:0; width:100%; max-height:200px; overflow-y:auto; background:var(--card-bg); border:1px solid var(--border-color); border-radius:12px; z-index:100; box-shadow:var(--shadow-lg);"></div>
                         </div>
                     </div>
-                    <div style="height:1px; background:var(--border-color);"></div>
                     <div>
-                        <div style="font-size: 11px; color: var(--text-tert); font-weight:800; margin-bottom:4px;">TIKTOK</div>
-                        <div style="font-size: 16px; font-weight: 800; color:var(--text); text-shadow:var(--glow);" id="preview-tiktok-harga">Rp 0</div>
-                        <div style="font-size: 12px; color: var(--text-sec); margin-top:4px; font-weight:600;">
-                            Hasil Akhir: <b id="preview-tiktok-hasil">Rp 0</b> &middot; Profit: <b style="color: var(--positive)" id="preview-tiktok-profit">Rp 0</b>
+                        <span class="label">Admin Blibli</span>
+                        <div style="position: relative;">
+                            <input class="input" type="text" id="display-blibli" placeholder="Ketik kategori..." autocomplete="off" style="margin-bottom:0; border-radius: 12px;" />
+                            <input type="hidden" id="prod-blibli" />
+                            <div id="drop-blibli" style="display:none; position:absolute; top:calc(100% + 4px); left:0; width:100%; max-height:200px; overflow-y:auto; background:var(--card-bg); border:1px solid var(--border-color); border-radius:12px; z-index:100; box-shadow:var(--shadow-lg);"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="label">Admin TikTok</span>
+                        <div style="position: relative;">
+                            <input class="input" type="text" id="display-tiktok" placeholder="Ketik kategori..." autocomplete="off" style="margin-bottom:0; border-radius: 12px;" />
+                            <input type="hidden" id="prod-tiktok" />
+                            <div id="drop-tiktok" style="display:none; position:absolute; top:calc(100% + 4px); left:0; width:100%; max-height:200px; overflow-y:auto; background:var(--card-bg); border:1px solid var(--border-color); border-radius:12px; z-index:100; box-shadow:var(--shadow-lg);"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- GRID 2x2 UNTUK PREVIEW MASTER (HILANG JIKA ADA VARIASI) -->
+                <div id="master-preview-container" style="background: var(--bg); padding: 12px; border-radius: 16px; margin: 16px 0 24px 0; display:grid; grid-template-columns: 1fr 1fr; gap:10px; border: 1px solid var(--border-color);">
+                    <div style="background: var(--card-bg); padding: 10px; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: var(--shadow-sm);">
+                        <div style="font-size: 10px; color: var(--text-tert); font-weight:800; margin-bottom:4px;">SHOPEE</div>
+                        <div style="font-size: 14px; font-weight: 800; color:var(--chart2); text-shadow:var(--glow);" id="preview-shopee-harga">Rp 0</div>
+                        <div style="font-size: 10px; color: var(--text-sec); margin-top:4px; font-weight:600;">
+                            Hasil: <b id="preview-shopee-hasil">Rp 0</b><br>Profit: <b style="color: var(--positive)" id="preview-shopee-profit">Rp 0</b>
+                        </div>
+                    </div>
+                    <div style="background: var(--card-bg); padding: 10px; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: var(--shadow-sm);">
+                        <div style="font-size: 10px; color: var(--text-tert); font-weight:800; margin-bottom:4px;">LAZADA</div>
+                        <div style="font-size: 14px; font-weight: 800; color:var(--chart1); text-shadow:var(--glow);" id="preview-lazada-harga">Rp 0</div>
+                        <div style="font-size: 10px; color: var(--text-sec); margin-top:4px; font-weight:600;">
+                            Hasil: <b id="preview-lazada-hasil">Rp 0</b><br>Profit: <b style="color: var(--positive)" id="preview-lazada-profit">Rp 0</b>
+                        </div>
+                    </div>
+                    <div style="background: var(--card-bg); padding: 10px; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: var(--shadow-sm);">
+                        <div style="font-size: 10px; color: var(--text-tert); font-weight:800; margin-bottom:4px;">BLIBLI</div>
+                        <div style="font-size: 14px; font-weight: 800; color:var(--chart3); text-shadow:var(--glow);" id="preview-blibli-harga">Rp 0</div>
+                        <div style="font-size: 10px; color: var(--text-sec); margin-top:4px; font-weight:600;">
+                            Hasil: <b id="preview-blibli-hasil">Rp 0</b><br>Profit: <b style="color: var(--positive)" id="preview-blibli-profit">Rp 0</b>
+                        </div>
+                    </div>
+                    <div style="background: var(--card-bg); padding: 10px; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: var(--shadow-sm);">
+                        <div style="font-size: 10px; color: var(--text-tert); font-weight:800; margin-bottom:4px;">TIKTOK</div>
+                        <div style="font-size: 14px; font-weight: 800; color:var(--text); text-shadow:var(--glow);" id="preview-tiktok-harga">Rp 0</div>
+                        <div style="font-size: 10px; color: var(--text-sec); margin-top:4px; font-weight:600;">
+                            Hasil: <b id="preview-tiktok-hasil">Rp 0</b><br>Profit: <b style="color: var(--positive)" id="preview-tiktok-profit">Rp 0</b>
                         </div>
                     </div>
                 </div>
@@ -1852,6 +1876,9 @@
                     <input class="input" style="flex: 1; margin-bottom: 0; border-radius: 12px;" type="text" placeholder="Ketik barcode atau nama..." id="tx-search" />
                     <button class="btn btn-outline btn-sm" style="height: 48px; width: 64px; border-radius: 12px; font-size: 16px;" id="btn-tx-camera">&#128247;</button>
                 </div>
+                <!-- TAMBAHAN BARU: Memori untuk variasi -->
+                <input type="hidden" id="tx-selected-id" />
+                <input type="hidden" id="tx-selected-var" />
 
                 <div id="tx-search-results" style="max-height: 140px; overflow-y: auto; margin-bottom: 16px; display: none; border: 1px solid var(--border-color); border-radius: 12px;"></div>
                 
@@ -1993,7 +2020,7 @@
         //         }
         //     });
 
-        // GANTI DENGAN URL WEB APP DARI GOOGLE APPS SCRIPT-MU
+        // GANTI DENGAN URL WEB APP DARI GOOGLE APPS SCRIPT-MU APPSCRIPT
         const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzNLOtC8E4i5PXkj4dHjWURJNcJKAafSb9VH-j6BWxouRGiG0xBDlNJfTbrUv0logl-KQ/exec";
 
         // ==========================================
@@ -2989,25 +3016,68 @@ let promoScrollInterval;
             const now = new Date();
             now.setHours(0,0,0,0);
 
-            const promoProducts = products.filter(p => {
-                if (!p.promoModal || !p.promoStartDate || !p.promoEndDate) return false;
-                const end = new Date(p.promoEndDate); end.setHours(23, 59, 59, 999);
-                return now <= end; 
-            }).sort((a, b) => new Date(a.promoEndDate) - new Date(b.promoEndDate)); 
+            let promoItems = []; // Array baru untuk menampung produk utama maupun varian yang promo
 
-            if (promoProducts.length === 0) {
+            // 1. Kumpulkan semua barang yang sedang promo
+            products.forEach(p => {
+                // Lewati jika tanggal promo tidak diset
+                if (!p.promoStartDate || !p.promoEndDate) return;
+                
+                const start = new Date(p.promoStartDate); start.setHours(0, 0, 0, 0);
+                const end = new Date(p.promoEndDate); end.setHours(23, 59, 59, 999);
+
+                // Jika hari ini berada dalam rentang tanggal promo
+                if (now >= start && now <= end) {
+                    
+                    // Cek apakah produk ini memiliki variasi
+                    if (p.variations && p.variations.length > 0) {
+                        p.variations.forEach(v => {
+                            // Masukkan ke daftar jika varian ini dicentang promonya
+                            if (v.isPromo && v.promoModal) {
+                                promoItems.push({
+                                    name: p.name + " - " + v.name, // Gabung nama produk + varian (Glad2Glow - Peeling)
+                                    modal: v.modal,
+                                    promoModal: v.promoModal,
+                                    photo: v.photo || p.photo, // Pakai foto varian, jika kosong pakai foto utama
+                                    promoStartDate: p.promoStartDate,
+                                    promoEndDate: p.promoEndDate
+                                });
+                            }
+                        });
+                    } else {
+                        // Jika tidak ada variasi, cek apakah produk utama punya harga promo
+                        if (p.promoModal) {
+                            promoItems.push({
+                                name: p.name,
+                                modal: p.modal,
+                                promoModal: p.promoModal,
+                                photo: p.photo,
+                                promoStartDate: p.promoStartDate,
+                                promoEndDate: p.promoEndDate
+                            });
+                        }
+                    }
+                }
+            });
+
+            // Urutkan berdasarkan promo yang akan berakhir paling cepat
+            promoItems.sort((a, b) => new Date(a.promoEndDate) - new Date(b.promoEndDate)); 
+
+            // Jika tidak ada promo aktif sama sekali, sembunyikan kotak dari dashboard
+            if (promoItems.length === 0) {
                 section.style.display = "none";
                 return;
             }
 
             section.style.display = "block";
             
-            const renderCard = (p) => {
-                const imgStr = p.photo ? `<img src="${p.photo}" class="promo-img">` : `<div class="promo-img" style="display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--text-quat);background:var(--card-bg);">No Image</div>`;
+            // 2. Cetak Kartu Promo ke HTML
+            const renderCard = (item) => {
+                const imgStr = item.photo ? `<img src="${item.photo}" class="promo-img">` : `<div class="promo-img" style="display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--text-quat);background:var(--card-bg);">No Image</div>`;
                 
-                const dStart = new Date(p.promoStartDate);
+                const dStart = new Date(item.promoStartDate);
                 const startStr = String(dStart.getDate()).padStart(2, '0') + '/' + String(dStart.getMonth() + 1).padStart(2, '0');
-                const dEnd = new Date(p.promoEndDate);
+                const dEnd = new Date(item.promoEndDate);
                 const endStr = String(dEnd.getDate()).padStart(2, '0') + '/' + String(dEnd.getMonth() + 1).padStart(2, '0');
                 
                 return `
@@ -3016,9 +3086,9 @@ let promoScrollInterval;
                     <div class="promo-img-wrapper">
                         ${imgStr}
                     </div>
-                    <div class="promo-name">${escapeHtml(p.name)}</div>
-                    <div class="promo-price-old">${formatRupiah(p.modal)}</div>
-                    <div class="promo-price-new">${formatRupiah(p.promoModal)}</div>
+                    <div class="promo-name">${escapeHtml(item.name)}</div>
+                    <div class="promo-price-old">${formatRupiah(item.modal)}</div>
+                    <div class="promo-price-new">${formatRupiah(item.promoModal)}</div>
                     <div class="promo-progress">
                         <div class="promo-progress-bar"></div>
                         <span class="promo-progress-text">⏳ ${startStr} - ${endStr}</span>
@@ -3026,15 +3096,13 @@ let promoScrollInterval;
                 </div>`;
             };
 
-            // Tampilkan normal 1x saja tanpa duplikat
-            list.innerHTML = promoProducts.map(renderCard).join("");
+            list.innerHTML = promoItems.map(renderCard).join("");
 
             const allList = document.getElementById("all-promo-list");
             if(allList) {
-                allList.innerHTML = promoProducts.map((p) => `<div>${renderCard(p)}</div>`).join("");
+                allList.innerHTML = promoItems.map((item) => `<div>${renderCard(item)}</div>`).join("");
             }
 
-            // Jalankan animasi bolak-balik
             startPromoAutoScroll();
         }
 
@@ -3352,40 +3420,79 @@ const generatePlatformBoxes = (modalPrice) => {
         }
 
         function calculatePreview() {
-            const rawModal = parseFloat(document.getElementById("prod-modal")?.value) || 0;
-            const promoModal = parseFloat(document.getElementById("prod-promo-modal")?.value) || 0;
-            const promoStart = document.getElementById("prod-promo-start")?.value;
-            const promoEnd = document.getElementById("prod-promo-end")?.value;
+            const isVarActive = currentVariations && currentVariations.length > 0;
             const markup = parseFloat(document.getElementById("prod-markup")?.value) || 0;
-            
-            let activeModal = rawModal;
-            if (promoModal && promoStart && promoEnd) {
-                const now = new Date(); now.setHours(0,0,0,0);
-                const dStart = new Date(promoStart); dStart.setHours(0,0,0,0);
-                const dEnd = new Date(promoEnd); dEnd.setHours(23,59,59,999);
-                if (now >= dStart && now <= dEnd) activeModal = promoModal;
+
+            // Ambil Data Fee yang dipilih di luar
+            let selectedFees = {};
+            ["shopee", "lazada", "blibli", "tiktok"].forEach(platform => {
+                selectedFees[platform] = document.getElementById("prod-" + platform)?.value;
+            });
+
+            // FUNGSI HELPER UNTUK MENGHITUNG DAN MENCETAK KE HTML
+            const hitungDanCetak = (modalValue, prefixId) => {
+                ["shopee", "lazada", "blibli", "tiktok"].forEach(platform => {
+                    const elHarga = document.getElementById(prefixId + platform + "-harga");
+                    const elHasil = document.getElementById(prefixId + platform + "-hasil"); // Hanya ada di Master Preview
+                    const elProfit = document.getElementById(prefixId + platform + "-profit");
+                    
+                    if (!elHarga || !elProfit) return;
+                    
+                    const feeId = selectedFees[platform];
+                    if (!modalValue || !feeId) { 
+                        elHarga.textContent = "Rp 0"; 
+                        if(elHasil) elHasil.textContent = "Rp 0"; 
+                        elProfit.textContent = "Rp 0"; 
+                        return; 
+                    }
+
+                    const cat = (feeCategories[platform] || []).find((f) => f.id === feeId);
+                    if (!cat) return;
+                    const s = settings[platform];
+                    const totalPersen = (cat.fee + s.promo + s.premi) / 100;
+                    const totalNominal = s.proses + s.voucher;
+                    const base = modalValue * (1 + (markup / 100));
+                    const sell = Math.round((base + totalNominal) / (1 - totalPersen));
+                    const net = Math.round(sell - ((sell * totalPersen) + totalNominal));
+
+                    elHarga.textContent = formatRupiah(sell); 
+                    if(elHasil) elHasil.textContent = formatRupiah(net); 
+                    elProfit.textContent = formatRupiah(net - modalValue);
+                });
+            };
+
+            // 1. UPDATE MASTER PREVIEW (PRODUK TANPA VARIASI)
+            const masterContainer = document.getElementById("master-preview-container");
+            if (isVarActive) {
+                if(masterContainer) masterContainer.style.display = "none";
+            } else {
+                if(masterContainer) masterContainer.style.display = "grid";
+                
+                const rawModal = parseFloat(document.getElementById("prod-modal")?.value) || 0;
+                const promoModal = parseFloat(document.getElementById("prod-promo-modal")?.value) || 0;
+                const promoStart = document.getElementById("prod-promo-start")?.value;
+                const promoEnd = document.getElementById("prod-promo-end")?.value;
+                
+                let activeModal = rawModal;
+                if (promoModal && promoStart && promoEnd) {
+                    const now = new Date(); now.setHours(0,0,0,0);
+                    const dStart = new Date(promoStart); dStart.setHours(0,0,0,0);
+                    const dEnd = new Date(promoEnd); dEnd.setHours(23,59,59,999);
+                    if (now >= dStart && now <= dEnd) activeModal = promoModal;
+                }
+                hitungDanCetak(activeModal, "preview-");
             }
 
-            ["shopee", "lazada", "blibli", "tiktok"].forEach(platform => {
-                const feeId = document.getElementById("prod-" + platform).value;
-                const elHarga = document.getElementById("preview-" + platform + "-harga");
-                const elHasil = document.getElementById("preview-" + platform + "-hasil");
-                const elProfit = document.getElementById("preview-" + platform + "-profit");
-
-                if (!elHarga || !elHasil || !elProfit) return;
-                if (!activeModal || !feeId) { elHarga.textContent = elHasil.textContent = elProfit.textContent = "Rp 0"; return; }
-
-                const cat = (feeCategories[platform] || []).find((f) => f.id === feeId);
-                if (!cat) return;
-                const s = settings[platform];
-                const totalPersen = (cat.fee + s.promo + s.premi) / 100;
-                const totalNominal = s.proses + s.voucher;
-                const base = activeModal * (1 + (markup / 100));
-                const sell = Math.round((base + totalNominal) / (1 - totalPersen));
-                const net = Math.round(sell - ((sell * totalPersen) + totalNominal));
-
-                elHarga.textContent = formatRupiah(sell); elHasil.textContent = formatRupiah(net); elProfit.textContent = formatRupiah(net - activeModal);
-            });
+            // 2. UPDATE PREVIEW MASING-MASING VARIASI
+            if (isVarActive) {
+                currentVariations.forEach((v, index) => {
+                    let activeVarModal = parseFloat(v.modal) || 0;
+                    if (v.isPromo && v.promoModal) {
+                        activeVarModal = parseFloat(v.promoModal) || 0;
+                    }
+                    hitungDanCetak(activeVarModal, `var-${index}-`);
+                });
+            }
         }
 
         function openAddProduct() {
@@ -3410,6 +3517,12 @@ const generatePlatformBoxes = (modalPrice) => {
             document.getElementById("prod-promo-modal").value = "";
             document.getElementById("prod-promo-start").value = "";
             document.getElementById("prod-promo-end").value = "";
+        
+            const checkPromo = document.getElementById("check-promo-global");
+            if(checkPromo) {
+                checkPromo.checked = false;
+                document.getElementById("global-promo-container").style.display = "none";
+            }
         }
 
         function editProduct(id) {
@@ -3445,6 +3558,14 @@ const generatePlatformBoxes = (modalPrice) => {
             document.getElementById("prod-promo-modal").value = p.promoModal || "";
             document.getElementById("prod-promo-start").value = p.promoStartDate || "";
             document.getElementById("prod-promo-end").value = p.promoEndDate || "";
+
+            const checkPromo = document.getElementById("check-promo-global");
+            if(checkPromo) {
+                // Cek apakah produk ini memiliki data promo yang tersimpan
+                const hasPromo = p.promoModal || p.promoStartDate || p.promoEndDate;
+                checkPromo.checked = !!hasPromo; // Centang jika ada promo
+                document.getElementById("global-promo-container").style.display = hasPromo ? "block" : "none";
+            }
                         
             ["shopee", "lazada", "blibli", "tiktok"].forEach(plat => {
                 const feeId = p[plat + "Fee"];
@@ -3765,6 +3886,10 @@ const generatePlatformBoxes = (modalPrice) => {
 
             document.getElementById("tx-platform").value = ""; 
             document.getElementById("tx-search").value = "";
+            // KODE BARU: Kosongkan memori
+            document.getElementById("tx-selected-id").value = ""; 
+            document.getElementById("tx-selected-var").value = "";
+            
             document.getElementById("tx-qty").value = "1"; 
             document.getElementById("tx-price").value = "";
             document.getElementById("tx-search-results").style.display = "none";
@@ -3819,26 +3944,75 @@ const generatePlatformBoxes = (modalPrice) => {
             const query = document.getElementById("tx-search").value.toLowerCase().trim();
             const results = document.getElementById("tx-search-results");
             if (!results) return;
+
+            // Kosongkan memori jika user mengetik ulang
+            document.getElementById("tx-selected-id").value = "";
+            document.getElementById("tx-selected-var").value = "";
+
             if (!query) { results.style.display = "none"; return; }
-            const matches = products.filter((p) => 
-                String(p.name || "").toLowerCase().includes(query) || 
-                String(p.barcode || "").toLowerCase().includes(query)
-            ).slice(0, 5);
-            if (matches.length === 0) { results.style.display = "none"; return; }
-            results.innerHTML = matches.map((p) => {
-                return ('<div class="search-result-item" data-tx-id="' + p.id + '" data-tx-price="' + p.modal + '">' + escapeHtml(p.name) + " - Modal: " + formatRupiah(p.modal) + "</div>");
-            }).join("");
-            results.style.display = "block";
-            results.querySelectorAll(".search-result-item").forEach((el) => {
-                el.addEventListener("click", function () { 
-                    const clickedId = this.dataset.txId;
-                    const p = products.find((x) => String(x.id) === String(clickedId));
-                    
-                    if(p) {
-                        document.getElementById("tx-search").value = p.name;
-                        document.getElementById("tx-price").value = this.dataset.txPrice;
-                        document.getElementById("tx-search-results").style.display = "none";
+
+            let matches = [];
+            products.forEach(p => {
+                const matchMain = String(p.name || "").toLowerCase().includes(query) || String(p.barcode || "").toLowerCase().includes(query);
+
+                if (p.variations && p.variations.length > 0) {
+                    p.variations.forEach(v => {
+                        const matchVar = String(v.name || "").toLowerCase().includes(query);
+                        if (matchMain || matchVar) {
+                            
+                            // --- LOGIKA PROMO VARIAN ---
+                            // Jika ada promoPrice, gunakan itu. Jika tidak, gunakan harga normal (price).
+                            let actualPrice = v.promoPrice ? v.promoPrice : v.price;
+                            let promoLabel = v.promoPrice ? " 🏷️(PROMO)" : "";
+
+                            matches.push({
+                                id: p.id,
+                                name: p.name + " - " + v.name + promoLabel,
+                                variant: v.name,
+                                price: actualPrice
+                            });
+                        }
+                    });
+                } else {
+                    if (matchMain) {
+                        
+                        // --- LOGIKA PROMO PRODUK TANPA VARIAN ---
+                        let actualPrice = p.promoPrice ? p.promoPrice : p.price;
+                        let promoLabel = p.promoPrice ? " 🏷️(PROMO)" : "";
+
+                        matches.push({
+                            id: p.id,
+                            name: p.name + promoLabel,
+                            variant: "",
+                            price: actualPrice
+                        });
                     }
+                }
+            });
+
+            matches = matches.slice(0, 8); 
+            if (matches.length === 0) { results.style.display = "none"; return; }
+
+            // Tampilkan hasil pencarian
+            results.innerHTML = matches.map((m) => {
+                let priceDisplay = m.price ? `Harga: ${formatRupiah(m.price)}` : 'Harga belum diset';
+                return `<div class="search-result-item" 
+                            data-tx-id="${m.id}" 
+                            data-tx-var="${escapeHtml(m.variant)}" 
+                            data-tx-name="${escapeHtml(m.name)}" 
+                            data-tx-price="${m.price || ''}">
+                            ${escapeHtml(m.name)} - ${priceDisplay}
+                        </div>`;
+            }).join("");
+
+            // Saat diklik, masukkan harga (Promo/Normal) ke input harga di kasir
+            results.querySelectorAll(".search-result-item").forEach((el) => {
+                el.addEventListener("click", function () {
+                    document.getElementById("tx-search").value = this.dataset.txName;
+                    document.getElementById("tx-selected-id").value = this.dataset.txId;
+                    document.getElementById("tx-selected-var").value = this.dataset.txVar;
+                    document.getElementById("tx-price").value = this.dataset.txPrice; 
+                    results.style.display = "none";
                 });
             });
         }
@@ -3847,20 +4021,38 @@ const generatePlatformBoxes = (modalPrice) => {
             const name = document.getElementById("tx-search").value.trim();
             const qty = parseInt(document.getElementById("tx-qty").value) || 1;
             const price = parseFloat(document.getElementById("tx-price").value) || 0;
-            
+
+            const id = document.getElementById("tx-selected-id").value;
+            const varName = document.getElementById("tx-selected-var").value;
+
             if (!name || !price) { showToast("Nama dan harga wajib diisi!"); return; }
 
-            // TAMBAHAN: Cari produk untuk mengunci harga modal saat transaksi terjadi
-            const p = products.find(x => x.name === name);
-            const modalValue = p ? p.modal : 0;
-            const productId = p ? p.id : null;
+            let modalValue = 0;
 
-            // PERBAIKAN: Masukkan 'modal' dan 'id' ke dalam array currentTxItems
-            currentTxItems.push({ id: productId, name: name, qty: qty, price: price, modal: modalValue });
-            
+            if (id) {
+                const p = products.find(x => x.id === id);
+                if (p) {
+                    if (varName && p.variations) {
+                        const v = p.variations.find(x => x.name === varName);
+                        // FIX PEMBUKUAN PROFIT: Ambil 'promoModal' jika ada. Jika kosong, pakai 'modal' normal.
+                        modalValue = v ? parseFloat(v.promoModal || v.modal) || 0 : 0;
+                    } else {
+                        // Berlaku sama untuk produk tanpa variasi
+                        modalValue = parseFloat(p.promoModal || p.modal) || 0;
+                    }
+                }
+            }
+
+            // Masukkan ke keranjang dengan data modal yang sudah valid (Normal atau Promo)
+            currentTxItems.push({ id: id, name: name, variant: varName, qty: qty, price: price, modal: modalValue });
+
             renderTxItems();
-            document.getElementById("tx-search").value = ""; 
-            document.getElementById("tx-qty").value = "1"; 
+            
+            // Kosongkan form setelah input
+            document.getElementById("tx-search").value = "";
+            document.getElementById("tx-selected-id").value = "";
+            document.getElementById("tx-selected-var").value = "";
+            document.getElementById("tx-qty").value = "1";
             document.getElementById("tx-price").value = "";
         }
 
@@ -3879,30 +4071,32 @@ const generatePlatformBoxes = (modalPrice) => {
         }
 
         function updateStockFromTx(items, type) {
-            let isStockUpdated = false; // Penanda apakah ada stok yang berubah
+            let isStockUpdated = false; 
 
             items.forEach(item => {
-                // Cari produk berdasarkan nama
-                const p = products.find(x => x.name === item.name);
+                // Prioritaskan ID agar tidak keliru nama
+                const p = products.find(x => (item.id && x.id === item.id) || (!item.id && x.name === item.name));
                 
                 if (p) {
-                    // Tentukan penambahan (jika belanja) atau pengurangan (jika penjualan)
                     const change = type === "penjualan" ? -item.qty : item.qty;
                     
-                    // Update stok di memori (pastikan formatnya angka)
-                    p.stock = (parseInt(p.stock) || 0) + parseInt(change);
+                    // 1. Potong stok utama
+                    p.stock = (parseInt(p.stock) || 0) + change;
+                    
+                    // 2. Potong stok variasi (jika transaksi tersebut adalah varian)
+                    if (item.variant && p.variations) {
+                        const v = p.variations.find(x => x.name === item.variant);
+                        if (v) {
+                            v.stock = (parseInt(v.stock) || 0) + change;
+                        }
+                    }
                     
                     isStockUpdated = true;
                 }
             });
 
-            // Jika ada stok yang berubah, simpan kembali array products ke LocalStorage
             if (isStockUpdated) {
-                // Menyimpan data stok terbaru ke penyimpanan lokal browser
                 localStorage.setItem("maryn_products", JSON.stringify(products)); 
-                
-                // Catatan: Pastikan key LocalStorage kamu benar "maryn_products". 
-                // Jika di kodemu menggunakan nama lain (misal "products" saja), silakan disesuaikan.
             }
         }
 
@@ -4532,113 +4726,163 @@ const generatePlatformBoxes = (modalPrice) => {
 
 
         let currentVariations = []; // Menyimpan state varian saat form dibuka
-let activeVariantIndexForUpload = null;
+        let activeVariantIndexForUpload = null;
 
-// Event Listener Utama untuk Varian
-document.getElementById("btn-add-variant-row").addEventListener("click", function(e) {
-    e.preventDefault();
-    currentVariations.push({ id: "VAR-" + Date.now(), name: "", modal: "", stock: "", photo: "" });
-    renderVariantForm();
-});
+        // Event Listener Utama untuk Varian
+        document.getElementById("btn-add-variant-row").addEventListener("click", function(e) {
+            e.preventDefault();
+            currentVariations.push({ id: "VAR-" + Date.now(), name: "", modal: "", stock: "", photo: "" });
+            renderVariantForm();
+        });
 
-document.getElementById("var-file-global").addEventListener("change", function(e) {
-    const file = e.target.files[0];
-    if (!file || activeVariantIndexForUpload === null) return;
-    const reader = new FileReader();
-    reader.onload = function(ev) {
-        currentVariations[activeVariantIndexForUpload].photo = ev.target.result;
-        renderVariantForm();
-    };
-    reader.readAsDataURL(file);
-});
+        document.getElementById("var-file-global").addEventListener("change", function(e) {
+            const file = e.target.files[0];
+            if (!file || activeVariantIndexForUpload === null) return;
+            const reader = new FileReader();
+            reader.onload = function(ev) {
+                currentVariations[activeVariantIndexForUpload].photo = ev.target.result;
+                renderVariantForm();
+            };
+            reader.readAsDataURL(file);
+        });
 
-function renderVariantForm() {
-    const container = document.getElementById("variant-list-container");
-    const bulkBox = document.getElementById("bulk-apply-box");
-    const mainContainer = document.getElementById("main-price-stock-container"); // Ambil pembungkus utama
-    
-    const isVarActive = currentVariations.length > 0;
-    
-    // Tampilkan tombol apply massal jika ada varian
-    bulkBox.style.display = isVarActive ? "flex" : "none";
-    
-    // LOGIKA PENYEMBUNYIAN FORM UTAMA
-    if(isVarActive) {
-        // HILANGKAN form utama karena kita pakai data varian
-        mainContainer.style.display = "none"; 
-        // Kosongkan nilainya agar tidak bocor ke database
-        document.getElementById("prod-modal").value = ""; 
-        document.getElementById("prod-stock").value = ""; 
-    } else {
-        // MUNCULKAN kembali jika tidak ada varian
-        mainContainer.style.display = "block"; 
-    }
+        function renderVariantForm() {
+            const container = document.getElementById("variant-list-container");
+            const bulkBox = document.getElementById("bulk-apply-box");
+            const mainContainer = document.getElementById("main-price-stock-container"); // Ambil pembungkus utama
+            
+            const isVarActive = currentVariations.length > 0;
+            
+            // Tampilkan tombol apply massal jika ada varian
+            bulkBox.style.display = isVarActive ? "flex" : "none";
+            
+            // LOGIKA PENYEMBUNYIAN FORM UTAMA
+            if(isVarActive) {
+                // HILANGKAN form utama karena kita pakai data varian
+                mainContainer.style.display = "none"; 
+                // Kosongkan nilainya agar tidak bocor ke database
+                document.getElementById("prod-modal").value = ""; 
+                document.getElementById("prod-stock").value = ""; 
+            } else {
+                // MUNCULKAN kembali jika tidak ada varian
+                mainContainer.style.display = "block"; 
+            }
 
-    container.innerHTML = currentVariations.map((v, index) => `
-        <div class="variant-row">
-            <div class="variant-header">
-                <span style="font-size: 12px; font-weight: bold; color: var(--accent);">Varian ${index + 1}</span>
-                <button class="btn btn-danger btn-sm" onclick="removeVariant(${index})" style="padding: 4px 8px; font-size: 10px; border-radius: 6px;">Hapus</button>
-            </div>
-            <!-- ... sisa kode desain varian sama seperti sebelumnya ... -->
-            <div style="display: flex; gap: 10px; align-items: flex-start;">
-                <div style="display: flex; flex-direction: column; gap: 5px; align-items: center; width: 65px;">
-                    <img src="${v.photo || ''}" class="variant-img-preview" style="display: ${v.photo ? 'block' : 'none'}">
-                    <div class="variant-img-preview" style="display: ${!v.photo ? 'flex' : 'none'}; align-items:center; justify-content:center; font-size: 10px; color: var(--text-tert);">No Img</div>
-                    
-                    <!-- Tombol Upload & Link Bersebelahan -->
-                    <div style="display: flex; gap: 4px; width: 100%;">
-                        <button class="btn btn-outline btn-sm" onclick="triggerVariantUpload(${index})" style="font-size: 9px; padding: 2px 0; flex: 1;" title="Upload dari Galeri">Up</button>
-                        <button class="btn btn-outline btn-sm" onclick="promptVariantLink(${index})" style="font-size: 9px; padding: 2px 0; flex: 1;" title="Gunakan Link URL">Link</button>
+            container.innerHTML = currentVariations.map((v, index) => `
+                <div class="variant-row">
+                    <div class="variant-header">
+                        <span style="font-size: 12px; font-weight: bold; color: var(--accent);">Varian ${index + 1}</span>
+                        <button class="btn btn-danger btn-sm" onclick="removeVariant(${index})" style="padding: 4px 8px; font-size: 10px; border-radius: 6px;">Hapus</button>
                     </div>
-                    
-                    <!-- Tombol Hapus Foto (Muncul otomatis jika ada foto) -->
-                    ${v.photo ? `<button class="btn btn-danger btn-sm" onclick="hapusFotoVarian(${index})" style="font-size: 9px; padding: 2px 4px; width: 100%; border-radius: 6px;">Hapus</button>` : ''}
-                </div>
-                <div style="flex: 1; display: flex; flex-direction: column; gap: 8px;">
-                    <input type="text" class="input" placeholder="Nama Varian (Mis: Merah XL)" value="${v.name}" oninput="updateVarData(${index}, 'name', this.value)" style="margin:0; height: 34px; font-size:12px;">
-                    <div style="display: flex; gap: 8px;">
-                        <input type="number" class="input" placeholder="Modal Varian" value="${v.modal}" oninput="updateVarData(${index}, 'modal', this.value)" style="margin:0; height: 34px; font-size:12px;">
-                        <input type="number" class="input" placeholder="Stok Varian" value="${v.stock}" oninput="updateVarData(${index}, 'stock', this.value)" style="margin:0; height: 34px; font-size:12px;">
+                    <!-- ... sisa kode desain varian sama seperti sebelumnya ... -->
+                    <div style="display: flex; gap: 10px; align-items: flex-start;">
+                        <div style="display: flex; flex-direction: column; gap: 5px; align-items: center; width: 65px;">
+                            <img src="${v.photo || ''}" class="variant-img-preview" style="display: ${v.photo ? 'block' : 'none'}">
+                            <div class="variant-img-preview" style="display: ${!v.photo ? 'flex' : 'none'}; align-items:center; justify-content:center; font-size: 10px; color: var(--text-tert);">No Img</div>
+                            
+                            <!-- Tombol Upload & Link Bersebelahan -->
+                            <div style="display: flex; gap: 4px; width: 100%;">
+                                <button class="btn btn-outline btn-sm" onclick="triggerVariantUpload(${index})" style="font-size: 9px; padding: 2px 0; flex: 1;" title="Upload dari Galeri">Up</button>
+                                <button class="btn btn-outline btn-sm" onclick="promptVariantLink(${index})" style="font-size: 9px; padding: 2px 0; flex: 1;" title="Gunakan Link URL">Link</button>
+                            </div>
+                            
+                            <!-- Tombol Hapus Foto (Muncul otomatis jika ada foto) -->
+                            ${v.photo ? `<button class="btn btn-danger btn-sm" onclick="hapusFotoVarian(${index})" style="font-size: 9px; padding: 2px 4px; width: 100%; border-radius: 6px;">Hapus</button>` : ''}
+                        </div>
+                        <div style="flex: 1; display: flex; flex-direction: column; gap: 8px;">
+                            <input type="text" class="input" placeholder="Nama Varian (Mis: Merah XL)" value="${v.name}" oninput="updateVarData(${index}, 'name', this.value)" style="margin:0; height: 34px; font-size:12px;">
+                            <div style="display: flex; gap: 8px;">
+                                <input type="number" class="input" placeholder="Modal Varian" value="${v.modal}" oninput="updateVarData(${index}, 'modal', this.value)" style="margin:0; height: 34px; font-size:12px;">
+                                <input type="number" class="input" placeholder="Stok Varian" value="${v.stock}" oninput="updateVarData(${index}, 'stock', this.value)" style="margin:0; height: 34px; font-size:12px;">
+                            </div>
+                            <!-- TAMBAHKAN KODE PROMO DI SINI -->
+                            <div style="margin-top: 4px; padding: 10px; background-color: rgba(255, 20, 147, 0.05); border-radius: 8px; border: 1px dashed var(--accent);">
+                                <label style="display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: bold; cursor: pointer; color: var(--accent);">
+                                    <input type="checkbox" ${v.isPromo ? 'checked' : ''} onchange="updateVarData(${index}, 'isPromo', this.checked); this.parentElement.nextElementSibling.style.display = this.checked ? 'block' : 'none'">
+                                    🏷️ Aktifkan Promo
+                                </label>
+                                
+                                <div style="display: ${v.isPromo ? 'block' : 'none'}; margin-top: 10px;">
+                                    <div style="display: flex; gap: 8px;">
+                                        <input type="number" class="input" placeholder="Modal Promo" value="${v.promoModal || ''}" oninput="updateVarData(${index}, 'promoModal', this.value)" style="margin:0; height: 34px; font-size:12px;">
+                                        <input type="number" class="input" placeholder="Jual Promo" value="${v.promoPrice || ''}" oninput="updateVarData(${index}, 'promoPrice', this.value)" style="margin:0; height: 34px; font-size:12px;">
+                                    </div>
+                                </div>
+                                <!-- MINI PREVIEW HARGA PER VARIASI -->
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 8px; background: rgba(0,0,0,0.02); padding: 8px; border-radius: 8px; border: 1px solid var(--border-color);">
+                                <div style="border-left: 3px solid var(--chart2); padding-left: 6px;">
+                                    <div style="font-size: 9px; font-weight: bold; color: var(--text-tert);">SHOPEE</div>
+                                    <div style="font-size: 12px; font-weight: 800; color: var(--chart2);" id="var-${index}-shopee-harga">Rp 0</div>
+                                    <div style="font-size: 9px; color: var(--text-sec);">Profit: <b id="var-${index}-shopee-profit" style="color: var(--positive)">Rp 0</b></div>
+                                </div>
+                                <div style="border-left: 3px solid var(--chart1); padding-left: 6px;">
+                                    <div style="font-size: 9px; font-weight: bold; color: var(--text-tert);">LAZADA</div>
+                                    <div style="font-size: 12px; font-weight: 800; color: var(--chart1);" id="var-${index}-lazada-harga">Rp 0</div>
+                                    <div style="font-size: 9px; color: var(--text-sec);">Profit: <b id="var-${index}-lazada-profit" style="color: var(--positive)">Rp 0</b></div>
+                                </div>
+                                <div style="border-left: 3px solid var(--chart3); padding-left: 6px;">
+                                    <div style="font-size: 9px; font-weight: bold; color: var(--text-tert);">BLIBLI</div>
+                                    <div style="font-size: 12px; font-weight: 800; color: var(--chart3);" id="var-${index}-blibli-harga">Rp 0</div>
+                                    <div style="font-size: 9px; color: var(--text-sec);">Profit: <b id="var-${index}-blibli-profit" style="color: var(--positive)">Rp 0</b></div>
+                                </div>
+                                <div style="border-left: 3px solid var(--text); padding-left: 6px;">
+                                    <div style="font-size: 9px; font-weight: bold; color: var(--text-tert);">TIKTOK</div>
+                                    <div style="font-size: 12px; font-weight: 800; color: var(--text);" id="var-${index}-tiktok-harga">Rp 0</div>
+                                    <div style="font-size: 9px; color: var(--text-sec);">Profit: <b id="var-${index}-tiktok-profit" style="color: var(--positive)">Rp 0</b></div>
+                                </div>
+                            </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </div>
-    `).join("");
-}
+            `).join("");
+        }
 
-function updateVarData(index, key, value) { currentVariations[index][key] = value; }
-function removeVariant(index) { currentVariations.splice(index, 1); renderVariantForm(); }
-function triggerVariantUpload(index) { activeVariantIndexForUpload = index; document.getElementById("var-file-global").click(); }
+        function updateVarData(index, key, value) { currentVariations[index][key] = value; calculatePreview(); }
+        function removeVariant(index) { currentVariations.splice(index, 1); renderVariantForm(); }
+        function triggerVariantUpload(index) { activeVariantIndexForUpload = index; document.getElementById("var-file-global").click(); }
 
-// Fungsi untuk memunculkan pop-up input URL/Link gambar
-function promptVariantLink(index) {
-    const url = prompt("Tempel URL/Link gambar untuk varian ini:\n(Pastikan link diawali dengan http/https)");
-    
-    if (url && url.trim() !== "") {
-        // Langsung simpan link ke dalam memori array
-        currentVariations[index].photo = url.trim();
-        // Render ulang tampilan agar gambar langsung muncul
-        renderVariantForm();
-    }
-}
+        // Fungsi untuk memunculkan pop-up input URL/Link gambar
+        function promptVariantLink(index) {
+            const url = prompt("Tempel URL/Link gambar untuk varian ini:\n(Pastikan link diawali dengan http/https)");
+            
+            if (url && url.trim() !== "") {
+                // Langsung simpan link ke dalam memori array
+                currentVariations[index].photo = url.trim();
+                // Render ulang tampilan agar gambar langsung muncul
+                renderVariantForm();
+            }
+        }
 
-// Fungsi untuk mengosongkan gambar varian
-function hapusFotoVarian(index) {
-    currentVariations[index].photo = "";
-    renderVariantForm();
-}
+        // Fungsi untuk mengosongkan gambar varian
+        function hapusFotoVarian(index) {
+            currentVariations[index].photo = "";
+            renderVariantForm();
+        }
 
-function applyBulkVariants() {
-    const bModal = document.getElementById("bulk-modal").value;
-    const bStock = document.getElementById("bulk-stock").value;
-    currentVariations.forEach(v => {
-        if(bModal) v.modal = bModal;
-        if(bStock) v.stock = bStock;
-    });
-    renderVariantForm();
-    showToast("Data massal diterapkan ke semua varian!");
-}
+        function applyBulkVariants() {
+            const bModal = document.getElementById("bulk-modal").value;
+            const bStock = document.getElementById("bulk-stock").value;
+            currentVariations.forEach(v => {
+                if(bModal) v.modal = bModal;
+                if(bStock) v.stock = bStock;
+            });
+            renderVariantForm();
+            showToast("Data massal diterapkan ke semua varian!");
+        }
+
+        function toggleGlobalPromo(isChecked) {
+            const container = document.getElementById("global-promo-container");
+            container.style.display = isChecked ? "block" : "none";
+            
+            // Jika user menghilangkan centang, otomatis kosongkan nilai promo dan reset kalkulator
+            if (!isChecked) {
+                document.getElementById("prod-promo-modal").value = "";
+                document.getElementById("prod-promo-start").value = "";
+                document.getElementById("prod-promo-end").value = "";
+                calculatePreview();
+            }
+        }
 
     </script>
 </body>
