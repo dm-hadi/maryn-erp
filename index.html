@@ -1101,47 +1101,6 @@
         transition: color 0.3s ease;
     }
 
-    /* Styling Form Variasi */
-.variant-container {
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px dashed var(--border-color);
-    border-radius: 16px;
-    padding: 16px;
-    margin-bottom: 20px;
-}
-.variant-row {
-    background: var(--card-bg);
-    border: 1px solid var(--border-color);
-    border-radius: 12px;
-    padding: 12px;
-    margin-bottom: 12px;
-    position: relative;
-}
-.variant-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 12px;
-    border-bottom: 1px solid var(--border-color);
-    padding-bottom: 8px;
-}
-.variant-img-preview {
-    width: 60px;
-    height: 60px;
-    border-radius: 8px;
-    background: var(--hover-bg);
-    object-fit: cover;
-    border: 1px solid var(--border-color);
-}
-.bulk-apply-box {
-    display: flex;
-    gap: 8px;
-    background: rgba(255, 0, 127, 0.05);
-    padding: 10px;
-    border-radius: 12px;
-    margin-bottom: 16px;
-    align-items: center;
-}
 
 /* =========================================================
    PERBAIKAN STYLING CARD & PREVIEW PRODUK
@@ -1221,20 +1180,6 @@
 .btn-edit-corner:hover {
     transform: scale(1.05);
     filter: brightness(1.1);
-}
-
-.variant-preview-card {
-    background: var(--card-bg);
-    border: 1px solid var(--border-color);
-    border-radius: 12px;
-    padding: 12px;
-    margin-top: 12px;
-}
-.variant-preview-header {
-    display: flex;
-    gap: 12px;
-    align-items: center;
-    margin-bottom: 12px;
 }
 
     </style>
@@ -1670,66 +1615,38 @@
                     <input class="input" style="flex: 1; margin-bottom: 0; border-radius: 12px;" type="text" placeholder="Scan atau ketik barcode" id="prod-barcode" />
                     <button class="btn btn-outline btn-sm" id="btn-prod-camera" style="height: 48px; width: 64px; border-radius: 12px; font-size: 16px;">&#128247;</button>
                 </div>
+
                 <span class="label">Nama Produk</span>
-                <input class="input" type="text" placeholder="Nama produk" id="prod-name" style="border-radius: 12px;" />
+                <div style="display: flex; gap: 10px; margin-bottom: 12px;">
+                    <input class="input" type="text" placeholder="Nama produk" id="prod-name" style="border-radius: 12px; margin-bottom: 0; flex: 1;" />
+                    <button class="btn btn-outline" id="btn-auto-category" style="border-radius: 12px; padding: 0 16px; display: flex; align-items: center; justify-content: center; gap: 6px; color: var(--accent); border-color: var(--accent); font-weight: 800;" title="Otomatis isi 4 Kategori Admin">
+                        🔍 <span style="font-size: 12px;">Auto</span>
+                    </button>
+                </div>
 
                 <!-- ================= TAMBAHAN BARU: DESKRIPSI & DIMENSI ================= -->
                 <span class="label">Deskripsi Produk</span>
                 <textarea class="input" id="prod-description" placeholder="Masukkan detail atau deskripsi produk..." style="border-radius: 12px; min-height: 80px; resize: vertical;"></textarea>
 
-                <span class="label">Ukuran Dimensi (cm) - Panjang x Lebar x Tinggi </span>
+                <span class="label">Ukuran Dimensi & Berat</span>
                 <div style="display: flex; gap: 10px; margin-bottom: 16px;">
-                    <input class="input" type="number" placeholder="Panjang (P)" id="prod-length" style="border-radius: 12px; margin-bottom: 0;" />
-                    <input class="input" type="number" placeholder="Lebar (L)" id="prod-width" style="border-radius: 12px; margin-bottom: 0;" />
-                    <input class="input" type="number" placeholder="Tinggi (T)" id="prod-height" style="border-radius: 12px; margin-bottom: 0;" />
+                    <input class="input" type="number" placeholder="P(cm)" id="prod-length" style="border-radius: 12px; margin-bottom: 0;" />
+                    <input class="input" type="number" placeholder="L(cm)" id="prod-width" style="border-radius: 12px; margin-bottom: 0;" />
+                    <input class="input" type="number" placeholder="T(cm)" id="prod-height" style="border-radius: 12px; margin-bottom: 0;" />
+                    <input class="input" type="number" placeholder="Berat(g)" id="prod-weight" style="border-radius: 12px; margin-bottom: 0;" />
                 </div>
-                <!-- ===================================================================== -->
-
-                <span class="label">Kategori (Sheet)</span>
-                <select class="select" id="prod-category" style="border-radius: 12px;">
-                    <option value="" disabled selected>-- Pilih Kategori --</option>
-                    <option value="Personal Care">Personal Care</option>
-                    <option value="Mom & Baby">Mom & Baby</option>
-                    <option value="Home Care">Home Care</option>
-                    <option value="Pantry Essentials">Pantry Essentials</option>
-                    <option value="Food and Beverages">Food and Beverages</option>
-                    <option value="Pet Care">Pet Care</option>
-                </select>
-
-                <!-- AREA VARIASI YANG SUDAH DIBUAT SEBELUMNYA -->
-                <div class="variant-container">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                        <span class="label" style="margin: 0;">Varian Produk (Opsional)</span>
-                        <button class="btn btn-outline btn-sm" id="btn-add-variant-row" style="border-radius: 12px; font-size: 11px;">+ Tambah Varian</button>
+                
+                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 12px; margin-bottom: 16px;">
+                    <div>
+                        <span class="label">Harga Modal Utama (Rp) <span style="color: var(--danger);">*</span></span>
+                        <input class="input" type="number" placeholder="Wajib diisi" id="prod-modal" style="border-radius: 12px; margin-bottom: 0;" />
                     </div>
-                    
-                    <!-- Kotak Terapkan Semua (Akan muncul jika ada varian) -->
-                    <div class="bulk-apply-box" id="bulk-apply-box" style="display: none;">
-                        <input type="number" class="input" id="bulk-modal" placeholder="Harga Modal Sama" style="margin:0; border-radius:8px; font-size: 12px; height: 32px;">
-                        <input type="number" class="input" id="bulk-stock" placeholder="Stok Sama" style="margin:0; border-radius:8px; font-size: 12px; height: 32px;">
-                        <button class="btn btn-primary btn-sm" onclick="applyBulkVariants()" style="border-radius: 8px; height: 32px; white-space: nowrap;">Terapkan</button>
-                    </div>
-
-                    <!-- Container Daftar Varian -->
-                    <div id="variant-list-container"></div>
-                </div>
-
-                <!-- ========================================================= -->
-                <!-- BUNGKUS HARGA MODAL & STOK UTAMA AGAR BISA DIHILANGKAN -->
-                <div id="main-price-stock-container">
-                    <!-- BUNGKUS DALAM UNTUK GRID (Aman dari gangguan JavaScript) -->
-                    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 12px; margin-bottom: 16px;">
-                        <div>
-                            <span class="label">Harga Modal Utama (Rp) <span style="color: var(--danger);">*</span></span>
-                            <input class="input" type="number" placeholder="Wajib diisi" id="prod-modal" style="border-radius: 12px; margin-bottom: 0;" />
-                        </div>
-                        <div>
-                            <span class="label">Stok Utama <span style="color: var(--danger);">*</span></span>
-                            <input class="input" type="number" placeholder="Isi Stok" id="prod-stock" style="border-radius: 12px; margin-bottom: 0;" />
-                        </div>
+                    <div>
+                        <span class="label">Stok Utama <span style="color: var(--danger);">*</span></span>
+                        <input class="input" type="number" placeholder="Isi Stok" id="prod-stock" style="border-radius: 12px; margin-bottom: 0;" />
                     </div>
                 </div>
-                <!-- ========================================================= -->
+
                 <!-- GRID 2x2 UNTUK SUPPLIER & MARKUP -->
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
                     <div>
@@ -1763,6 +1680,17 @@
                         </div>
                     </div>
                 </div>
+
+                <span class="label">Kategori (Sheet)</span>
+                <select class="select" id="prod-category" style="border-radius: 12px;">
+                    <option value="" disabled selected>-- Pilih Kategori --</option>
+                    <option value="Personal Care">Personal Care</option>
+                    <option value="Mom & Baby">Mom & Baby</option>
+                    <option value="Home Care">Home Care</option>
+                    <option value="Pantry Essentials">Pantry Essentials</option>
+                    <option value="Food and Beverages">Food and Beverages</option>
+                    <option value="Pet Care">Pet Care</option>
+                </select>
                 
                 <!-- GRID 2x2 UNTUK KATEGORI ADMIN FEE -->
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
@@ -1878,7 +1806,6 @@
                 </div>
                 <!-- TAMBAHAN BARU: Memori untuk variasi -->
                 <input type="hidden" id="tx-selected-id" />
-                <input type="hidden" id="tx-selected-var" />
 
                 <div id="tx-search-results" style="max-height: 140px; overflow-y: auto; margin-bottom: 16px; display: none; border: 1px solid var(--border-color); border-radius: 12px;"></div>
                 
@@ -2341,6 +2268,7 @@
             fetchLazadaFees();
             fetchBlibliFees();
             fetchTiktokFees();
+            document.getElementById("btn-auto-category").addEventListener("click", autoFillCategories);
 
         });
 
@@ -3008,6 +2936,7 @@ let promoScrollInterval;
             };
         }
 
+        
         function renderPromoCarousell() {
             const list = document.getElementById("dash-promo-list");
             const section = document.getElementById("promo-section");
@@ -3016,54 +2945,30 @@ let promoScrollInterval;
             const now = new Date();
             now.setHours(0,0,0,0);
 
-            let promoItems = []; // Array baru untuk menampung produk utama maupun varian yang promo
+            let promoItems = []; 
 
-            // 1. Kumpulkan semua barang yang sedang promo
             products.forEach(p => {
-                // Lewati jika tanggal promo tidak diset
                 if (!p.promoStartDate || !p.promoEndDate) return;
                 
                 const start = new Date(p.promoStartDate); start.setHours(0, 0, 0, 0);
                 const end = new Date(p.promoEndDate); end.setHours(23, 59, 59, 999);
 
-                // Jika hari ini berada dalam rentang tanggal promo
                 if (now >= start && now <= end) {
-                    
-                    // Cek apakah produk ini memiliki variasi
-                    if (p.variations && p.variations.length > 0) {
-                        p.variations.forEach(v => {
-                            // Masukkan ke daftar jika varian ini dicentang promonya
-                            if (v.isPromo && v.promoModal) {
-                                promoItems.push({
-                                    name: p.name + " - " + v.name, // Gabung nama produk + varian (Glad2Glow - Peeling)
-                                    modal: v.modal,
-                                    promoModal: v.promoModal,
-                                    photo: v.photo || p.photo, // Pakai foto varian, jika kosong pakai foto utama
-                                    promoStartDate: p.promoStartDate,
-                                    promoEndDate: p.promoEndDate
-                                });
-                            }
+                    if (p.promoModal) {
+                        promoItems.push({
+                            name: p.name,
+                            modal: p.modal,
+                            promoModal: p.promoModal,
+                            photo: p.photo,
+                            promoStartDate: p.promoStartDate,
+                            promoEndDate: p.promoEndDate
                         });
-                    } else {
-                        // Jika tidak ada variasi, cek apakah produk utama punya harga promo
-                        if (p.promoModal) {
-                            promoItems.push({
-                                name: p.name,
-                                modal: p.modal,
-                                promoModal: p.promoModal,
-                                photo: p.photo,
-                                promoStartDate: p.promoStartDate,
-                                promoEndDate: p.promoEndDate
-                            });
-                        }
                     }
                 }
             });
 
-            // Urutkan berdasarkan promo yang akan berakhir paling cepat
             promoItems.sort((a, b) => new Date(a.promoEndDate) - new Date(b.promoEndDate)); 
 
-            // Jika tidak ada promo aktif sama sekali, sembunyikan kotak dari dashboard
             if (promoItems.length === 0) {
                 section.style.display = "none";
                 return;
@@ -3071,7 +2976,6 @@ let promoScrollInterval;
 
             section.style.display = "block";
             
-            // 2. Cetak Kartu Promo ke HTML
             const renderCard = (item) => {
                 const imgStr = item.photo ? `<img src="${item.photo}" class="promo-img">` : `<div class="promo-img" style="display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--text-quat);background:var(--card-bg);">No Image</div>`;
                 
@@ -3105,8 +3009,6 @@ let promoScrollInterval;
 
             startPromoAutoScroll();
         }
-
-
 
         
         document.getElementById("btn-all-promo")?.addEventListener("click", () => {
@@ -3240,17 +3142,12 @@ let promoScrollInterval;
             if (!list) return;
             const search = (document.getElementById("product-search")?.value || "").toLowerCase();
             const sort = document.getElementById("product-sort")?.value || "newest";
-            
-            // Ambil nilai kategori yang sedang dipilih (default "all")
             const selectedCategory = document.getElementById("category-filter")?.value || "all";
             
             let filtered = products.filter((p) => {
-                const matchesSearch = String (p.name || "").toLowerCase().includes(search) || 
-                                    String (p.barcode || "").toLowerCase().includes(search);
-                
-                // Logika penyaringan berdasarkan kategori
+                const matchesSearch = String(p.name || "").toLowerCase().includes(search) || 
+                                    String(p.barcode || "").toLowerCase().includes(search);
                 const matchesCategory = selectedCategory === "all" || p.category === selectedCategory;
-
                 return matchesSearch && matchesCategory;
             });
             
@@ -3273,7 +3170,6 @@ let promoScrollInterval;
             if (paginationDiv) {
                 paginationDiv.style.display = totalPages > 1 ? "flex" : "none";
                 pageIndicator.textContent = `Halaman ${currentProductPage} / ${totalPages}`;
-                
                 prevBtn.disabled = currentProductPage === 1;
                 nextBtn.disabled = currentProductPage === totalPages;
                 prevBtn.style.opacity = currentProductPage === 1 ? "0.4" : "1";
@@ -3288,109 +3184,58 @@ let promoScrollInterval;
             }
 
             list.innerHTML = paginatedProducts.map((p) => {
-                
-                // Fungsi bantuan untuk men-generate 4 Kotak Platform berdasarkan Modal tertentu
-const generatePlatformBoxes = (modalPrice) => {
-    const dummyProduct = { ...p, modal: modalPrice, promoModal: null }; 
-    const pricesHtml = [];
-    ["shopee", "lazada", "blibli", "tiktok"].forEach(platform => {
-        const sellPrice = calculateSellPrice(dummyProduct, platform);
-        if (sellPrice) {
-            const netPrice = calculateNetPrice(dummyProduct, platform);
-            const profit = calculateProfit(dummyProduct, platform);
-            let tagColor = platform === "lazada" ? "var(--chart1)" : platform === "blibli" ? "var(--chart3)" : platform === "tiktok" ? "var(--text)" : "var(--chart2)";
-            const platName = platform.charAt(0).toUpperCase() + platform.slice(1);
-            pricesHtml.push(
-                `<div style="background:var(--bg); border: 1px solid var(--border-color); border-left:4px solid ${tagColor}; padding:8px; border-radius:8px; font-size:11px;">
-                    <div style="font-weight:800; font-size:12px; color:${tagColor}; margin-bottom:4px;">${platName}: ${formatRupiah(sellPrice)}</div>
-                    <div style="display:flex; justify-content:space-between; margin-bottom:2px;"><span style="color:var(--text-sec);">Hasil:</span><span style="font-weight:700;">${formatRupiah(netPrice)}</span></div>
-                    <div style="display:flex; justify-content:space-between;"><span style="color:var(--text-sec);">Profit:</span><span style="font-weight:800; color:var(--positive);">${formatRupiah(profit)}</span></div>
-                </div>`
-            ); 
-        }
-    });
-    
-    // INILAH YANG SEHARUSNYA DI-RETURN OLEH FUNGSI INI
-    return `<div class="product-prices">${pricesHtml.join("")}</div>`;
-};
-
-                // Render List Varian di dalam Preview
-                let variantPreviewHtml = "";
-                if (p.variations && p.variations.length > 0) {
-                    variantPreviewHtml = p.variations.map((v, i) => `
-                        <div class="variant-preview-card">
-                            <div class="variant-preview-header">
-                                ${v.photo ? `<img src="${v.photo}" onclick="openImagePreview(this, event)" style="width: 40px; height: 40px; border-radius: 8px; object-fit: cover; cursor: zoom-in; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">` : `<div style="width:40px;height:40px;border-radius:8px;background:var(--hover-bg);display:flex;align-items:center;justify-content:center;font-size:10px;">IMG</div>`}
-                                <div style="flex: 1;">
-                                    <div style="font-weight: bold; font-size: 13px;">${escapeHtml(v.name)}</div>
-                                    <div style="font-size: 11px; color: var(--text-sec);">Modal: <b style="color: #FFB300; font-weight: 900; font-size: 13px;">${formatRupiah(v.modal)}</b> | Stok: <b style="color:${v.stock <= 3 ? 'var(--danger)' : 'var(--positive)'}">${v.stock}</b></div>
-                                </div>
-                            </div>
-                            ${generatePlatformBoxes(v.modal)}
-                        </div>
-                    `).join("");
-                } else {
-                    // Jika tidak ada varian, tampilkan 4 kotak berdasarkan modal utama
-                    variantPreviewHtml = generatePlatformBoxes(p.modal);
-                }
+                const generatePlatformBoxes = (modalPrice) => {
+                    const dummyProduct = { ...p, modal: modalPrice, promoModal: null }; 
+                    const pricesHtml = [];
+                    ["shopee", "lazada", "blibli", "tiktok"].forEach(platform => {
+                        const sellPrice = calculateSellPrice(dummyProduct, platform);
+                        if (sellPrice) {
+                            const netPrice = calculateNetPrice(dummyProduct, platform);
+                            const profit = calculateProfit(dummyProduct, platform);
+                            let tagColor = platform === "lazada" ? "var(--chart1)" : platform === "blibli" ? "var(--chart3)" : platform === "tiktok" ? "var(--text)" : "var(--chart2)";
+                            const platName = platform.charAt(0).toUpperCase() + platform.slice(1);
+                            pricesHtml.push(
+                                `<div style="background:var(--bg); border: 1px solid var(--border-color); border-left:4px solid ${tagColor}; padding:8px; border-radius:8px; font-size:11px;">
+                                    <div style="font-weight:800; font-size:12px; color:${tagColor}; margin-bottom:4px;">${platName}: ${formatRupiah(sellPrice)}</div>
+                                    <div style="display:flex; justify-content:space-between; margin-bottom:2px;"><span style="color:var(--text-sec);">Hasil:</span><span style="font-weight:700;">${formatRupiah(netPrice)}</span></div>
+                                    <div style="display:flex; justify-content:space-between;"><span style="color:var(--text-sec);">Profit:</span><span style="font-weight:800; color:var(--positive);">${formatRupiah(profit)}</span></div>
+                                </div>`
+                            ); 
+                        }
+                    });
+                    return `<div class="product-prices">${pricesHtml.join("")}</div>`;
+                };
 
                 return `
                 <div class="product-card" onclick="this.classList.toggle('active-preview')" style="cursor: pointer; position: relative;">
-                    
-                    <!-- Bagian Muka Card (Terlihat tanpa diklik) -->
                     <div class="product-item" style="border: none; margin-bottom: 0; align-items: center;">
                         <div class="product-img">
                             ${p.photo ? `<img src="${p.photo}" onclick="openImagePreview(this, event)" style="width:100%;height:100%;object-fit:cover;border-radius:14px; cursor: zoom-in;">` : "IMG"}
                         </div>
                         <div class="product-info" style="width:100%;">
                             <div class="product-name" style="margin-bottom: 3px;">${escapeHtml(p.name)}</div>
-
                             <div class="product-meta" style="display: flex; gap: 8px; font-size: 0.7em; opacity: 0.9; align-items: center; flex-wrap: wrap;">
-                                <!-- LOGIKA PINTAR: CEK APAKAH ADA VARIASI -->
-                                ${(!p.variations || p.variations.length === 0) 
-                                    ? `<span>Modal : <b style="color: #FFB300; font-weight: 900; font-size: 1.1em; text-shadow: 0 1px 2px rgba(0,0,0,0.1);">${formatRupiah(p.modal)}</b></span>`
-                                    : `<span>Modal : <b style="color: var(--accent); font-weight: 900; font-size: 1.1em;"> Variasi</b></span>`
-                                }
-                                
+                                <span>Modal : <b style="color: #FFB300; font-weight: 900; font-size: 1.1em; text-shadow: 0 1px 2px rgba(0,0,0,0.1);">${formatRupiah(p.modal)}</b></span>
                                 <span style="opacity: 0.4;">|</span>
                                 <span>Stok: <b style="color: ${p.stock <= 3 ? 'var(--danger)' : 'var(--positive)'};">${p.stock || 0}</b></span>
                                 <span style="opacity: 0.4;">|</span>
                                 <span style="background: rgba(128, 128, 128, 0.15); padding: 2px 8px; border-radius: 6px;">${escapeHtml(p.category)}</span>
                             </div>
-
-                            ${p.variations && p.variations.length > 0 ? `<div style="font-size: 10px; color: var(--accent); margin-top: 4px;">Terdapat ${p.variations.length} Variasi</div>` : ''}
                         </div>
                     </div>
-
-                    <!-- Bagian Preview Detail (Tersembunyi, muncul saat di-klik) -->
                     <div class="product-preview" onclick="event.stopPropagation();">
-                        
-                        <!-- Tombol Edit di Sudut Kanan Atas Preview -->
                         <button class="btn-edit-corner" onclick="editProduct('${p.id}')" title="Edit Produk">✏️</button>
-
-                    <!-- Informasi Lengkap Produk -->
                         <div style="font-size: 12px; margin-bottom: 12px; line-height: 1.5;">
                             <div><strong>Barcode:</strong> ${escapeHtml(p.barcode || '-')}</div>
                             <div><strong>Supplier:</strong> ${escapeHtml(p.supplier || '-')}</div>
-                            <div><strong>Dimensi:</strong> ${p.length || 0} x ${p.width || 0} x ${p.height || 0} cm</div>
+                            <div><strong>Dimensi:</strong> ${p.length || 0} x ${p.width || 0} x ${p.height || 0} cm (${p.weight || 0} gram)</div>
                             <div style="margin-top: 4px;"><strong>Deskripsi:</strong><br>${escapeHtml(p.description || 'Tidak ada deskripsi')}</div>
-                            
-                            <!-- KODE BARU: Memunculkan Harga Modal jika tidak ada variasi -->
-                            ${(!p.variations || p.variations.length === 0) ? 
-                                `<div style="margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--border-color);">
-                                    <div style="color: var(--text-sec);">Harga Modal Utama: <strong style="color: #FFB300; font-weight: 900; font-size: 15px; text-shadow: 0 1px 2px rgba(0,0,0,0.1);">${formatRupiah(p.modal)}</strong></div>
-                                </div>` 
-                            : ''}
-                            
                         </div>
-
-                        <!-- List Varian & Harga (4 Kotak Fee akan muncul di dalam sini) -->
-                        ${variantPreviewHtml}
+                        ${generatePlatformBoxes(p.modal)}
                     </div>
                 </div>`;
             }).join("");
         }
-
         function calculateSellPrice(product, platform) {
             const feeId = product[platform + "Fee"];
             if (!feeId) return 0;
@@ -3420,7 +3265,6 @@ const generatePlatformBoxes = (modalPrice) => {
         }
 
         function calculatePreview() {
-            const isVarActive = currentVariations && currentVariations.length > 0;
             const markup = parseFloat(document.getElementById("prod-markup")?.value) || 0;
 
             // Ambil Data Fee yang dipilih di luar
@@ -3433,7 +3277,7 @@ const generatePlatformBoxes = (modalPrice) => {
             const hitungDanCetak = (modalValue, prefixId) => {
                 ["shopee", "lazada", "blibli", "tiktok"].forEach(platform => {
                     const elHarga = document.getElementById(prefixId + platform + "-harga");
-                    const elHasil = document.getElementById(prefixId + platform + "-hasil"); // Hanya ada di Master Preview
+                    const elHasil = document.getElementById(prefixId + platform + "-hasil");
                     const elProfit = document.getElementById(prefixId + platform + "-profit");
                     
                     if (!elHarga || !elProfit) return;
@@ -3461,109 +3305,91 @@ const generatePlatformBoxes = (modalPrice) => {
                 });
             };
 
-            // 1. UPDATE MASTER PREVIEW (PRODUK TANPA VARIASI)
+            // UPDATE MASTER PREVIEW (PRODUK TANPA VARIASI)
             const masterContainer = document.getElementById("master-preview-container");
-            if (isVarActive) {
-                if(masterContainer) masterContainer.style.display = "none";
-            } else {
-                if(masterContainer) masterContainer.style.display = "grid";
-                
-                const rawModal = parseFloat(document.getElementById("prod-modal")?.value) || 0;
-                const promoModal = parseFloat(document.getElementById("prod-promo-modal")?.value) || 0;
-                const promoStart = document.getElementById("prod-promo-start")?.value;
-                const promoEnd = document.getElementById("prod-promo-end")?.value;
-                
-                let activeModal = rawModal;
-                if (promoModal && promoStart && promoEnd) {
-                    const now = new Date(); now.setHours(0,0,0,0);
-                    const dStart = new Date(promoStart); dStart.setHours(0,0,0,0);
-                    const dEnd = new Date(promoEnd); dEnd.setHours(23,59,59,999);
-                    if (now >= dStart && now <= dEnd) activeModal = promoModal;
-                }
-                hitungDanCetak(activeModal, "preview-");
+            if(masterContainer) masterContainer.style.display = "grid";
+            
+            const rawModal = parseFloat(document.getElementById("prod-modal")?.value) || 0;
+            const promoModal = parseFloat(document.getElementById("prod-promo-modal")?.value) || 0;
+            const promoStart = document.getElementById("prod-promo-start")?.value;
+            const promoEnd = document.getElementById("prod-promo-end")?.value;
+            
+            let activeModal = rawModal;
+            if (promoModal && promoStart && promoEnd) {
+                const now = new Date(); now.setHours(0,0,0,0);
+                const dStart = new Date(promoStart); dStart.setHours(0,0,0,0);
+                const dEnd = new Date(promoEnd); dEnd.setHours(23,59,59,999);
+                if (now >= dStart && now <= dEnd) activeModal = promoModal;
             }
-
-            // 2. UPDATE PREVIEW MASING-MASING VARIASI
-            if (isVarActive) {
-                currentVariations.forEach((v, index) => {
-                    let activeVarModal = parseFloat(v.modal) || 0;
-                    if (v.isPromo && v.promoModal) {
-                        activeVarModal = parseFloat(v.promoModal) || 0;
-                    }
-                    hitungDanCetak(activeVarModal, `var-${index}-`);
-                });
-            }
+            hitungDanCetak(activeModal, "preview-");
         }
-
+        
         function openAddProduct() {
-            currentVariations = [];
-            renderVariantForm();
-
             editingProductId = null;
             document.getElementById("product-modal-title").textContent = "+ Tambah Produk";
             ["prod-barcode", "prod-name", "prod-modal", "prod-supplier"].forEach(id => document.getElementById(id).value = "");
-            // --- TAMBAHAN BARU ---
-            ["prod-description", "prod-length", "prod-width", "prod-height"].forEach(id => document.getElementById(id).value = "");
-            // ---------------------
+            
+            ["prod-description", "prod-length", "prod-width", "prod-height", "prod-weight"].forEach(id => document.getElementById(id).value = "");
+            
             document.getElementById("prod-stock").value = "0"; 
             document.getElementById("prod-category").value = "";
             ["shopee", "lazada", "blibli", "tiktok"].forEach(p => { document.getElementById("prod-" + p).value = ""; document.getElementById("display-" + p).value = ""; });
             document.getElementById("prod-markup").value = "30";
             document.getElementById("prod-preview").style.display = "none";
             document.getElementById("prod-preview-img").src = "";
+            
             calculatePreview();
             document.getElementById("modal-product").classList.add("active");
             document.getElementById("btn-delete-product").style.display = "none";
-            document.getElementById("prod-promo-modal").value = "";
-            document.getElementById("prod-promo-start").value = "";
-            document.getElementById("prod-promo-end").value = "";
-        
+            
+            ["prod-promo-modal", "prod-promo-start", "prod-promo-end"].forEach(id => document.getElementById(id).value = "");
             const checkPromo = document.getElementById("check-promo-global");
-            if(checkPromo) {
-                checkPromo.checked = false;
-                document.getElementById("global-promo-container").style.display = "none";
-            }
+            if(checkPromo) { checkPromo.checked = false; document.getElementById("global-promo-container").style.display = "none"; }
         }
 
         function editProduct(id) {
-            // 1. PINDAHKAN PENCARIAN VARIABEL 'p' KE PALING ATAS
             const p = products.find(x => x.id === id);
-
-            if (!p) {
-                showToast("Error: Produk tidak ditemukan!");
-                return; 
-            }
-
-            // 2. Baru jalankan logika variasi setelah 'p' ditemukan
-            currentVariations = p.variations ? JSON.parse(JSON.stringify(p.variations)) : [];
-            renderVariantForm();
+            if (!p) { showToast("Error: Produk tidak ditemukan!"); return; }
 
             editingProductId = id;
             document.getElementById("product-modal-title").textContent = "✎ Edit Produk";
             document.getElementById("prod-barcode").value = p.barcode || "";
             document.getElementById("prod-name").value = p.name || "";
-
-            // --- TAMBAHAN BARU ---
+            
             document.getElementById("prod-description").value = p.description || "";
             document.getElementById("prod-length").value = p.length || "";
             document.getElementById("prod-width").value = p.width || "";
             document.getElementById("prod-height").value = p.height || "";
-            // ---------------------
-            //kategory sheet
-            document.getElementById("prod-category").value = p.category || "";
+            document.getElementById("prod-weight").value = p.weight || ""; 
 
+            document.getElementById("prod-category").value = p.category || "";
             document.getElementById("prod-modal").value = p.modal || "";
             document.getElementById("prod-stock").value = p.stock || 0; 
             document.getElementById("prod-supplier").value = p.supplier || "";
+            
+            // ================= FIX TANGGAL PROMO =================
             document.getElementById("prod-promo-modal").value = p.promoModal || "";
-            document.getElementById("prod-promo-start").value = p.promoStartDate || "";
-            document.getElementById("prod-promo-end").value = p.promoEndDate || "";
+            
+            // Helper khusus untuk memotong waktu dan memastikan format selalu YYYY-MM-DD
+            const formatDateForInput = (dateVal) => {
+                if (!dateVal) return "";
+                const d = new Date(dateVal);
+                if (isNaN(d.getTime())) return "";
+                const year = d.getFullYear();
+                const month = String(d.getMonth() + 1).padStart(2, '0');
+                const day = String(d.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            };
+
+            // Terapkan ke form tanggal
+            document.getElementById("prod-promo-start").value = formatDateForInput(p.promoStartDate);
+            document.getElementById("prod-promo-end").value = formatDateForInput(p.promoEndDate);
+            // =======================================================
 
             const checkPromo = document.getElementById("check-promo-global");
             if(checkPromo) {
-                // Cek apakah produk ini memiliki data promo yang tersimpan
                 const hasPromo = p.promoModal || p.promoStartDate || p.promoEndDate;
-                checkPromo.checked = !!hasPromo; // Centang jika ada promo
+                checkPromo.checked = !!hasPromo; 
                 document.getElementById("global-promo-container").style.display = hasPromo ? "block" : "none";
             }
                         
@@ -3577,11 +3403,114 @@ const generatePlatformBoxes = (modalPrice) => {
             });            
 
             document.getElementById("prod-markup").value = p.markup || "30";
-            if (p.photo) { document.getElementById("prod-preview").style.display = "flex"; document.getElementById("prod-preview-img").src = p.photo; } 
-            else { document.getElementById("prod-preview").style.display = "none"; }
+            if (p.photo) { 
+                document.getElementById("prod-preview").style.display = "flex"; 
+                document.getElementById("prod-preview-img").src = p.photo; 
+            } else { 
+                document.getElementById("prod-preview").style.display = "none"; 
+            }
+            
             calculatePreview();
             document.getElementById("modal-product").classList.add("active");
             document.getElementById("btn-delete-product").style.display = "block";
+        }
+
+        async function saveProduct() {
+            const name = document.getElementById("prod-name").value.trim();
+            const inputModal = document.getElementById("prod-modal").value;
+            const inputStock = document.getElementById("prod-stock").value;
+            const category = document.getElementById("prod-category").value;
+
+            if (!inputModal || !inputStock || !name || !category) {
+                alert("⚠️ Harap lengkapi Nama, Kategori, Harga Modal dan Stok!");
+                return;
+            }
+
+            const btnSave = document.getElementById("btn-save-product");
+            const originalText = btnSave.innerHTML;
+            btnSave.disabled = true; 
+            btnSave.innerHTML = "⏳ Memproses Gambar & Menyimpan...";
+
+            // 1. Ambil sumber gambar saat ini
+            let photoUrl = document.getElementById("prod-preview-img").src || "";
+
+            // 2. CEK JIKA GAMBAR ADALAH HASIL UPLOAD (BASE64)
+            if (photoUrl.startsWith("data:image")) {
+                try {
+                    // Pecah format base64
+                    const mimeType = photoUrl.split(";")[0].split(":")[1];
+                    const base64Data = photoUrl.split(",")[1];
+                    const filename = "MARYN_" + Date.now() + "_" + Math.floor(Math.random() * 1000);
+
+                    // Kirim ke AppScript untuk diupload ke GDrive
+                    const uploadRes = await fetch(GOOGLE_SCRIPT_URL, {
+                        method: "POST",
+                        headers: { "Content-Type": "text/plain;charset=utf-8" },
+                        redirect: "follow",
+                        body: JSON.stringify({
+                            action: "UPLOAD_IMAGE",
+                            filename: filename,
+                            mimeType: mimeType,
+                            base64Data: base64Data
+                        })
+                    });
+                    
+                    const uploadResult = await uploadRes.json();
+                    
+                    if (uploadResult.status === "success") {
+                        photoUrl = uploadResult.url; // Ganti foto menjadi Link dari Google Drive
+                    } else {
+                        throw new Error(uploadResult.message || "Gagal upload ke Drive");
+                    }
+                } catch (err) {
+                    alert("⚠️ Gagal mengunggah foto ke Google Drive: " + err.message);
+                    btnSave.disabled = false;
+                    btnSave.innerHTML = originalText;
+                    return; // Hentikan penyimpanan jika foto gagal diunggah
+                }
+            }
+
+            // 3. Lanjutkan penyimpanan normal dengan photoUrl yang sudah bersih (hanya link)
+            const productData = { 
+                id: editingProductId || generateProductId(),
+                barcode: document.getElementById("prod-barcode").value.trim(), 
+                name: name, 
+                description: document.getElementById("prod-description").value.trim(),
+                length: parseFloat(document.getElementById("prod-length").value) || 0,
+                width: parseFloat(document.getElementById("prod-width").value) || 0,
+                height: parseFloat(document.getElementById("prod-height").value) || 0,
+                weight: parseFloat(document.getElementById("prod-weight").value) || 0, 
+                
+                modal: parseFloat(inputModal),
+                stock: parseInt(inputStock),
+                
+                category: category,
+                supplier: document.getElementById("prod-supplier").value.trim(), 
+                promoModal: parseFloat(document.getElementById("prod-promo-modal").value) || 0,
+                promoStartDate: document.getElementById("prod-promo-start").value || "",
+                promoEndDate: document.getElementById("prod-promo-end").value || "",
+                markup: parseFloat(document.getElementById("prod-markup").value) || 0, 
+                shopeeFee: document.getElementById("prod-shopee").value, lazadaFee: document.getElementById("prod-lazada").value, 
+                blibliFee: document.getElementById("prod-blibli").value, tiktokFee: document.getElementById("prod-tiktok").value, 
+                photo: photoUrl, // <--- Link GDrive akan tersimpan di sini
+                createdAt: editingProductId ? products.find(p=>p.id===editingProductId).createdAt : Date.now() 
+            };
+
+            if (editingProductId) {
+                const idx = products.findIndex(p => p.id === editingProductId);
+                if(idx > -1) products[idx] = productData;
+                enqueueSync("EDIT_PRODUCT", productData);
+            } else {
+                products.push(productData);
+                enqueueSync("ADD_PRODUCT", productData);
+            }
+
+            localStorage.setItem("maryn_products", JSON.stringify(products));
+            renderProducts();
+            closeModal("modal-product"); 
+            showToast(navigator.onLine ? "Menyimpan ke Cloud..." : "Tersimpan lokal (Menunggu koneksi)"); 
+            btnSave.disabled = false; 
+            btnSave.innerHTML = originalText; 
         }
 
         // Fungsi untuk membuat ID Produk berurutan (PROD-000001)
@@ -3606,90 +3535,6 @@ const generatePlatformBoxes = (modalPrice) => {
             return "PROD-" + nextId.toString().padStart(6, '0');
         }
 
-        async function saveProduct() {
-            const name = document.getElementById("prod-name").value.trim();
-            const modal = parseFloat(document.getElementById("prod-modal").value) || 0;
-            const category = document.getElementById("prod-category").value;
-
-            const isVarActive = currentVariations.length > 0;
-            let finalModal = 0;
-            let finalStock = 0;
-
-            // 1. LAKUKAN VALIDASI TERLEBIH DAHULU
-            if (isVarActive) {
-                for (let i = 0; i < currentVariations.length; i++) {
-                    const v = currentVariations[i];
-                    if (!v.name || !v.modal || !v.stock) {
-                        alert(`Data Varian ke-${i + 1} belum lengkap! Harap isi Nama, Modal, dan Stok.`);
-                        return; // Berhenti dengan aman tanpa mengunci tombol
-                    }
-                }
-                finalStock = currentVariations.reduce((sum, v) => sum + parseInt(v.stock), 0);
-                finalModal = parseFloat(currentVariations[0].modal); 
-            } else {
-                const inputModal = document.getElementById("prod-modal").value;
-                const inputStock = document.getElementById("prod-stock").value;
-                if (!inputModal || !inputStock) {
-                    alert("⚠️ Karena Anda tidak menggunakan Varian, Harga Modal Utama dan Stok Utama WAJIB diisi!");
-                    return; // Berhenti dengan aman tanpa mengunci tombol
-                }
-                finalStock = parseInt(inputStock);
-                finalModal = parseFloat(inputModal);
-            }
-
-            // 2. SETELAH VALIDASI LOLOS, BARU KUNCI TOMBOL
-            const btnSave = document.getElementById("btn-save-product");
-            const originalText = btnSave.innerHTML;
-            btnSave.disabled = true; 
-            btnSave.innerHTML = "⏳ Menyimpan...";
-
-            const productData = { 
-                id: editingProductId || generateProductId(),
-                barcode: document.getElementById("prod-barcode").value.trim(), 
-                name: name, 
-                description: document.getElementById("prod-description").value.trim(),
-                length: parseFloat(document.getElementById("prod-length").value) || 0,
-                width: parseFloat(document.getElementById("prod-width").value) || 0,
-                height: parseFloat(document.getElementById("prod-height").value) || 0,
-                
-                // Data Varian dimasukkan ke objek
-                variations: JSON.parse(JSON.stringify(currentVariations)),
-                
-                modal: finalModal, // Menyimpan modal varian pertama sebagai fallback
-                stock: finalStock, // Menyimpan total keseluruhan stok
-                
-                category: category,
-                supplier: document.getElementById("prod-supplier").value.trim(), 
-                promoModal: parseFloat(document.getElementById("prod-promo-modal").value) || 0,
-                promoStartDate: document.getElementById("prod-promo-start").value || "",
-                promoEndDate: document.getElementById("prod-promo-end").value || "",
-                markup: parseFloat(document.getElementById("prod-markup").value) || 0, 
-                shopeeFee: document.getElementById("prod-shopee").value, lazadaFee: document.getElementById("prod-lazada").value, 
-                blibliFee: document.getElementById("prod-blibli").value, tiktokFee: document.getElementById("prod-tiktok").value, 
-                photo: document.getElementById("prod-preview-img").src || "", 
-                // stock: parseInt(document.getElementById("prod-stock").value) || 0, 
-                createdAt: editingProductId ? products.find(p=>p.id===editingProductId).createdAt : Date.now() 
-            };
-
-            // Update Array Lokal
-            if (editingProductId) {
-                const idx = products.findIndex(p => p.id === editingProductId);
-                if(idx > -1) products[idx] = productData;
-                enqueueSync("EDIT_PRODUCT", productData);
-            } else {
-                products.push(productData);
-                enqueueSync("ADD_PRODUCT", productData);
-            }
-
-            localStorage.setItem("maryn_products", JSON.stringify(products));
-            renderProducts();
-            
-            closeModal("modal-product"); 
-            showToast(navigator.onLine ? "Menyimpan ke Cloud..." : "Tersimpan lokal (Menunggu koneksi)"); 
-            
-            btnSave.disabled = false; 
-            btnSave.innerHTML = originalText; 
-        }
 
         function handleFileUpload(e) {
             const file = e.target.files[0];
@@ -3888,8 +3733,6 @@ const generatePlatformBoxes = (modalPrice) => {
             document.getElementById("tx-search").value = "";
             // KODE BARU: Kosongkan memori
             document.getElementById("tx-selected-id").value = ""; 
-            document.getElementById("tx-selected-var").value = "";
-            
             document.getElementById("tx-qty").value = "1"; 
             document.getElementById("tx-price").value = "";
             document.getElementById("tx-search-results").style.display = "none";
@@ -3943,119 +3786,82 @@ const generatePlatformBoxes = (modalPrice) => {
         function searchTxProduct() {
             const query = document.getElementById("tx-search").value.toLowerCase().trim();
             const results = document.getElementById("tx-search-results");
-            if (!results) return;
-
-            // Kosongkan memori jika user mengetik ulang
+            const platformSelect = document.getElementById("tx-platform").value.toLowerCase();
+            
             document.getElementById("tx-selected-id").value = "";
-            document.getElementById("tx-selected-var").value = "";
 
             if (!query) { results.style.display = "none"; return; }
 
             let matches = [];
             products.forEach(p => {
-                const matchMain = String(p.name || "").toLowerCase().includes(query) || String(p.barcode || "").toLowerCase().includes(query);
-
-                if (p.variations && p.variations.length > 0) {
-                    p.variations.forEach(v => {
-                        const matchVar = String(v.name || "").toLowerCase().includes(query);
-                        if (matchMain || matchVar) {
-                            
-                            // --- LOGIKA PROMO VARIAN ---
-                            // Jika ada promoPrice, gunakan itu. Jika tidak, gunakan harga normal (price).
-                            let actualPrice = v.promoPrice ? v.promoPrice : v.price;
-                            let promoLabel = v.promoPrice ? " 🏷️(PROMO)" : "";
-
-                            matches.push({
-                                id: p.id,
-                                name: p.name + " - " + v.name + promoLabel,
-                                variant: v.name,
-                                price: actualPrice
-                            });
-                        }
-                    });
-                } else {
-                    if (matchMain) {
-                        
-                        // --- LOGIKA PROMO PRODUK TANPA VARIAN ---
-                        let actualPrice = p.promoPrice ? p.promoPrice : p.price;
-                        let promoLabel = p.promoPrice ? " 🏷️(PROMO)" : "";
-
-                        matches.push({
-                            id: p.id,
-                            name: p.name + promoLabel,
-                            variant: "",
-                            price: actualPrice
-                        });
+                if (String(p.name || "").toLowerCase().includes(query) || String(p.barcode || "").toLowerCase().includes(query)) {
+                    
+                    let actualPrice = 0;
+                    if (platformSelect === "offline") {
+                        actualPrice = getActiveModal(p) * (1 + (p.markup / 100));
+                    } else {
+                        actualPrice = calculateSellPrice(p, platformSelect) || (getActiveModal(p) * (1 + (p.markup / 100)));
                     }
+                    
+                    let promoLabel = p.promoModal ? " 🏷️(PROMO)" : "";
+
+                    matches.push({
+                        id: p.id,
+                        name: p.name + promoLabel,
+                        price: Math.round(actualPrice)
+                    });
                 }
             });
 
             matches = matches.slice(0, 8); 
             if (matches.length === 0) { results.style.display = "none"; return; }
 
-            // Tampilkan hasil pencarian
             results.innerHTML = matches.map((m) => {
                 let priceDisplay = m.price ? `Harga: ${formatRupiah(m.price)}` : 'Harga belum diset';
                 return `<div class="search-result-item" 
                             data-tx-id="${m.id}" 
-                            data-tx-var="${escapeHtml(m.variant)}" 
                             data-tx-name="${escapeHtml(m.name)}" 
                             data-tx-price="${m.price || ''}">
                             ${escapeHtml(m.name)} - ${priceDisplay}
                         </div>`;
             }).join("");
 
-            // Saat diklik, masukkan harga (Promo/Normal) ke input harga di kasir
             results.querySelectorAll(".search-result-item").forEach((el) => {
                 el.addEventListener("click", function () {
                     document.getElementById("tx-search").value = this.dataset.txName;
                     document.getElementById("tx-selected-id").value = this.dataset.txId;
-                    document.getElementById("tx-selected-var").value = this.dataset.txVar;
                     document.getElementById("tx-price").value = this.dataset.txPrice; 
                     results.style.display = "none";
                 });
             });
+            
+            results.style.display = "block"; 
         }
 
         function addTxItem() {
             const name = document.getElementById("tx-search").value.trim();
             const qty = parseInt(document.getElementById("tx-qty").value) || 1;
             const price = parseFloat(document.getElementById("tx-price").value) || 0;
-
             const id = document.getElementById("tx-selected-id").value;
-            const varName = document.getElementById("tx-selected-var").value;
 
             if (!name || !price) { showToast("Nama dan harga wajib diisi!"); return; }
 
             let modalValue = 0;
-
             if (id) {
                 const p = products.find(x => x.id === id);
                 if (p) {
-                    if (varName && p.variations) {
-                        const v = p.variations.find(x => x.name === varName);
-                        // FIX PEMBUKUAN PROFIT: Ambil 'promoModal' jika ada. Jika kosong, pakai 'modal' normal.
-                        modalValue = v ? parseFloat(v.promoModal || v.modal) || 0 : 0;
-                    } else {
-                        // Berlaku sama untuk produk tanpa variasi
-                        modalValue = parseFloat(p.promoModal || p.modal) || 0;
-                    }
+                    modalValue = parseFloat(p.promoModal || p.modal) || 0;
                 }
             }
 
-            // Masukkan ke keranjang dengan data modal yang sudah valid (Normal atau Promo)
-            currentTxItems.push({ id: id, name: name, variant: varName, qty: qty, price: price, modal: modalValue });
-
+            currentTxItems.push({ id: id, name: name, qty: qty, price: price, modal: modalValue });
             renderTxItems();
             
-            // Kosongkan form setelah input
             document.getElementById("tx-search").value = "";
             document.getElementById("tx-selected-id").value = "";
-            document.getElementById("tx-selected-var").value = "";
             document.getElementById("tx-qty").value = "1";
             document.getElementById("tx-price").value = "";
         }
-
         function renderTxItems() {
             const list = document.getElementById("tx-item-list");
             if (!list) return;
@@ -4079,18 +3885,7 @@ const generatePlatformBoxes = (modalPrice) => {
                 
                 if (p) {
                     const change = type === "penjualan" ? -item.qty : item.qty;
-                    
-                    // 1. Potong stok utama
                     p.stock = (parseInt(p.stock) || 0) + change;
-                    
-                    // 2. Potong stok variasi (jika transaksi tersebut adalah varian)
-                    if (item.variant && p.variations) {
-                        const v = p.variations.find(x => x.name === item.variant);
-                        if (v) {
-                            v.stock = (parseInt(v.stock) || 0) + change;
-                        }
-                    }
-                    
                     isStockUpdated = true;
                 }
             });
@@ -4554,7 +4349,20 @@ const generatePlatformBoxes = (modalPrice) => {
         function calculateCalc() {
             try {
                 if (!calcInput) return;
-                let formula = calcInput.replace(/%/g, '/100'); 
+                let formula = calcInput;
+
+                // LOGIKA BARU: Tangkap pola seperti "50+10%" atau "100-20%"
+                // Lalu ubah menjadi rumus matematika yang benar: 50 + (50 * 10/100)
+                formula = formula.replace(/(\d+(?:\.\d+)?)([+-])(\d+(?:\.\d+)?)%/g, function(match, num1, operator, num2) {
+                    const n1 = parseFloat(num1);
+                    const n2 = parseFloat(num2);
+                    const percentageValue = n1 * (n2 / 100);
+                    return operator === '+' ? (n1 + percentageValue) : (n1 - percentageValue);
+                });
+
+                // Fallback untuk fungsi perkalian/pembagian persen biasa (misal 50000 * 10%)
+                formula = formula.replace(/%/g, '/100'); 
+                
                 let result = eval(formula);
                 
                 if (result % 1 !== 0) {
@@ -4723,153 +4531,7 @@ const generatePlatformBoxes = (modalPrice) => {
         }
         setInterval(updateHeaderDateTime, 1000);
         updateHeaderDateTime();
-
-
-        let currentVariations = []; // Menyimpan state varian saat form dibuka
-        let activeVariantIndexForUpload = null;
-
-        // Event Listener Utama untuk Varian
-        document.getElementById("btn-add-variant-row").addEventListener("click", function(e) {
-            e.preventDefault();
-            currentVariations.push({ id: "VAR-" + Date.now(), name: "", modal: "", stock: "", photo: "" });
-            renderVariantForm();
-        });
-
-        document.getElementById("var-file-global").addEventListener("change", function(e) {
-            const file = e.target.files[0];
-            if (!file || activeVariantIndexForUpload === null) return;
-            const reader = new FileReader();
-            reader.onload = function(ev) {
-                currentVariations[activeVariantIndexForUpload].photo = ev.target.result;
-                renderVariantForm();
-            };
-            reader.readAsDataURL(file);
-        });
-
-        function renderVariantForm() {
-            const container = document.getElementById("variant-list-container");
-            const bulkBox = document.getElementById("bulk-apply-box");
-            const mainContainer = document.getElementById("main-price-stock-container"); // Ambil pembungkus utama
-            
-            const isVarActive = currentVariations.length > 0;
-            
-            // Tampilkan tombol apply massal jika ada varian
-            bulkBox.style.display = isVarActive ? "flex" : "none";
-            
-            // LOGIKA PENYEMBUNYIAN FORM UTAMA
-            if(isVarActive) {
-                // HILANGKAN form utama karena kita pakai data varian
-                mainContainer.style.display = "none"; 
-                // Kosongkan nilainya agar tidak bocor ke database
-                document.getElementById("prod-modal").value = ""; 
-                document.getElementById("prod-stock").value = ""; 
-            } else {
-                // MUNCULKAN kembali jika tidak ada varian
-                mainContainer.style.display = "block"; 
-            }
-
-            container.innerHTML = currentVariations.map((v, index) => `
-                <div class="variant-row">
-                    <div class="variant-header">
-                        <span style="font-size: 12px; font-weight: bold; color: var(--accent);">Varian ${index + 1}</span>
-                        <button class="btn btn-danger btn-sm" onclick="removeVariant(${index})" style="padding: 4px 8px; font-size: 10px; border-radius: 6px;">Hapus</button>
-                    </div>
-                    <!-- ... sisa kode desain varian sama seperti sebelumnya ... -->
-                    <div style="display: flex; gap: 10px; align-items: flex-start;">
-                        <div style="display: flex; flex-direction: column; gap: 5px; align-items: center; width: 65px;">
-                            <img src="${v.photo || ''}" class="variant-img-preview" style="display: ${v.photo ? 'block' : 'none'}">
-                            <div class="variant-img-preview" style="display: ${!v.photo ? 'flex' : 'none'}; align-items:center; justify-content:center; font-size: 10px; color: var(--text-tert);">No Img</div>
-                            
-                            <!-- Tombol Upload & Link Bersebelahan -->
-                            <div style="display: flex; gap: 4px; width: 100%;">
-                                <button class="btn btn-outline btn-sm" onclick="triggerVariantUpload(${index})" style="font-size: 9px; padding: 2px 0; flex: 1;" title="Upload dari Galeri">Up</button>
-                                <button class="btn btn-outline btn-sm" onclick="promptVariantLink(${index})" style="font-size: 9px; padding: 2px 0; flex: 1;" title="Gunakan Link URL">Link</button>
-                            </div>
-                            
-                            <!-- Tombol Hapus Foto (Muncul otomatis jika ada foto) -->
-                            ${v.photo ? `<button class="btn btn-danger btn-sm" onclick="hapusFotoVarian(${index})" style="font-size: 9px; padding: 2px 4px; width: 100%; border-radius: 6px;">Hapus</button>` : ''}
-                        </div>
-                        <div style="flex: 1; display: flex; flex-direction: column; gap: 8px;">
-                            <input type="text" class="input" placeholder="Nama Varian (Mis: Merah XL)" value="${v.name}" oninput="updateVarData(${index}, 'name', this.value)" style="margin:0; height: 34px; font-size:12px;">
-                            <div style="display: flex; gap: 8px;">
-                                <input type="number" class="input" placeholder="Modal Varian" value="${v.modal}" oninput="updateVarData(${index}, 'modal', this.value)" style="margin:0; height: 34px; font-size:12px;">
-                                <input type="number" class="input" placeholder="Stok Varian" value="${v.stock}" oninput="updateVarData(${index}, 'stock', this.value)" style="margin:0; height: 34px; font-size:12px;">
-                            </div>
-                            <!-- TAMBAHKAN KODE PROMO DI SINI -->
-                            <div style="margin-top: 4px; padding: 10px; background-color: rgba(255, 20, 147, 0.05); border-radius: 8px; border: 1px dashed var(--accent);">
-                                <label style="display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: bold; cursor: pointer; color: var(--accent);">
-                                    <input type="checkbox" ${v.isPromo ? 'checked' : ''} onchange="updateVarData(${index}, 'isPromo', this.checked); this.parentElement.nextElementSibling.style.display = this.checked ? 'block' : 'none'">
-                                    🏷️ Aktifkan Promo
-                                </label>
-                                
-                                <div style="display: ${v.isPromo ? 'block' : 'none'}; margin-top: 10px;">
-                                    <div style="display: flex; gap: 8px;">
-                                        <input type="number" class="input" placeholder="Modal Promo" value="${v.promoModal || ''}" oninput="updateVarData(${index}, 'promoModal', this.value)" style="margin:0; height: 34px; font-size:12px;">
-                                        <input type="number" class="input" placeholder="Jual Promo" value="${v.promoPrice || ''}" oninput="updateVarData(${index}, 'promoPrice', this.value)" style="margin:0; height: 34px; font-size:12px;">
-                                    </div>
-                                </div>
-                                <!-- MINI PREVIEW HARGA PER VARIASI -->
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 8px; background: rgba(0,0,0,0.02); padding: 8px; border-radius: 8px; border: 1px solid var(--border-color);">
-                                <div style="border-left: 3px solid var(--chart2); padding-left: 6px;">
-                                    <div style="font-size: 9px; font-weight: bold; color: var(--text-tert);">SHOPEE</div>
-                                    <div style="font-size: 12px; font-weight: 800; color: var(--chart2);" id="var-${index}-shopee-harga">Rp 0</div>
-                                    <div style="font-size: 9px; color: var(--text-sec);">Profit: <b id="var-${index}-shopee-profit" style="color: var(--positive)">Rp 0</b></div>
-                                </div>
-                                <div style="border-left: 3px solid var(--chart1); padding-left: 6px;">
-                                    <div style="font-size: 9px; font-weight: bold; color: var(--text-tert);">LAZADA</div>
-                                    <div style="font-size: 12px; font-weight: 800; color: var(--chart1);" id="var-${index}-lazada-harga">Rp 0</div>
-                                    <div style="font-size: 9px; color: var(--text-sec);">Profit: <b id="var-${index}-lazada-profit" style="color: var(--positive)">Rp 0</b></div>
-                                </div>
-                                <div style="border-left: 3px solid var(--chart3); padding-left: 6px;">
-                                    <div style="font-size: 9px; font-weight: bold; color: var(--text-tert);">BLIBLI</div>
-                                    <div style="font-size: 12px; font-weight: 800; color: var(--chart3);" id="var-${index}-blibli-harga">Rp 0</div>
-                                    <div style="font-size: 9px; color: var(--text-sec);">Profit: <b id="var-${index}-blibli-profit" style="color: var(--positive)">Rp 0</b></div>
-                                </div>
-                                <div style="border-left: 3px solid var(--text); padding-left: 6px;">
-                                    <div style="font-size: 9px; font-weight: bold; color: var(--text-tert);">TIKTOK</div>
-                                    <div style="font-size: 12px; font-weight: 800; color: var(--text);" id="var-${index}-tiktok-harga">Rp 0</div>
-                                    <div style="font-size: 9px; color: var(--text-sec);">Profit: <b id="var-${index}-tiktok-profit" style="color: var(--positive)">Rp 0</b></div>
-                                </div>
-                            </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `).join("");
-        }
-
-        function updateVarData(index, key, value) { currentVariations[index][key] = value; calculatePreview(); }
-        function removeVariant(index) { currentVariations.splice(index, 1); renderVariantForm(); }
-        function triggerVariantUpload(index) { activeVariantIndexForUpload = index; document.getElementById("var-file-global").click(); }
-
-        // Fungsi untuk memunculkan pop-up input URL/Link gambar
-        function promptVariantLink(index) {
-            const url = prompt("Tempel URL/Link gambar untuk varian ini:\n(Pastikan link diawali dengan http/https)");
-            
-            if (url && url.trim() !== "") {
-                // Langsung simpan link ke dalam memori array
-                currentVariations[index].photo = url.trim();
-                // Render ulang tampilan agar gambar langsung muncul
-                renderVariantForm();
-            }
-        }
-
-        // Fungsi untuk mengosongkan gambar varian
-        function hapusFotoVarian(index) {
-            currentVariations[index].photo = "";
-            renderVariantForm();
-        }
-
-        function applyBulkVariants() {
-            const bModal = document.getElementById("bulk-modal").value;
-            const bStock = document.getElementById("bulk-stock").value;
-            currentVariations.forEach(v => {
-                if(bModal) v.modal = bModal;
-                if(bStock) v.stock = bStock;
-            });
-            renderVariantForm();
-            showToast("Data massal diterapkan ke semua varian!");
-        }
+        
 
         function toggleGlobalPromo(isChecked) {
             const container = document.getElementById("global-promo-container");
@@ -4881,6 +4543,97 @@ const generatePlatformBoxes = (modalPrice) => {
                 document.getElementById("prod-promo-start").value = "";
                 document.getElementById("prod-promo-end").value = "";
                 calculatePreview();
+            }
+        }
+
+        // ==============================================================
+        // FITUR AUTO-FILL AI (SISTEM RAG: MEMBACA SELURUH KATEGORI DATABASE)
+        // ==============================================================
+        async function autoFillCategories() {
+            const productName = document.getElementById("prod-name").value.trim();
+            if (!productName) return showToast("⚠️ Isi Nama Produk terlebih dahulu!");
+
+            const btnAuto = document.getElementById("btn-auto-category");
+            const originalText = btnAuto.innerHTML;
+            
+            btnAuto.innerHTML = "🤖 AI Sedang Membaca Ribuan Kategori...";
+            btnAuto.disabled = true;
+            btnAuto.style.opacity = "0.7";
+            showToast("Mengirim ribuan data kategori ke Otak AI...");
+
+            try {
+                // 1. KUMPULKAN SELURUH DATABASE: Formatnya disederhanakan { "shp_1": "Beras", "shp_2": "Minyak" }
+                let simplifiedCats = { shopee: {}, lazada: {}, blibli: {}, tiktok: {} };
+                ["shopee", "lazada", "blibli", "tiktok"].forEach(platform => {
+                    (feeCategories[platform] || []).forEach(cat => {
+                        simplifiedCats[platform][cat.id] = cat.name;
+                    });
+                });
+
+                // 2. KIRIM KE APPS SCRIPT: AI, tolong temukan barang ini dari ribuan data ini!
+                const response = await fetch(GOOGLE_SCRIPT_URL, {
+                    method: "POST",
+                    headers: { "Content-Type": "text/plain;charset=utf-8" },
+                    body: JSON.stringify({
+                        action: "AI_CATEGORY_DIRECT",
+                        productName: productName,
+                        categories: simplifiedCats
+                    })
+                });
+                
+                const result = await response.json();
+                if (result.status !== "success") throw new Error(result.message);
+
+                // 3. TERIMA JAWABAN MUTLAK DARI AI
+                const aiMatch = result.match; 
+                
+                console.log("====================================");
+                console.log("🧠 HASIL PEMIKIRAN AI (RAG SYSTEM):");
+                console.log("Analisis:", aiMatch.pemikiran);
+                console.log("ID Terpilih:", aiMatch);
+                console.log("====================================");
+                showToast("💡 AI: " + (aiMatch.pemikiran || "Mencocokkan...").substring(0, 45) + "...");
+
+                let foundCount = 0;
+                
+                // 4. PASANG KE UI: Ambil ID pilihan AI, langsung letakkan di layar (Tidak perlu rumus pencocokan lagi!)
+                ["shopee", "lazada", "blibli", "tiktok"].forEach(platform => {
+                    const selectedId = aiMatch[platform];
+                    const displayInput = document.getElementById(`display-${platform}`);
+                    const hiddenInput = document.getElementById(`prod-${platform}`);
+                    
+                    if (selectedId) {
+                        // Tarik data asli (beserta % fee) dari lokal berdasarkan ID pilihan AI
+                        const catData = (feeCategories[platform] || []).find(c => c.id === selectedId);
+                        if (catData) {
+                            displayInput.value = `${catData.name} (${catData.fee}%)`;
+                            hiddenInput.value = catData.id;
+                            
+                            displayInput.style.boxShadow = "0 0 0 2px var(--positive)";
+                            setTimeout(() => displayInput.style.boxShadow = "inset 0 2px 5px rgba(0,0,0,0.02)", 1500);
+                            foundCount++;
+                        }
+                    } else {
+                        displayInput.value = "";
+                        hiddenInput.value = "";
+                    }
+                });
+
+                calculatePreview();
+                
+                if (foundCount > 0) {
+                    setTimeout(() => showToast(`✅ 1000% AKURAT: AI Menemukan ${foundCount} Kategori!`), 2000);
+                } else {
+                    setTimeout(() => showToast("⚠️ AI gagal menemukan kecocokan di database."), 2000);
+                }
+
+            } catch (error) {
+                console.error("AI Error:", error);
+                showToast("⚠️ Gagal menghubungi server AI (Coba lagi dalam 5 detik).");
+            } finally {
+                btnAuto.innerHTML = originalText;
+                btnAuto.disabled = false;
+                btnAuto.style.opacity = "1";
             }
         }
 
