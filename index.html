@@ -1606,7 +1606,9 @@
                     <input type="file" id="prod-file" style="display: none" accept="image/*" />
                     <input type="file" id="var-file-global" style="display: none" accept="image/*" />
                     <button class="btn btn-outline btn-sm" id="btn-prod-link" style="border-radius: 12px;">&#128279; Link</button>
-                </div>
+
+                    <button class="btn btn-outline btn-sm" id="btn-prod-del-photo" style="border-radius: 12px; color: var(--danger); border-color: rgba(255, 59, 48, 0.3); background: rgba(255, 59, 48, 0.05); display: none;">&#128465; Hapus Foto</button>
+                                    </div>
                 <div id="prod-preview" style="width: 90px; height: 90px; border-radius: 16px; background: var(--hover-bg); display: none; align-items: center; justify-content: center; margin-bottom: 16px; overflow: hidden; border: 1px solid var(--border-color);">
                     <img id="prod-preview-img" style="width: 100%; height: 100%; object-fit: cover" />
                 </div>
@@ -2078,6 +2080,7 @@
         let currentProductPage = 1;
         const productsPerPage = 100;
         let transactions = []; 
+        let isPhotoCleared = false;
 
         function getActiveModal(product) {
             if (!product.promoModal || !product.promoStartDate || !product.promoEndDate) return product.modal;
@@ -2278,6 +2281,14 @@
                 if (!btn) return;
                 const page = btn.dataset.page;
                 if (page) navTo(page);
+            });
+
+            // Event klik hapus foto
+            document.getElementById("btn-prod-del-photo")?.addEventListener("click", () => {
+                document.getElementById("prod-preview").style.display = "none";
+                document.getElementById("prod-preview-img").src = "";
+                document.getElementById("btn-prod-del-photo").style.display = "none";
+                isPhotoCleared = true; // Tandai bahwa user menghapus foto
             });
 
             document.getElementById("buku-list").addEventListener("click", function (e) {
@@ -3345,6 +3356,9 @@ let promoScrollInterval;
             ["prod-promo-modal", "prod-promo-start", "prod-promo-end"].forEach(id => document.getElementById(id).value = "");
             const checkPromo = document.getElementById("check-promo-global");
             if(checkPromo) { checkPromo.checked = false; document.getElementById("global-promo-container").style.display = "none"; }
+
+            isPhotoCleared = false;
+            document.getElementById("btn-prod-del-photo").style.display = "none";
         }
 
         function editProduct(id) {
@@ -3403,11 +3417,15 @@ let promoScrollInterval;
             });            
 
             document.getElementById("prod-markup").value = p.markup || "30";
+
+            isPhotoCleared = false;
             if (p.photo) { 
                 document.getElementById("prod-preview").style.display = "flex"; 
                 document.getElementById("prod-preview-img").src = p.photo; 
+                document.getElementById("btn-prod-del-photo").style.display = "block"; // Munculkan tombol hapus
             } else { 
                 document.getElementById("prod-preview").style.display = "none"; 
+                document.getElementById("btn-prod-del-photo").style.display = "none";
             }
             
             calculatePreview();
@@ -3433,41 +3451,63 @@ let promoScrollInterval;
 
             // 1. Ambil sumber gambar saat ini
             let photoUrl = document.getElementById("prod-preview-img").src || "";
+            // Jika dikosongkan, reset jadi string kosong
+            if (photoUrl === window.location.href || isPhotoCleared) {
+                photoUrl = "";
+            }
 
-            // 2. CEK JIKA GAMBAR ADALAH HASIL UPLOAD (BASE64)
+            // --- LOGIKA CERDAS: DETEKSI FILE LAMA UNTUK DIHAPUS DARI DRIVE ---
+            let oldPhotoUrl = editingProductId ? products.find(p => p.id === editingProductId).photo : "";
+            let needToDeleteOldDrivePhoto = false;
+            
+            // Jika sebelumnya punya foto di Google Drive...
+            if (oldPhotoUrl && oldPhotoUrl.includes("googleusercontent.com/d/")) {
+                // Dan jika fotonya dihapus ATAU diganti dengan foto baru...
+                if (isPhotoCleared || (photoUrl && photoUrl !== oldPhotoUrl)) {
+                    needToDeleteOldDrivePhoto = true; // Tandai untuk dihancurkan!
+                }
+            }
+
+            // 2. PROSES UPLOAD FOTO BARU (Jika Ada)
             if (photoUrl.startsWith("data:image")) {
                 try {
-                    // Pecah format base64
                     const mimeType = photoUrl.split(";")[0].split(":")[1];
                     const base64Data = photoUrl.split(",")[1];
-                    const filename = "MARYN_" + Date.now() + "_" + Math.floor(Math.random() * 1000);
+                    const filename = "MARYN_" + Date.now();
 
-                    // Kirim ke AppScript untuk diupload ke GDrive
                     const uploadRes = await fetch(GOOGLE_SCRIPT_URL, {
                         method: "POST",
                         headers: { "Content-Type": "text/plain;charset=utf-8" },
-                        redirect: "follow",
-                        body: JSON.stringify({
-                            action: "UPLOAD_IMAGE",
-                            filename: filename,
-                            mimeType: mimeType,
-                            base64Data: base64Data
-                        })
+                        body: JSON.stringify({ action: "UPLOAD_IMAGE", filename, mimeType, base64Data })
                     });
-                    
                     const uploadResult = await uploadRes.json();
-                    
-                    if (uploadResult.status === "success") {
-                        photoUrl = uploadResult.url; // Ganti foto menjadi Link dari Google Drive
-                    } else {
-                        throw new Error(uploadResult.message || "Gagal upload ke Drive");
-                    }
+                    if (uploadResult.status === "success") photoUrl = uploadResult.url;
+                    else throw new Error("Gagal upload");
                 } catch (err) {
-                    alert("⚠️ Gagal mengunggah foto ke Google Drive: " + err.message);
-                    btnSave.disabled = false;
-                    btnSave.innerHTML = originalText;
-                    return; // Hentikan penyimpanan jika foto gagal diunggah
+                    alert("⚠️ Gagal mengunggah foto. Pastikan koneksi stabil.");
+                    btnSave.disabled = false; btnSave.innerHTML = originalText;
+                    return; 
                 }
+            }
+
+            // 3. PROSES HAPUS FOTO LAMA DI DRIVE SECARA GAIB (Background Process)
+            if (needToDeleteOldDrivePhoto) {
+                fetch(GOOGLE_SCRIPT_URL, {
+                    method: "POST",
+                    headers: { "Content-Type": "text/plain;charset=utf-8" },
+                    body: JSON.stringify({ action: "DELETE_IMAGE", url: oldPhotoUrl })
+                }).catch(e => console.log("Gagal hapus foto lama dari drive")); 
+                // Kita abaikan errornya agar tidak mengganggu proses save
+            }
+
+            // 3. PROSES HAPUS FOTO LAMA DI DRIVE SECARA GAIB (Background Process)
+            if (needToDeleteOldDrivePhoto) {
+                fetch(GOOGLE_SCRIPT_URL, {
+                    method: "POST",
+                    headers: { "Content-Type": "text/plain;charset=utf-8" },
+                    body: JSON.stringify({ action: "DELETE_IMAGE", url: oldPhotoUrl })
+                }).catch(e => console.log("Gagal hapus foto lama dari drive")); 
+                // Kita abaikan errornya agar tidak mengganggu proses save
             }
 
             // 3. Lanjutkan penyimpanan normal dengan photoUrl yang sudah bersih (hanya link)
@@ -3536,15 +3576,74 @@ let promoScrollInterval;
         }
 
 
+        // ==============================================================
+        // FITUR UPLOAD GAMBAR DENGAN KOMPRESI OTOMATIS (HEMAT GDRIVE)
+        // ==============================================================
         function handleFileUpload(e) {
             const file = e.target.files[0];
             if (!file) return;
+
+            // Pastikan file yang diupload benar-benar gambar
+            if (!file.type.startsWith('image/')) {
+                showToast("⚠️ Harap pilih file gambar (JPG/PNG)!");
+                return;
+            }
+
+            showToast("Memproses & mengompres gambar...");
+
             const reader = new FileReader();
             reader.onload = function (ev) {
-                document.getElementById("prod-preview").style.display = "flex";
-                document.getElementById("prod-preview-img").src = ev.target.result;
+                // 1. Buat elemen gambar virtual untuk membaca dimensi asli
+                const img = new Image();
+                img.onload = function() {
+                    // 2. Tentukan batas resolusi maksimal (800px sudah sangat jernih untuk e-commerce)
+                    const MAX_WIDTH = 800;
+                    const MAX_HEIGHT = 800;
+                    let width = img.width;
+                    let height = img.height;
+
+                    // 3. Hitung rasio untuk memperkecil resolusi proporsional
+                    if (width > height) {
+                        if (width > MAX_WIDTH) {
+                            height *= MAX_WIDTH / width;
+                            width = MAX_WIDTH;
+                        }
+                    } else {
+                        if (height > MAX_HEIGHT) {
+                            width *= MAX_HEIGHT / height;
+                            height = MAX_HEIGHT;
+                        }
+                    }
+
+                    // 4. Buat Canvas HTML5 untuk menggambar ulang fotonya
+                    const canvas = document.createElement("canvas");
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext("2d");
+                    
+                    // Gambar ulang foto asli ke dalam canvas dengan ukuran baru
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    // 5. Ekspor ke format JPEG dengan kualitas 80% (0.8)
+                    // Ini akan membuang ukuran file yang bengkak tapi mempertahankan kualitas visual
+                    const compressedDataUrl = canvas.toDataURL("image/jpeg", 0.8);
+
+                    // 6. Tampilkan ke UI Preview
+                    document.getElementById("prod-preview").style.display = "flex";
+                    document.getElementById("prod-preview-img").src = compressedDataUrl;
+                    
+                    // (Opsional) Tampilkan log penyusutan di F12 untuk melihat perbedaannya
+                    const originalSize = (file.size / 1024).toFixed(2);
+                    const newSize = Math.round((compressedDataUrl.length * 3 / 4) / 1024);
+                    console.log(`Penyusutan Gambar: Dari ${originalSize} KB menjadi ${newSize} KB!`);
+                    showToast("Gambar siap diunggah!");
+                };
+                img.src = ev.target.result;
             };
             reader.readAsDataURL(file);
+
+            document.getElementById("btn-prod-del-photo").style.display = "block";
+            isPhotoCleared = false;
         }
 
         function promptLink() {
@@ -4268,6 +4367,16 @@ let promoScrollInterval;
             .then((result) => {
                 if (result.isConfirmed) {
                     const p = products.find(x => x.id === editingProductId);
+                    
+                    // Eksekusi Hapus Foto dari Drive!
+                    if (p.photo && p.photo.includes("googleusercontent.com/d/")) {
+                        fetch(GOOGLE_SCRIPT_URL, {
+                            method: "POST",
+                            headers: { "Content-Type": "text/plain;charset=utf-8" },
+                            body: JSON.stringify({ action: "DELETE_IMAGE", url: p.photo })
+                        }).catch(e => console.log("Gagal hapus foto saat hapus produk"));
+                    }
+
                     products = products.filter(x => x.id !== editingProductId);
                     localStorage.setItem("maryn_products", JSON.stringify(products));
                     
@@ -4275,7 +4384,7 @@ let promoScrollInterval;
                     
                     renderProducts();
                     closeModal("modal-product"); 
-                    showToast("Produk berhasil dihapus!"); 
+                    showToast("Produk dan Foto berhasil dihapus!"); 
                 }
             });
         }
