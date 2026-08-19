@@ -459,7 +459,20 @@
             justify-content: space-between;
             height: 100%;
         }
-        .product-name { font-size: 15px; font-weight: 800; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .product-name { 
+            font-size: 15px; 
+            font-weight: 800; 
+            color: var(--text); 
+
+            /* Perintah agar teks turun ke bawah maksimal 2 baris */
+            display: -webkit-box;
+            -webkit-line-clamp: 2; /* Ganti angka 2 jadi 3 jika ingin 3 baris */
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            line-height: 1.3;
+            white-space: normal;
+        }
         .product-meta { font-size: 12px; color: var(--text-tert); margin-top: 4px; }
         
         .product-prices { 
@@ -1536,6 +1549,21 @@
                     <button class="close-btn" data-close="modal-settings">&#10005;</button>
                 </div>
                 <div class="setting-section">
+                    <div class="setting-section-title">📦 Program Gratis Ongkir Xtra</div>
+                    <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 800; color: var(--accent); cursor: pointer; margin-bottom: 12px;">
+                        <input type="checkbox" id="set-gratis-ongkir" style="width: 18px; height: 18px; accent-color: var(--accent);">
+                        Aktifkan Gratis Ongkir Xtra
+                    </label>
+                    <p style="font-size: 11px; color: var(--text-tert); margin-bottom: 12px; line-height: 1.4;">
+                        Sistem akan otomatis menghitung potongan admin tambahan berdasarkan dimensi (P, L, T) dan berat produk. <br>
+                        • <b>Biasa:</b> < 60cm & < 5000gr (Maks potongan Rp 40.000)<br>
+                        • <b>Khusus:</b> >= 60cm atau >= 5000gr (Maks potongan Rp 60.000)
+                    </p>
+                    <button class="btn btn-outline" id="btn-mass-update-ongkir" style="width: 100%; border-radius: 12px; font-size: 12px; display: none;">
+                        🔄 Sesuaikan Gratis Ongkir Seluruh Produk
+                    </button>
+                </div>
+                <div class="setting-section">
                     <div class="setting-section-title">
                     <img src="shopee.png" class="fee-logo-img" style="width: 32px; height: 32px; box-shadow:none; padding:4px;" alt="Shopee">
                         Shopee
@@ -1583,16 +1611,38 @@
                         <div><span class="label">Voucher Toko (Rp)</span><input class="input" type="number" placeholder="0" value="0" id="set-tiktok-voucher" /></div>
                     </div>
                 </div>
-
+                
                 <div class="action-row" style="margin-top: 16px">
                     <button class="btn btn-outline" data-close="modal-settings" style="border-radius: 20px;">Batal</button>
                     <button class="btn btn-primary" id="btn-save-settings" style="border-radius: 20px;">Simpan Pengaturan</button>
                 </div>
+
+                <!-- MENU KHUSUS OWNER (Otomatis disembunyikan pakai JS jika bukan owner) -->
+                <div class="setting-section" id="owner-menu" style="display: none; border-color: var(--accent);">
+                    <div class="setting-section-title" style="color: var(--accent);">👑 Menu Khusus Owner</div>
+                    <button class="btn btn-outline" id="btn-show-history" style="width: 100%; border-radius: 16px; font-size: 13px;">🕒 Lihat History Aktivitas</button>
+                </div>
+
                 <div class="setting-section" style="border-color: #e7126035;">
                     <button class="btn btn-danger" id="btn-logout" style="width: 100%; border-radius: 16px;">LogOut</button>
                 </div>
             </div>
+
         </div>
+                            <!-- MODAL HISTORY AKTIVITAS -->
+            <div class="modal-overlay" id="modal-history">
+                <div class="modal">
+                    <div class="modal-header">
+                        <div class="modal-title">🕒 History Aktivitas</div>
+                        <button class="close-btn" data-close="modal-history">&#10005;</button>
+                    </div>
+                    <div id="history-list" style="display: flex; flex-direction: column; gap: 10px; max-height: 60vh; overflow-y: auto;">
+                        <!-- List history akan di-render di sini oleh JavaScript -->
+                    </div>
+                </div>
+            </div>
+
+
 
         <div class="modal-overlay" id="modal-product">
             <div class="modal">
@@ -1693,6 +1743,61 @@
                     <option value="Food and Beverages">Food and Beverages</option>
                     <option value="Pet Care">Pet Care</option>
                 </select>
+                <!-- ================= PENGATURAN ONGKIR MANUAL & AI PER PRODUK ================= -->
+                <!-- id="container-ongkir-per-produk" digunakan untuk trigger hide/show dari Settings -->
+                <div id="container-ongkir-per-produk" style="background: var(--bg); padding: 16px; border-radius: 16px; margin: 0 0 20px 0; border: 1px dashed var(--chart2); display: none;">
+                    
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 800; color: var(--text); cursor: pointer; margin: 0;">
+                            <input type="checkbox" id="prod-gratis-ongkir" onchange="calculatePreview()" style="width: 18px; height: 18px; accent-color: var(--accent); cursor: pointer;">
+                            📦 Ikut Program Gratis Ongkir Xtra
+                        </label>
+                        <button class="btn btn-outline btn-sm" id="btn-auto-ongkir" style="border-radius: 12px; display: flex; align-items: center; gap: 6px; color: var(--accent); border-color: var(--accent); font-weight: 800; padding: 6px 12px;" title="AI Set Ongkir Berdasarkan Dimensi & Nama">
+                            🤖 AI Set Ongkir
+                        </button>
+                    </div>
+                    
+                    <p style="font-size: 11px; color: var(--text-tert); margin-bottom: 16px; line-height: 1.4;">
+                        Atur persentase potongan ongkir secara manual, atau klik tombol <b>AI Set Ongkir</b> agar sistem menentukannya otomatis berdasarkan dimensi dan berat (Reguler / Khusus).
+                    </p>
+                    
+                    <!-- GRID 2x2 UNTUK PENCARIAN ONGKIR (Bisa Manual Ketik atau Otomatis AI) -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <div>
+                            <span class="label">Kategori Ongkir Shopee</span>
+                            <div style="position: relative;">
+                                <input class="input" type="text" id="display-ongkir-shopee" placeholder="Ketik kategori ongkir..." autocomplete="off" style="margin-bottom:0; border-radius: 12px;" />
+                                <input type="hidden" id="prod-ongkir-shopee" value="0" />
+                                <div id="drop-ongkir-shopee" style="display:none; position:absolute; top:calc(100% + 4px); left:0; width:100%; max-height:200px; overflow-y:auto; background:var(--card-bg); border:1px solid var(--border-color); border-radius:12px; z-index:100; box-shadow:var(--shadow-lg);"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <span class="label">Kategori Ongkir Lazada</span>
+                            <div style="position: relative;">
+                                <input class="input" type="text" id="display-ongkir-lazada" placeholder="Ketik kategori ongkir..." autocomplete="off" style="margin-bottom:0; border-radius: 12px;" />
+                                <input type="hidden" id="prod-ongkir-lazada" value="0" />
+                                <div id="drop-ongkir-lazada" style="display:none; position:absolute; top:calc(100% + 4px); left:0; width:100%; max-height:200px; overflow-y:auto; background:var(--card-bg); border:1px solid var(--border-color); border-radius:12px; z-index:100; box-shadow:var(--shadow-lg);"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <span class="label">Kategori Ongkir Blibli</span>
+                            <div style="position: relative;">
+                                <input class="input" type="text" id="display-ongkir-blibli" placeholder="Ketik kategori ongkir..." autocomplete="off" style="margin-bottom:0; border-radius: 12px;" />
+                                <input type="hidden" id="prod-ongkir-blibli" value="0" />
+                                <div id="drop-ongkir-blibli" style="display:none; position:absolute; top:calc(100% + 4px); left:0; width:100%; max-height:200px; overflow-y:auto; background:var(--card-bg); border:1px solid var(--border-color); border-radius:12px; z-index:100; box-shadow:var(--shadow-lg);"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <span class="label">Kategori Ongkir TikTok</span>
+                            <div style="position: relative;">
+                                <input class="input" type="text" id="display-ongkir-tiktok" placeholder="Ketik kategori ongkir..." autocomplete="off" style="margin-bottom:0; border-radius: 12px;" />
+                                <input type="hidden" id="prod-ongkir-tiktok" value="0" />
+                                <div id="drop-ongkir-tiktok" style="display:none; position:absolute; top:calc(100% + 4px); left:0; width:100%; max-height:200px; overflow-y:auto; background:var(--card-bg); border:1px solid var(--border-color); border-radius:12px; z-index:100; box-shadow:var(--shadow-lg);"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- ============================================================================ -->
                 
                 <!-- GRID 2x2 UNTUK KATEGORI ADMIN FEE -->
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
@@ -1929,10 +2034,24 @@
         // TAMBAHKAN MULAI DARI SINI
         const auth = firebase.auth();
 
-        // AUTH GUARD: Paksa kembali ke login.html jika belum login
+        let currentUserEmail = "Unknown"; 
+        let activityHistory = JSON.parse(localStorage.getItem("maryn_history")) || []; // Variabel penampung history
+
+        // Email Owner (GANTI DENGAN EMAIL ASLIMU)
+ 
+        const OWNER_EMAILS = ["dwimahadi2706@gmail.com", "maryn@admin.com"];
+
         auth.onAuthStateChanged((user) => {
             if (!user) {
                 window.location.replace("login.html");
+            } else {
+                currentUserEmail = user.email;
+                
+                // Jika yang login adalah Owner, tampilkan tombol history
+                if (OWNER_EMAILS.includes(currentUserEmail.toLowerCase())) {
+                    const ownerMenu = document.getElementById("owner-menu");
+                    if (ownerMenu) ownerMenu.style.display = "block";
+                }
             }
         });
         // SAMPAI SINI
@@ -1971,15 +2090,13 @@
             try {
                 const response = await fetch(GOOGLE_SCRIPT_URL, {
                     method: "POST",
-                    // TAMBAHKAN HEADER INI AGAR TIDAK KENA CORS BLOCKED
                     headers: {
                         "Content-Type": "text/plain;charset=utf-8", 
                     },
                     // TAMBAHKAN REDIRECT FOLLOW
                     redirect: "follow",
-                    body: JSON.stringify({ action: "SYNC", payload: syncQueue })
+                    body: JSON.stringify({ action: "SYNC", payload: syncQueue, user: currentUserEmail })
                 });
-                
                 const result = await response.json();
                 
                 if (result.status === "success") {
@@ -2007,7 +2124,8 @@
             }
 
             try {
-                        console.log("Meminta data dari server...");
+
+                console.log("Meminta data dari server...");
                         
                         const response = await fetch(GOOGLE_SCRIPT_URL);
                         
@@ -2036,7 +2154,13 @@
                             feeCategories = data.fees;
                             localStorage.setItem("maryn_fees", JSON.stringify(feeCategories));
                         }
-                        // -------------------------------------------
+                       
+                        // TAMBAHKAN BLOK INI UNTUK MENANGKAP ONGKIR
+                        if (data.ongkir) {
+                            ongkirCategories = data.ongkir;
+                            localStorage.setItem("maryn_ongkir", JSON.stringify(ongkirCategories));
+                        }
+                        // ----------------------------------------------------
                         
                         // Render UI
                         localStorage.setItem("maryn_products", JSON.stringify(products));
@@ -2046,7 +2170,12 @@
                         updateDashboard();
                         renderBukuList(currentBukuTab);
                         updateFeeCounts(); // Ini yang akan memunculkan angka di menu Fee
-                        
+
+                        if (data.history) {
+                            activityHistory = data.history;
+                            localStorage.setItem("maryn_history", JSON.stringify(activityHistory));
+                        }
+
                     } catch (e) {
                         console.error("Gagal mengambil data dari Google Sheets:", e);
                         showToast("Gagal mengambil data dari server. Cek console (F12)!");
@@ -2229,6 +2358,7 @@
         const DATA_VERSION = "1.0.6"; 
         let feeCategories = JSON.parse(localStorage.getItem("maryn_fees"));
         let savedVersion = localStorage.getItem("maryn_data_version");
+        let ongkirCategories = JSON.parse(localStorage.getItem("maryn_ongkir")) || { shopee: [], lazada: [], blibli: [], tiktok: [] };
 
         if (!feeCategories || savedVersion !== DATA_VERSION) {
             feeCategories = {
@@ -2241,18 +2371,25 @@
             localStorage.setItem("maryn_data_version", DATA_VERSION);
         }
 
+        // PERBARUI VARIABEL INI
         const defaultSettings = {
             shopee: { proses: 1250, promo: 4.5, premi: 0.5, voucher: 0 },
             lazada: { proses: 1250, promo: 0, premi: 0, voucher: 0 },
             blibli: { proses: 1250, promo: 0, premi: 0, voucher: 0 },
             tiktok: { proses: 1250, promo: 0, premi: 0, voucher: 0 },
+            global: { gratisOngkirActive: false } // <--- KODE BARU
         };
 
         let settings = JSON.parse(localStorage.getItem("maryn_settings")) || {};
         settings = { ...defaultSettings, ...settings };
+        
+        // JANGAN HAPUS LOOPING INI
         ["shopee", "lazada", "blibli", "tiktok"].forEach(p => {
             settings[p] = { ...defaultSettings[p], ...settings[p] };
         });
+
+        // KODE BARU: Pastikan object global tidak undefined
+        if (!settings.global) settings.global = { gratisOngkirActive: false };
 
         let currentTxItems = [];
         let editingProductId = null;
@@ -2290,6 +2427,12 @@
                 document.getElementById("btn-prod-del-photo").style.display = "none";
                 isPhotoCleared = true; // Tandai bahwa user menghapus foto
             });
+
+            // Tambahkan di dalam fungsi setupEventDelegation()
+            document.getElementById("set-gratis-ongkir")?.addEventListener("change", function(e) {
+                document.getElementById("btn-mass-update-ongkir").style.display = e.target.checked ? "flex" : "none";
+            });
+            document.getElementById("btn-mass-update-ongkir")?.addEventListener("click", massUpdateGratisOngkir);
 
             document.getElementById("buku-list").addEventListener("click", function (e) {
             const btnDelete = e.target.closest(".btn-delete-tx");
@@ -2643,6 +2786,7 @@
 
             loadSettingsToForm();
             setupFeeSearch();
+            setupOngkirSearch();
             // FETCH DATA
             fetchServerData(); 
             processSyncQueue();
@@ -3112,7 +3256,62 @@ let promoScrollInterval;
         }
 
 
+        function setupOngkirSearch() {
+            ["shopee", "lazada", "blibli", "tiktok"].forEach(plat => {
+                const displayInput = document.getElementById(`display-ongkir-${plat}`);
+                const hiddenInput = document.getElementById(`prod-ongkir-${plat}`);
+                const dropdown = document.getElementById(`drop-ongkir-${plat}`);
+                if(!displayInput) return;
 
+                function renderList(query) {
+                    const fees = ongkirCategories[plat] || [];
+                    // Filter berdasarkan nama kategori (contoh: Audio, Amplifier, dll)
+                    const filtered = fees.filter(f => f.name.toLowerCase().includes(query.toLowerCase()));
+                    
+                    if (filtered.length === 0) {
+                        dropdown.innerHTML = '<div style="padding:10px; font-size:12px; color:var(--text-tert); text-align:center;">Kategori tidak ditemukan</div>';
+                    } else {
+                        // Tampilkan hasil pencarian, lengkap dengan 2 opsi (Reguler & Khusus) per kategori
+                        dropdown.innerHTML = filtered.map(f => `
+                            <div style="padding:12px 14px; border-bottom:1px solid var(--border-color); font-size:12px; line-height:1.4;">
+                                <div style="font-weight:700; color:var(--text); margin-bottom: 8px;">${escapeHtml(f.name)}</div>
+                                <div style="display: flex; gap: 8px;">
+                                    <div class="fee-search-item" data-fee="${f.feeReguler}" data-name="Reguler: ${escapeHtml(f.name)}" style="flex: 1; padding: 6px; background: var(--hover-bg); border-radius: 6px; cursor: pointer; text-align: center; border: 1px solid var(--border-color);">
+                                        <span style="color:var(--accent); font-weight:800;">${f.feeReguler}%</span><br><span style="font-size:10px; color:var(--text-tert);">Reguler</span>
+                                    </div>
+                                    <div class="fee-search-item" data-fee="${f.feeKhusus}" data-name="Khusus: ${escapeHtml(f.name)}" style="flex: 1; padding: 6px; background: rgba(255, 59, 48, 0.05); border-radius: 6px; cursor: pointer; text-align: center; border: 1px solid rgba(255, 59, 48, 0.2);">
+                                        <span style="color:var(--danger); font-weight:800;">${f.feeKhusus}%</span><br><span style="font-size:10px; color:var(--danger);">Khusus</span>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('');
+                    }
+                }
+
+                displayInput.addEventListener("focus", () => { renderList(displayInput.value); dropdown.style.display = "block"; });
+                displayInput.addEventListener("input", () => { hiddenInput.value = "0"; renderList(displayInput.value); dropdown.style.display = "block"; calculatePreview(); });
+                
+                dropdown.addEventListener("click", (e) => {
+                    // Deteksi apakah yang diklik adalah tombol Reguler atau Khusus
+                    const item = e.target.closest(".fee-search-item");
+                    if (item) {
+                        // Set nama di layar (Misal: "Reguler: Audio - Amplifier (5.5%)")
+                        displayInput.value = item.dataset.name + " (" + item.dataset.fee + "%)";
+                        // Simpan angka desimalnya ke hidden input (Misal: 5.5)
+                        hiddenInput.value = item.dataset.fee; 
+                        dropdown.style.display = "none"; 
+                        calculatePreview(); // Jalankan hitung ulang
+                    }
+                });
+                
+                document.addEventListener("click", (e) => {
+                    if (e.target !== displayInput && !dropdown.contains(e.target)) { 
+                        dropdown.style.display = "none"; 
+                        if (!hiddenInput.value || hiddenInput.value === "0") displayInput.value = ""; 
+                    }
+                });
+            });
+        }
         function setupFeeSearch() {
             ["shopee", "lazada", "blibli", "tiktok"].forEach(plat => {
                 const displayInput = document.getElementById(`display-${plat}`);
@@ -3167,16 +3366,27 @@ let promoScrollInterval;
             if (sort === "newest") filtered.sort((a, b) => parseIndonesianDate(b.createdAt) - parseIndonesianDate(a.createdAt));
             if (sort === "oldest") filtered.sort((a, b) => parseIndonesianDate(a.createdAt) - parseIndonesianDate(b.createdAt));
 
-            if (totalInfo) {
-                if (search || selectedCategory !== "all") {
-                    totalInfo.innerHTML = `Ditemukan: <b style="color: var(--accent)">${filtered.length}</b> dari <b style="color: var(--text)">${products.length}</b> total produk`;
-                } else {
-                    totalInfo.innerHTML = `Total Keseluruhan: <b style="color: var(--text)">${products.length} Produk</b>`;
-                }
-            }
-
+            // 1. Hitung total halaman lebih dulu agar nilai currentProductPage selalu valid
             const totalPages = Math.ceil(filtered.length / productsPerPage) || 1;
             if (currentProductPage > totalPages) currentProductPage = totalPages;
+
+            // 2. Tampilkan info total beserta range urutan produk yang sedang aktif
+            if (totalInfo) {
+                // Rumus menghitung angka awal (start) dan akhir (end)
+                const startItem = filtered.length === 0 ? 0 : (currentProductPage - 1) * productsPerPage + 1;
+                const endItem = Math.min(currentProductPage * productsPerPage, filtered.length);
+                
+                // Teks range yang akan disisipkan, misalnya: "( 1 - 100 produk )"
+                const rangeText = filtered.length > 0 
+                    ? ` <span style="opacity: 0.8; font-weight: normal; font-size: 0.95em;"> / ${startItem} - ${endItem} produk </span>` 
+                    : "";
+
+                if (search || selectedCategory !== "all") {
+                    totalInfo.innerHTML = `Ditemukan: <b style="color: var(--accent)">${filtered.length}</b> dari <b style="color: var(--text)">${products.length}</b> total produk${rangeText}`;
+                } else {
+                    totalInfo.innerHTML = `Total Keseluruhan: <b style="color: var(--text)">${products.length} Produk</b>${rangeText}`;
+                }
+            }
 
             if (paginationDiv) {
                 paginationDiv.style.display = totalPages > 1 ? "flex" : "none";
@@ -3247,6 +3457,7 @@ let promoScrollInterval;
                 </div>`;
             }).join("");
         }
+
         function calculateSellPrice(product, platform) {
             const feeId = product[platform + "Fee"];
             if (!feeId) return 0;
@@ -3254,19 +3465,74 @@ let promoScrollInterval;
             if (!cat) return 0;
             const s = settings[platform];
             if (!s) return 0;
-            const totalPersen = (cat.fee + s.promo + s.premi) / 100;
+
+            // 1. Cek Dimensi & Berat
+            const pL = parseFloat(product.length) || 0;
+            const pW = parseFloat(product.width) || 0;
+            const pH = parseFloat(product.height) || 0;
+            const pWeight = parseFloat(product.weight) || 0;
+            const isKhusus = (pWeight >= 5000 || pL >= 60 || pW >= 60 || pH >= 60);
+
+            // 2. Setup Ongkir (Default Sementara)
+            const simOngkirBiasa = 5.5; 
+            const simOngkirKhusus = 7.0; 
+            const maxOngkirCap = isKhusus ? 60000 : 40000;
+            const persenOngkirTarget = isKhusus ? simOngkirKhusus : simOngkirBiasa;
+
+            const isOngkirAktif = settings.global?.gratisOngkirActive;
+            const adminPersen = (cat.fee + s.promo + s.premi) / 100;
+            const ongkirPersen = isOngkirAktif ? (persenOngkirTarget / 100) : 0;
+            const totalPersenAwal = adminPersen + ongkirPersen;
+
             const totalNominal = s.proses + s.voucher;
             const basePrice = getActiveModal(product) * (1 + (product.markup / 100));
-            return Math.round((basePrice + totalNominal) / (1 - totalPersen));
+
+            // 3. Kalkulasi Cerdas (Mempertimbangkan Cap Ongkir)
+            let normalSell = (basePrice + totalNominal) / (1 - totalPersenAwal);
+            
+            if (isOngkirAktif && (normalSell * ongkirPersen) > maxOngkirCap) {
+                // Jika ongkir melebih batas maksimal (Cap), pakai nominal tetap (Rp40rb/60rb)
+                return Math.round((basePrice + totalNominal + maxOngkirCap) / (1 - adminPersen));
+            } else {
+                // Jika aman di bawah batas
+                return Math.round(normalSell);
+            }
         }
 
         function calculateNetPrice(product, platform) {
             const sell = calculateSellPrice(product, platform);
             if (!sell) return 0;
+            
             const cat = (feeCategories[platform] || []).find((f) => f.id === product[platform + "Fee"]);
             const s = settings[platform];
-            const totalPersen = (cat.fee + s.promo + s.premi) / 100;
-            return Math.round(sell - ((sell * totalPersen) + s.proses + s.voucher));
+            
+            // 1. Cek Dimensi & Berat lagi untuk Net
+            const pL = parseFloat(product.length) || 0;
+            const pW = parseFloat(product.width) || 0;
+            const pH = parseFloat(product.height) || 0;
+            const pWeight = parseFloat(product.weight) || 0;
+            const isKhusus = (pWeight >= 5000 || pL >= 60 || pW >= 60 || pH >= 60);
+
+            const simOngkirBiasa = 5.5; 
+            const simOngkirKhusus = 7.0; 
+            const maxOngkirCap = isKhusus ? 60000 : 40000;
+            const persenOngkirTarget = isKhusus ? simOngkirKhusus : simOngkirBiasa;
+
+            const isOngkirAktif = settings.global?.gratisOngkirActive;
+            const adminPersen = (cat.fee + s.promo + s.premi) / 100;
+            const ongkirPersen = isOngkirAktif ? (persenOngkirTarget / 100) : 0;
+            
+            let potonganOngkir = 0;
+            if (isOngkirAktif) {
+                potonganOngkir = sell * ongkirPersen;
+                if (potonganOngkir > maxOngkirCap) potonganOngkir = maxOngkirCap; // Batasi potongan ongkir di sini
+            }
+
+            const totalNominal = s.proses + s.voucher;
+            const potonganAdmin = sell * adminPersen;
+
+            // Harga jual dikurangi potongan admin + potongan ongkir + nominal lainnya
+            return Math.round(sell - (potonganAdmin + potonganOngkir + totalNominal));
         }
 
         function calculateProfit(product, platform) {
@@ -3276,64 +3542,95 @@ let promoScrollInterval;
         }
 
         function calculatePreview() {
-            const markup = parseFloat(document.getElementById("prod-markup")?.value) || 0;
+    const markup = parseFloat(document.getElementById("prod-markup")?.value) || 0;
 
-            // Ambil Data Fee yang dipilih di luar
-            let selectedFees = {};
-            ["shopee", "lazada", "blibli", "tiktok"].forEach(platform => {
-                selectedFees[platform] = document.getElementById("prod-" + platform)?.value;
-            });
+    // 1. AMBIL DATA FEE & ONGKIR YANG DIPILIH USER
+    let selectedFees = {};
+    let selectedOngkir = {}; // Array baru khusus menangkap angka dari dropdown ongkir
+    
+    ["shopee", "lazada", "blibli", "tiktok"].forEach(platform => {
+        selectedFees[platform] = document.getElementById("prod-" + platform)?.value;
+        // Ambil nilai ongkir (misal 5.5) dan jadikan tipe number
+        selectedOngkir[platform] = parseFloat(document.getElementById("prod-ongkir-" + platform)?.value) || 0;
+    });
 
-            // FUNGSI HELPER UNTUK MENGHITUNG DAN MENCETAK KE HTML
-            const hitungDanCetak = (modalValue, prefixId) => {
-                ["shopee", "lazada", "blibli", "tiktok"].forEach(platform => {
-                    const elHarga = document.getElementById(prefixId + platform + "-harga");
-                    const elHasil = document.getElementById(prefixId + platform + "-hasil");
-                    const elProfit = document.getElementById(prefixId + platform + "-profit");
-                    
-                    if (!elHarga || !elProfit) return;
-                    
-                    const feeId = selectedFees[platform];
-                    if (!modalValue || !feeId) { 
-                        elHarga.textContent = "Rp 0"; 
-                        if(elHasil) elHasil.textContent = "Rp 0"; 
-                        elProfit.textContent = "Rp 0"; 
-                        return; 
-                    }
+    const hitungDanCetak = (modalValue, prefixId) => {
+        // 2. BACA CHECKBOX DARI FORM PRODUK INI, bukan dari setting global
+        const isOngkirAktif = document.getElementById("prod-gratis-ongkir")?.checked;
 
-                    const cat = (feeCategories[platform] || []).find((f) => f.id === feeId);
-                    if (!cat) return;
-                    const s = settings[platform];
-                    const totalPersen = (cat.fee + s.promo + s.premi) / 100;
-                    const totalNominal = s.proses + s.voucher;
-                    const base = modalValue * (1 + (markup / 100));
-                    const sell = Math.round((base + totalNominal) / (1 - totalPersen));
-                    const net = Math.round(sell - ((sell * totalPersen) + totalNominal));
-
-                    elHarga.textContent = formatRupiah(sell); 
-                    if(elHasil) elHasil.textContent = formatRupiah(net); 
-                    elProfit.textContent = formatRupiah(net - modalValue);
-                });
-            };
-
-            // UPDATE MASTER PREVIEW (PRODUK TANPA VARIASI)
-            const masterContainer = document.getElementById("master-preview-container");
-            if(masterContainer) masterContainer.style.display = "grid";
+        ["shopee", "lazada", "blibli", "tiktok"].forEach(platform => {
+            const elHarga = document.getElementById(prefixId + platform + "-harga");
+            const elHasil = document.getElementById(prefixId + platform + "-hasil");
+            const elProfit = document.getElementById(prefixId + platform + "-profit");
             
-            const rawModal = parseFloat(document.getElementById("prod-modal")?.value) || 0;
-            const promoModal = parseFloat(document.getElementById("prod-promo-modal")?.value) || 0;
-            const promoStart = document.getElementById("prod-promo-start")?.value;
-            const promoEnd = document.getElementById("prod-promo-end")?.value;
+            if (!elHarga || !elProfit) return;
             
-            let activeModal = rawModal;
-            if (promoModal && promoStart && promoEnd) {
-                const now = new Date(); now.setHours(0,0,0,0);
-                const dStart = new Date(promoStart); dStart.setHours(0,0,0,0);
-                const dEnd = new Date(promoEnd); dEnd.setHours(23,59,59,999);
-                if (now >= dStart && now <= dEnd) activeModal = promoModal;
+            const feeId = selectedFees[platform];
+            if (!modalValue || !feeId) { 
+                elHarga.textContent = "Rp 0"; 
+                if(elHasil) elHasil.textContent = "Rp 0"; 
+                elProfit.textContent = "Rp 0"; 
+                return; 
             }
-            hitungDanCetak(activeModal, "preview-");
-        }
+
+            const cat = (feeCategories[platform] || []).find((f) => f.id === feeId);
+            if (!cat) return;
+            
+            const s = settings[platform];
+            
+            // 3. KALKULASI TOTAL PERSEN MENGGUNAKAN ONGKIR PILIHAN USER
+            const adminPersen = (cat.fee + s.promo + s.premi) / 100;
+            // Jika checkbox aktif, gunakan % ongkir yang dipilih. Jika tidak, 0%
+            const ongkirPersen = isOngkirAktif ? (selectedOngkir[platform] / 100) : 0; 
+            const totalPersenAwal = adminPersen + ongkirPersen;
+            
+            const totalNominal = s.proses + s.voucher;
+            const base = modalValue * (1 + (markup / 100));
+            
+            let sell = 0;
+            let totalPotongan = 0;
+
+            // Logika cap max ongkir (Batas potongan 40rb / 60rb)
+            const maxOngkirCap = (selectedOngkir[platform] >= 7.0) ? 60000 : 40000;
+
+            let normalSell = (base + totalNominal) / (1 - totalPersenAwal);
+            
+            if (isOngkirAktif && (normalSell * ongkirPersen) > maxOngkirCap) {
+                // Jika ongkir menembus cap maksimal, gunakan nilai cap
+                sell = (base + totalNominal + maxOngkirCap) / (1 - adminPersen);
+                totalPotongan = (sell * adminPersen) + totalNominal + maxOngkirCap;
+            } else {
+                sell = normalSell;
+                totalPotongan = (sell * totalPersenAwal) + totalNominal;
+            }
+
+            sell = Math.round(sell);
+            const net = Math.round(sell - totalPotongan);
+
+            elHarga.textContent = formatRupiah(sell); 
+            if(elHasil) elHasil.textContent = formatRupiah(net); 
+            elProfit.textContent = formatRupiah(net - modalValue);
+        });
+    };
+
+    // UPDATE MASTER PREVIEW (PRODUK TANPA VARIASI)
+    const masterContainer = document.getElementById("master-preview-container");
+    if(masterContainer) masterContainer.style.display = "grid";
+    
+    const rawModal = parseFloat(document.getElementById("prod-modal")?.value) || 0;
+    const promoModal = parseFloat(document.getElementById("prod-promo-modal")?.value) || 0;
+    const promoStart = document.getElementById("prod-promo-start")?.value;
+    const promoEnd = document.getElementById("prod-promo-end")?.value;
+    
+    let activeModal = rawModal;
+    if (promoModal && promoStart && promoEnd) {
+        const now = new Date(); now.setHours(0,0,0,0);
+        const dStart = new Date(promoStart); dStart.setHours(0,0,0,0);
+        const dEnd = new Date(promoEnd); dEnd.setHours(23,59,59,999);
+        if (now >= dStart && now <= dEnd) activeModal = promoModal;
+    }
+    hitungDanCetak(activeModal, "preview-");
+}
         
         function openAddProduct() {
             editingProductId = null;
@@ -3359,6 +3656,18 @@ let promoScrollInterval;
 
             isPhotoCleared = false;
             document.getElementById("btn-prod-del-photo").style.display = "none";
+
+            // KODE BARU: Cek setting global, tampilkan/sembunyikan form ongkir
+            const isGlobalOngkirActive = settings.global?.gratisOngkirActive || false;
+            document.getElementById("container-ongkir-per-produk").style.display = isGlobalOngkirActive ? "block" : "none";
+            
+            // Set default checkbox ongkir ke status global
+            document.getElementById("prod-gratis-ongkir").checked = isGlobalOngkirActive;
+            
+            ["shopee", "lazada", "blibli", "tiktok"].forEach(p => {
+                document.getElementById("prod-ongkir-" + p).value = "0";
+                document.getElementById("display-ongkir-" + p).value = ""; // Bersihkan teks
+            });
         }
 
         function editProduct(id) {
@@ -3416,6 +3725,15 @@ let promoScrollInterval;
                 } else { document.getElementById("display-" + plat).value = ""; }
             });            
 
+            ["shopee", "lazada", "blibli", "tiktok"].forEach(plat => {
+                const capitalized = plat.charAt(0).toUpperCase() + plat.slice(1);
+                const feeValue = p["ongkir" + capitalized] || 0;
+                document.getElementById("prod-ongkir-" + plat).value = feeValue;
+                
+                // Tampilkan sebagai teks jika ada nilainya
+                document.getElementById("display-ongkir-" + plat).value = feeValue > 0 ? `Data Tersimpan (${feeValue}%)` : "";
+            });
+
             document.getElementById("prod-markup").value = p.markup || "30";
 
             isPhotoCleared = false;
@@ -3431,6 +3749,20 @@ let promoScrollInterval;
             calculatePreview();
             document.getElementById("modal-product").classList.add("active");
             document.getElementById("btn-delete-product").style.display = "block";
+
+            // KODE BARU: Cek setting global, tampilkan/sembunyikan form ongkir
+            const isGlobalOngkirActive = settings.global?.gratisOngkirActive || false;
+            document.getElementById("container-ongkir-per-produk").style.display = isGlobalOngkirActive ? "block" : "none";
+
+            // Set checkbox berdasarkan data lama, jika tidak ada, ikuti global
+            document.getElementById("prod-gratis-ongkir").checked = p.gratisOngkir !== undefined ? p.gratisOngkir : isGlobalOngkirActive;
+            
+            // Load nilai persentase ongkir yang tersimpan (jika ada)
+            ["shopee", "lazada", "blibli", "tiktok"].forEach(plat => {
+                const capitalized = plat.charAt(0).toUpperCase() + plat.slice(1);
+                document.getElementById("prod-ongkir-" + plat).value = p["ongkir" + capitalized] || "";
+            });
+
         }
 
         async function saveProduct() {
@@ -3500,16 +3832,8 @@ let promoScrollInterval;
                 // Kita abaikan errornya agar tidak mengganggu proses save
             }
 
-            // 3. PROSES HAPUS FOTO LAMA DI DRIVE SECARA GAIB (Background Process)
-            if (needToDeleteOldDrivePhoto) {
-                fetch(GOOGLE_SCRIPT_URL, {
-                    method: "POST",
-                    headers: { "Content-Type": "text/plain;charset=utf-8" },
-                    body: JSON.stringify({ action: "DELETE_IMAGE", url: oldPhotoUrl })
-                }).catch(e => console.log("Gagal hapus foto lama dari drive")); 
-                // Kita abaikan errornya agar tidak mengganggu proses save
-            }
-
+            // 3. Lanjutkan penyimpanan normal dengan photoUrl yang sudah bersih (hanya link)
+            // 3. Lanjutkan penyimpanan normal dengan photoUrl yang sudah bersih (hanya link)
             // 3. Lanjutkan penyimpanan normal dengan photoUrl yang sudah bersih (hanya link)
             const productData = { 
                 id: editingProductId || generateProductId(),
@@ -3530,9 +3854,20 @@ let promoScrollInterval;
                 promoStartDate: document.getElementById("prod-promo-start").value || "",
                 promoEndDate: document.getElementById("prod-promo-end").value || "",
                 markup: parseFloat(document.getElementById("prod-markup").value) || 0, 
-                shopeeFee: document.getElementById("prod-shopee").value, lazadaFee: document.getElementById("prod-lazada").value, 
-                blibliFee: document.getElementById("prod-blibli").value, tiktokFee: document.getElementById("prod-tiktok").value, 
-                photo: photoUrl, // <--- Link GDrive akan tersimpan di sini
+                shopeeFee: document.getElementById("prod-shopee").value, 
+                lazadaFee: document.getElementById("prod-lazada").value, 
+                blibliFee: document.getElementById("prod-blibli").value, 
+                tiktokFee: document.getElementById("prod-tiktok").value, 
+                
+                // --- WAJIB TAMBAHKAN BAGIAN INI ---
+                gratisOngkir: document.getElementById("prod-gratis-ongkir")?.checked || false, //FALSE INI TAMBAHAN 
+                ongkirShopee: parseFloat(document.getElementById("prod-ongkir-shopee")?.value) || 0,
+                ongkirLazada: parseFloat(document.getElementById("prod-ongkir-lazada")?.value) || 0,
+                ongkirBlibli: parseFloat(document.getElementById("prod-ongkir-blibli")?.value) || 0,
+                ongkirTiktok: parseFloat(document.getElementById("prod-ongkir-tiktok")?.value) || 0,
+                // ----------------------------------
+
+                photo: photoUrl,
                 createdAt: editingProductId ? products.find(p=>p.id===editingProductId).createdAt : Date.now() 
             };
 
@@ -3707,7 +4042,11 @@ let promoScrollInterval;
             showToast("Export produk berhasil!");
         }
 
-        function openSettings() { loadSettingsToForm(); document.getElementById("modal-settings").classList.add("active"); }
+        // FUNGSI BARU UNTUK MEMBUKA PENGATURAN
+        function openSettings() {
+            loadSettingsToForm(); // Memuat data pengaturan terakhir ke dalam form
+            document.getElementById("modal-settings").classList.add("active"); // Menampilkan pop-up
+        }
 
         function loadSettingsToForm() {
             ["shopee", "lazada", "blibli", "tiktok"].forEach(p => {
@@ -3715,6 +4054,13 @@ let promoScrollInterval;
                     document.getElementById(`set-${p}-${k}`).value = settings[p][k];
                 });
             });
+            
+            // KODE BARU: Load status checkbox
+            const checkboxOngkir = document.getElementById("set-gratis-ongkir");
+            if(checkboxOngkir) {
+                checkboxOngkir.checked = settings.global.gratisOngkirActive;
+                document.getElementById("btn-mass-update-ongkir").style.display = settings.global.gratisOngkirActive ? "flex" : "none";
+            }
         }
 
         function saveSettings() {
@@ -3726,6 +4072,9 @@ let promoScrollInterval;
                     voucher: parseFloat(document.getElementById(`set-${p}-voucher`).value) || 0,
                 };
             });
+            // KODE BARU: Simpan status checkbox
+            settings.global.gratisOngkirActive = document.getElementById("set-gratis-ongkir").checked;
+            
             localStorage.setItem("maryn_settings", JSON.stringify(settings));
             closeModal("modal-settings"); showToast("Pengaturan disimpan!"); renderProducts();
         }
@@ -4680,15 +5029,18 @@ let promoScrollInterval;
                 });
 
                 // 2. KIRIM KE APPS SCRIPT: AI, tolong temukan barang ini dari ribuan data ini!
+                // Temukan fungsi autoFillCategories, lalu perbarui bagian fetch ini:
                 const response = await fetch(GOOGLE_SCRIPT_URL, {
                     method: "POST",
                     headers: { "Content-Type": "text/plain;charset=utf-8" },
+                    redirect: "follow", // <-- WAJIB DITAMBAHKAN
                     body: JSON.stringify({
                         action: "AI_CATEGORY_DIRECT",
                         productName: productName,
                         categories: simplifiedCats
                     })
                 });
+                
                 
                 const result = await response.json();
                 if (result.status !== "success") throw new Error(result.message);
@@ -4746,6 +5098,207 @@ let promoScrollInterval;
             }
         }
 
+        // FUNGSI BARU: Update Massal Produk
+        async function massUpdateGratisOngkir() {
+            if (!settings.global?.gratisOngkirActive) {
+                showToast("Aktifkan Gratis Ongkir terlebih dahulu!");
+                return;
+            }
+
+            Swal.fire({
+                title: 'Sesuaikan Semua Harga?',
+                text: "Sistem akan menghitung ulang ongkir seluruh produk secara otomatis berdasarkan ukuran dimensi, berat, dan kategori barang.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: 'var(--accent)',
+                cancelButtonColor: 'var(--text-tert)',
+                confirmButtonText: 'Ya, Proses Sekarang!',
+                cancelButtonText: 'Batal',
+                background: 'var(--card-bg)',
+                color: 'var(--text)',
+                reverseButtons: true,
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        title: 'Menghitung Ulang...',
+                        allowOutsideClick: false,
+                        background: 'var(--card-bg)',
+                        color: 'var(--text)',
+                        didOpen: () => Swal.showLoading()
+                    });
+
+                    // Simulasi proses async agar antarmuka tidak freeze
+                    setTimeout(() => {
+                        let updatedCount = 0;
+                        
+                        products.forEach(p => {
+                            // 1. Cek apakah masuk hitungan ukuran "Khusus" atau "Reguler"
+                            const isKhusus = ((parseFloat(p.weight) || 0) >= 5000 || (parseFloat(p.length) || 0) >= 60 || (parseFloat(p.width) || 0) >= 60 || (parseFloat(p.height) || 0) >= 60);
+                            
+                            // 2. Loop keempat platform untuk mencari kategori ongkir yang paling cocok
+                            ["shopee", "lazada", "blibli", "tiktok"].forEach(platform => {
+                                const cats = ongkirCategories[platform] || [];
+                                if (cats.length > 0) {
+                                    // Coba cocokkan berdasarkan kemiripan nama kategori
+                                    let match = cats.find(c => c.name.toLowerCase().includes((p.category || "").toLowerCase()));
+                                    
+                                    // Jika gagal, cocokkan dari potongan nama barang
+                                    if (!match && p.name) {
+                                        const words = p.name.split(" ");
+                                        match = cats.find(c => words.some(w => w.length > 3 && c.name.toLowerCase().includes(w.toLowerCase())));
+                                    }
+                                    
+                                    // Fallback jika tetap tidak ketemu, ambil nilai general (index 0)
+                                    if (!match) match = cats[0];
+                                    
+                                    // Terapkan nilai ongkir (Reguler/Khusus) ke database produk
+                                    const fee = isKhusus ? match.feeKhusus : match.feeReguler;
+                                    p["ongkir" + platform.charAt(0).toUpperCase() + platform.slice(1)] = fee;
+                                }
+                            });
+                            
+                            // 3. Simpan state dan masukkan ke antrean sinkronisasi
+                            p.gratisOngkir = true;
+                            p.updatedAt = Date.now();
+                            enqueueSync("EDIT_PRODUCT", p);
+                            updatedCount++;
+                        });
+
+                        // Update memori lokal & render ulang halaman
+                        localStorage.setItem("maryn_products", JSON.stringify(products));
+                        renderProducts();
+                        
+                        Swal.close();
+                        showToast(`Berhasil menyesuaikan ongkir untuk ${updatedCount} produk!`);
+                    }, 800);
+                }
+            });
+        }
+
+        // Daftarkan event listener (Bisa ditaruh di dalam init() atau DOMContentLoaded)
+        document.getElementById("btn-auto-ongkir")?.addEventListener("click", autoFillOngkir);
+
+async function autoFillOngkir() {
+    const productName = document.getElementById("prod-name").value.trim();
+    const pL = parseFloat(document.getElementById("prod-length").value) || 0;
+    const pW = parseFloat(document.getElementById("prod-width").value) || 0;
+    const pH = parseFloat(document.getElementById("prod-height").value) || 0;
+    const pWeight = parseFloat(document.getElementById("prod-weight").value) || 0;
+
+    if (!productName) return showToast("⚠️ Isi Nama Produk terlebih dahulu!");
+    
+    const btnAuto = document.getElementById("btn-auto-ongkir");
+    const originalText = btnAuto.innerHTML;
+    btnAuto.innerHTML = "🤖 AI Menganalisa Ongkir...";
+    btnAuto.disabled = true;
+
+    try {
+        // 1. FILTER DIMENSI (Reguler vs Khusus) SESUAI ATURAN
+        const isKhusus = (pWeight >= 5000 || pL >= 60 || pW >= 60 || pH >= 60);
+        const statusUkuran = isKhusus ? "Khusus" : "Reguler";
+
+        // 2. KUMPULKAN DATABASE ONGKIR DARI LOCALSTORAGE (Hasil Tarikan Sheet)
+        let simplifiedOngkir = { shopee: {}, lazada: {}, blibli: {}, tiktok: {} };
+        ["shopee", "lazada", "blibli", "tiktok"].forEach(platform => {
+            (ongkirCategories[platform] || []).forEach(cat => {
+                simplifiedOngkir[platform][cat.id] = cat.name;
+            });
+        });
+
+        // 3. TANYA AI KATEGORI YANG PAS DARI DATABASE
+        // Temukan fungsi autoFillOngkir, lalu perbarui bagian fetch ini:
+        const response = await fetch(GOOGLE_SCRIPT_URL, {
+            method: "POST",
+            headers: { "Content-Type": "text/plain;charset=utf-8" },
+            redirect: "follow", // <-- WAJIB DITAMBAHKAN
+            body: JSON.stringify({
+                action: "AI_ONGKIR_DIRECT",
+                productName: productName,
+                categories: simplifiedOngkir
+            })
+        });
+        
+        const result = await response.json();
+        if (result.status !== "success") throw new Error(result.message);
+
+        const aiMatch = result.match;
+        showToast("💡 AI: " + (aiMatch.pemikiran || "Mencocokkan...").substring(0, 45) + "...");
+
+        let foundCount = 0;
+
+        // 4. TERAPKAN KE UI BERDASARKAN PILIHAN AI & KONDISI UKURAN
+        ["shopee", "lazada", "blibli", "tiktok"].forEach(platform => {
+            const selectedId = aiMatch[platform];
+            if (selectedId) {
+                // Temukan data lengkap kategori dari memori
+                const catData = (ongkirCategories[platform] || []).find(c => c.id === selectedId);
+                if (catData) {
+                    // Ambil persentase Reguler atau Khusus secara presisi
+                    const finalFee = isKhusus ? catData.feeKhusus : catData.feeReguler;
+                    
+                    document.getElementById(`prod-ongkir-${platform}`).value = finalFee;
+                    const disp = document.getElementById(`display-ongkir-${platform}`);
+                    
+                    // Tampilkan Nama Kategori Asli dari Sheet beserta Persentasenya
+                    disp.value = `${catData.name} - ${statusUkuran} (${finalFee}%)`;
+                    
+                    disp.style.boxShadow = "0 0 0 2px var(--positive)";
+                    setTimeout(() => disp.style.boxShadow = "inset 0 2px 5px rgba(0,0,0,0.02)", 1500);
+                    foundCount++;
+                }
+            }
+        });
+        
+        document.getElementById("prod-gratis-ongkir").checked = true;
+        calculatePreview();
+        
+        if (foundCount > 0) {
+            setTimeout(() => showToast(`✅ AI Ongkir sukses menerapkan format ${statusUkuran}!`), 2000);
+        } else {
+            setTimeout(() => showToast("⚠️ AI gagal menemukan kecocokan ongkir."), 2000);
+        }
+    } catch (error) {
+        showToast("⚠️ Gagal menghubungi server AI (Ongkir).");
+    } finally {
+        btnAuto.innerHTML = originalText;
+        btnAuto.disabled = false;
+    }
+}
+
+// Menampilkan modal history saat tombol diklik
+        document.getElementById("btn-show-history")?.addEventListener("click", () => {
+            renderHistoryList();
+            document.getElementById("modal-history").classList.add("active");
+            closeModal("modal-settings"); // Tutup modal pengaturan agar tidak double
+        });
+
+        // Fungsi mencetak kotak-kotak history
+        function renderHistoryList() {
+            const list = document.getElementById("history-list");
+            
+            if (activityHistory.length === 0) {
+                list.innerHTML = `<div style="text-align:center; color:var(--text-tert); font-size:12px; padding:30px;">Belum ada aktivitas tercatat.</div>`;
+                return;
+            }
+
+            // Pastikan penamaan properti (h.Waktu, h.Aksi, dll) sama persis dengan judul kolom di Sheet "history" baris pertama!
+            list.innerHTML = activityHistory.map(h => `
+                <div style="background: var(--card-bg); padding: 14px; border: 1px solid var(--border-color); border-radius: 14px; box-shadow: var(--shadow-sm);">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <span style="font-size: 11px; font-weight: 800; padding: 4px 8px; border-radius: 6px; 
+                              background: ${h.Role === 'Owner' ? 'rgba(255, 51, 119, 0.1)' : 'rgba(52, 199, 89, 0.1)'}; 
+                              color: ${h.Role === 'Owner' ? 'var(--accent)' : 'var(--positive)'};">
+                            ${h.Role || 'User'}
+                        </span>
+                        <span style="font-size: 10px; font-weight: 700; color: var(--text-tert);">${h.Waktu || '-'}</span>
+                    </div>
+                    <div style="font-size: 11px; color: var(--text-sec); font-weight: 600; margin-bottom: 4px;">📧 ${h['User Email'] || '-'}</div>
+                    <div style="font-size: 13px; font-weight: 800; color: var(--text);">${h.Aksi || '-'}</div>
+                    <div style="font-size: 12px; color: var(--text-tert); margin-top: 4px; line-height: 1.4;">${h.Detail || '-'}</div>
+                </div>
+            `).join("");
+        }
+        
     </script>
 </body>
 </html>
