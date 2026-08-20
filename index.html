@@ -1705,6 +1705,7 @@
                         <option value="Personal Care">Personal Care</option>
                         <option value="Home Care">Home Care</option>
                         <option value="Mom & Baby">Mom & Baby</option>
+                        <option value="Elder Care">Elder Care</option>
                         <option value="Pantry Essentials">Pantry Essentials</option>
                         <option value="Food and Beverages">Food & Beverages</option>
                         <option value="Pet Care">Pet Care</option>
@@ -2180,6 +2181,7 @@
                     <option value="" disabled selected>-- Pilih Kategori --</option>
                     <option value="Personal Care">Personal Care</option>
                     <option value="Mom & Baby">Mom & Baby</option>
+                    <option value="Elder Care">Elder Care</option>
                     <option value="Home Care">Home Care</option>
                     <option value="Pantry Essentials">Pantry Essentials</option>
                     <option value="Food and Beverages">Food and Beverages</option>
@@ -2480,7 +2482,7 @@
         let activityHistory = JSON.parse(localStorage.getItem("maryn_history")) || []; // Variabel penampung history
 
         // Email Owner (GANTI DENGAN EMAIL ASLIMU)
-        const OWNER_EMAILS = ["dwimahadi2706@gmail.com", "maryn@admin.com"];
+        const OWNER_EMAILS = ["dwimahadi2706@gmail.com", "maryn@admin.com", "maryn@admin2.com"];
 
         auth.onAuthStateChanged((user) => {
             if (!user) {
@@ -3424,9 +3426,13 @@
             }
         }
 
+        // UBAH FUNGSI INI DI INDEX.HTML
         function startScanner(targetInputId) {
             document.getElementById("modal-scanner").classList.add("active");
             if(!html5QrCode) html5QrCode = new Html5Qrcode("reader");
+
+            isScannerRunning = true; // Set TRUE SEBELUM dipanggil, bukan setelah Then()
+
             html5QrCode.start(
                 { facingMode: "environment" },
                 { fps: 10, qrbox: { width: 250, height: 250 } },
@@ -3437,9 +3443,10 @@
                     showToast("Barcode berhasil disalin!");
                 },
                 (err) => {}
-            ).then(() => {
-                isScannerRunning = true;
-            }).catch(err => showToast("Kamera tidak diizinkan."));
+            ).catch(err => {
+                isScannerRunning = false;
+                showToast("Kamera tidak diizinkan atau tidak tersedia.");
+            });
         }
 
         function setupDragAndDrop() {
@@ -5647,6 +5654,12 @@ let promoScrollInterval;
 
         function appendCalc(val) {
             if (calcInput === "Error") calcInput = ""; 
+            // Cegah operator ganda (kecuali minus untuk angka negatif)
+            const lastChar = calcInput.slice(-1);
+            const operators = ['+', '-', '*', '/', '%'];
+            if (operators.includes(lastChar) && operators.includes(val) && val !== '-') {
+                return; // Abaikan jika input operator berturut-turut
+            }
             calcInput += val;
             updateCalcDisplay();
         }
