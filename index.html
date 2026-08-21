@@ -4514,7 +4514,7 @@ let promoScrollInterval;
             ["shopee", "lazada", "blibli", "tiktok"].forEach(p => { document.getElementById("prod-" + p).value = ""; document.getElementById("display-" + p).value = ""; });
             document.getElementById("prod-markup").value = "30";
             document.getElementById("prod-preview").style.display = "none";
-            document.getElementById("prod-preview-img").src = "";
+            document.getElementById("prod-preview-img").setAttribute("src", "");
             
             calculatePreview();
             document.getElementById("modal-product").classList.add("active");
@@ -4606,13 +4606,15 @@ let promoScrollInterval;
 
             document.getElementById("prod-markup").value = p.markup || "30";
 
+            // KODE PREVIEW FOTO YANG BARU
             isPhotoCleared = false;
-            if (p.photo) { 
+            if (p.photo && p.photo.trim() !== "") { 
                 document.getElementById("prod-preview").style.display = "flex"; 
-                document.getElementById("prod-preview-img").src = p.photo; 
-                document.getElementById("btn-prod-del-photo").style.display = "block"; // Munculkan tombol hapus
+                document.getElementById("prod-preview-img").setAttribute("src", p.photo); // Wajib pakai setAttribute
+                document.getElementById("btn-prod-del-photo").style.display = "block";
             } else { 
                 document.getElementById("prod-preview").style.display = "none"; 
+                document.getElementById("prod-preview-img").setAttribute("src", "");
                 document.getElementById("btn-prod-del-photo").style.display = "none";
             }
             
@@ -4651,10 +4653,15 @@ let promoScrollInterval;
             btnSave.disabled = true; 
             btnSave.innerHTML = "⏳ Memproses Gambar & Menyimpan...";
 
-            // 1. Ambil sumber gambar saat ini
-            let photoUrl = document.getElementById("prod-preview-img").src || "";
-            // Jika dikosongkan, reset jadi string kosong
-            if (photoUrl === window.location.href || isPhotoCleared) {
+            // 1. Dapatkan SRC gambar yang aman (Gunakan getAttribute agar tidak nyasar)
+            let photoUrl = "";
+            // Hanya baca gambar JIKA kotak preview-nya benar-benar tampil di layar
+            if (document.getElementById("prod-preview").style.display !== "none") {
+                photoUrl = document.getElementById("prod-preview-img").getAttribute("src") || "";
+            }
+            
+            // Jika user klik hapus foto atau fotonya kosong, bersihkan secara tegas
+            if (isPhotoCleared || photoUrl.trim() === "") {
                 photoUrl = "";
             }
 
@@ -4662,11 +4669,9 @@ let promoScrollInterval;
             let oldPhotoUrl = editingProductId ? products.find(p => p.id === editingProductId).photo : "";
             let needToDeleteOldDrivePhoto = false;
             
-            // Jika sebelumnya punya foto di Google Drive...
             if (oldPhotoUrl && oldPhotoUrl.includes("googleusercontent.com/d/")) {
-                // Dan jika fotonya dihapus ATAU diganti dengan foto baru...
                 if (isPhotoCleared || (photoUrl && photoUrl !== oldPhotoUrl)) {
-                    needToDeleteOldDrivePhoto = true; // Tandai untuk dihancurkan!
+                    needToDeleteOldDrivePhoto = true; 
                 }
             }
 
@@ -4683,12 +4688,14 @@ let promoScrollInterval;
                         body: JSON.stringify({ action: "UPLOAD_IMAGE", filename, mimeType, base64Data })
                     });
                     const uploadResult = await uploadRes.json();
-                    if (uploadResult.status === "success") photoUrl = uploadResult.url;
-                    else throw new Error("Gagal upload");
+                    if (uploadResult.status === "success") {
+                        photoUrl = uploadResult.url;
+                    }
                 } catch (err) {
-                    alert("⚠️ Gagal mengunggah foto. Pastikan koneksi stabil.");
-                    btnSave.disabled = false; btnSave.innerHTML = originalText;
-                    return; 
+                    // JANGAN RETURN/BATALKAN DISINI! 
+                    // Jika jaringan lemot atau offline, biarkan photoUrl berbentuk 'data:image...' (Base64)
+                    // Nanti akan diunggah otomatis di latar belakang oleh fungsi SYNC antrean Offline.
+                    console.warn("Upload langsung gagal (mungkin offline), dialihkan ke antrean SYNC.");
                 }
             }
 
@@ -4853,67 +4860,56 @@ let promoScrollInterval;
             const file = e.target.files[0];
             if (!file) return;
 
-            // Pastikan file yang diupload benar-benar gambar
             if (!file.type.startsWith('image/')) {
                 showToast("⚠️ Harap pilih file gambar (JPG/PNG)!");
                 return;
             }
 
+            // KUNCI TOMBOL SIMPAN SEMENTARA AGAR TIDAK TERJADI RACE CONDITION
+            const btnSave = document.getElementById("btn-save-product");
+            btnSave.disabled = true;
+            btnSave.innerHTML = "⏳ Mengompres Foto...";
+
             showToast("Memproses & mengompres gambar...");
 
             const reader = new FileReader();
             reader.onload = function (ev) {
-                // 1. Buat elemen gambar virtual untuk membaca dimensi asli
                 const img = new Image();
                 img.onload = function() {
-                    // 2. Tentukan batas resolusi maksimal (1200px sudah sangat jernih untuk e-commerce) kompres gambar  resolusi gambar
                     const MAX_WIDTH = 1200;
                     const MAX_HEIGHT = 1200;
                     let width = img.width;
                     let height = img.height;
 
-                    // 3. Hitung rasio untuk memperkecil resolusi proporsional
                     if (width > height) {
-                        if (width > MAX_WIDTH) {
-                            height *= MAX_WIDTH / width;
-                            width = MAX_WIDTH;
-                        }
+                        if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
                     } else {
-                        if (height > MAX_HEIGHT) {
-                            width *= MAX_HEIGHT / height;
-                            height = MAX_HEIGHT;
-                        }
+                        if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
                     }
 
-                    // 4. Buat Canvas HTML5 untuk menggambar ulang fotonya
                     const canvas = document.createElement("canvas");
                     canvas.width = width;
                     canvas.height = height;
                     const ctx = canvas.getContext("2d");
-                    
-                    // Gambar ulang foto asli ke dalam canvas dengan ukuran baru
                     ctx.drawImage(img, 0, 0, width, height);
 
-                    // 5. Ekspor ke format JPEG dengan kualitas 80% (0.8)
-                    // Ini akan membuang ukuran file yang bengkak tapi mempertahankan kualitas visual
-                    const compressedDataUrl = canvas.toDataURL("image/jpeg", 1.0); // Bisa diubah ke 0.8 jika ingin lebih kecil lagi
+                    const compressedDataUrl = canvas.toDataURL("image/jpeg", 0.8);
 
-                    // 6. Tampilkan ke UI Preview
                     document.getElementById("prod-preview").style.display = "flex";
-                    document.getElementById("prod-preview-img").src = compressedDataUrl;
+                    // PENTING: Gunakan setAttribute
+                    document.getElementById("prod-preview-img").setAttribute("src", compressedDataUrl);
+                    document.getElementById("btn-prod-del-photo").style.display = "block";
+                    isPhotoCleared = false;
+
+                    // BUKA KUNCI TOMBOL SIMPAN
+                    btnSave.disabled = false;
+                    btnSave.innerHTML = "Simpan";
                     
-                    // (Opsional) Tampilkan log penyusutan di F12 untuk melihat perbedaannya
-                    const originalSize = (file.size / 1024).toFixed(2);
-                    const newSize = Math.round((compressedDataUrl.length * 3 / 4) / 1024);
-                    console.log(`Penyusutan Gambar: Dari ${originalSize} KB menjadi ${newSize} KB!`);
-                    showToast("Gambar siap diunggah!");
+                    showToast("Gambar siap!");
                 };
                 img.src = ev.target.result;
             };
             reader.readAsDataURL(file);
-
-            document.getElementById("btn-prod-del-photo").style.display = "block";
-            isPhotoCleared = false;
         }
 
         function promptLink() {
