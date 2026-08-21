@@ -2685,6 +2685,8 @@
                         if (data.history) {
                             activityHistory = data.history;
                             localStorage.setItem("maryn_history", JSON.stringify(activityHistory));
+                            // --> TAMBAHKAN 1 BARIS INI DI SINI:
+                            localStorage.setItem("maryn_history_total", data.totalHistory || activityHistory.length);
                             updateHistoryBadge();
                         }
 
@@ -3567,8 +3569,11 @@
             const storageKey = `maryn_history_read_${currentUserEmail}`;
             const lastReadCount = parseInt(localStorage.getItem(storageKey)) || 0;
             
+            // Ambil total history sebenarnya dari server (Bukan panjang array yang cuma 100)
+            const totalActivityServer = parseInt(localStorage.getItem("maryn_history_total")) || activityHistory.length;
+            
             // Hitung selisihnya
-            const unreadCount = activityHistory.length - lastReadCount;
+            const unreadCount = totalActivityServer - lastReadCount;
 
             const badgeSettings = document.getElementById("badge-settings");
             const badgeHistoryBtn = document.getElementById("badge-history-btn");
@@ -3585,7 +3590,6 @@
                     badgeHistoryBtn.style.display = "flex";
                 }
             } else {
-                // Sembunyikan badge jika sudah terbaca semua
                 if (badgeSettings) badgeSettings.style.display = "none";
                 if (badgeHistoryBtn) badgeHistoryBtn.style.display = "none";
             }
@@ -6222,7 +6226,10 @@ async function autoFillOngkir() {
             document.getElementById("modal-history").classList.add("active");
             closeModal("modal-settings"); 
             
-            localStorage.setItem(`maryn_history_read_${currentUserEmail}`, activityHistory.length);
+            // --> UBAH PENYIMPANAN LOCALSTORAGE DI BAWAH INI:
+            const totalActivityServer = parseInt(localStorage.getItem("maryn_history_total")) || activityHistory.length;
+            localStorage.setItem(`maryn_history_read_${currentUserEmail}`, totalActivityServer);
+            
             updateHistoryBadge(); 
         });
 
