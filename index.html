@@ -1865,7 +1865,7 @@
 
                         <div style="grid-column: span 2;">
                             <span class="label">Markup (%)</span>
-                            <input class="input" type="number" id="sim-markup" value="10" oninput="hitungSimulasi()" style="margin-bottom: 0; border-radius: 12px;">
+                            <input class="input" type="number" id="sim-markup" value="0" oninput="hitungSimulasi()" style="margin-bottom: 0; border-radius: 12px;">
                         </div>
                     </div>
                     
@@ -2150,7 +2150,7 @@
                     </div>
                     <div>
                         <span class="label">Markup (%)</span>
-                        <input class="input" type="number" placeholder="Markup keuntungan" value="30" id="prod-markup" style="border-radius: 12px; margin-bottom: 0;" />
+                        <input class="input" type="number" placeholder="Markup keuntungan" value="0" id="prod-markup" style="border-radius: 12px; margin-bottom: 0;" />
                     </div>
                 </div>
                 
@@ -4516,7 +4516,7 @@ let promoScrollInterval;
             document.getElementById("prod-stock").value = "0"; 
             document.getElementById("prod-category").value = "";
             ["shopee", "lazada", "blibli", "tiktok"].forEach(p => { document.getElementById("prod-" + p).value = ""; document.getElementById("display-" + p).value = ""; });
-            document.getElementById("prod-markup").value = "30";
+            document.getElementById("prod-markup").value = "0";
             document.getElementById("prod-preview").style.display = "none";
             document.getElementById("prod-preview-img").setAttribute("src", "");
             
@@ -4608,7 +4608,7 @@ let promoScrollInterval;
                 document.getElementById("display-ongkir-" + plat).value = feeValue > 0 ? `Data Tersimpan (${feeValue}%)` : "";
             });
 
-            document.getElementById("prod-markup").value = p.markup || "30";
+            document.getElementById("prod-markup").value = p.markup || "0";
 
             // KODE PREVIEW FOTO YANG BARU
             isPhotoCleared = false;
