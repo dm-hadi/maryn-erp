@@ -2220,6 +2220,24 @@
                     <option value="Food and Beverages">Food and Beverages</option>
                     <option value="Pet Care">Pet Care</option>
                 </select>
+
+                <!-- FITUR BARU: APPROVAL KODE -->
+                <span class="label" style="margin-top: 16px;">Status Approval (Brand)</span>
+                <div style="display: flex; gap: 15px; margin-bottom: 16px; background: var(--bg); padding: 12px; border-radius: 12px; border: 1px solid var(--border-color);">
+                    <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; cursor: pointer; color: var(--text);">
+                        <input type="checkbox" id="prod-hd-approved" style="width: 16px; height: 16px; accent-color: var(--positive);">
+                        HD (Hadina)
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; cursor: pointer; color: var(--text);">
+                        <input type="checkbox" id="prod-nk-approved" style="width: 16px; height: 16px; accent-color: var(--positive);">
+                        NK (Nasma)
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; cursor: pointer; color: var(--text);">
+                        <input type="checkbox" id="prod-ag-approved" style="width: 16px; height: 16px; accent-color: var(--positive);">
+                        AG (Aktsar)
+                    </label>
+                </div>
+                
                 <!-- ================= PENGATURAN ONGKIR MANUAL & AI PER PRODUK ================= -->
                 <!-- id="container-ongkir-per-produk" digunakan untuk trigger hide/show dari Settings -->
                 <div id="container-ongkir-per-produk" style="background: var(--bg); padding: 16px; border-radius: 16px; margin: 0 0 20px 0; border: 1px dashed var(--chart2); display: none;">
@@ -4311,6 +4329,12 @@ let promoScrollInterval;
                                 <span style="opacity: 0.4;">|</span>
                                 <span style="background: rgba(128, 128, 128, 0.15); padding: 2px 8px; border-radius: 6px;">${escapeHtml(p.category)}</span>
                             </div>
+                            <!-- KODE BARU: BADGE APPROVAL -->
+                            <div style="display: flex; gap: 6px; margin-top: 6px;">
+                                <span style="font-size: 10px; font-weight: 800; padding: 2px 6px; border-radius: 4px; color: #fff; background: ${p.hd_approved ? 'var(--positive)' : 'var(--danger)'};">HD</span>
+                                <span style="font-size: 10px; font-weight: 800; padding: 2px 6px; border-radius: 4px; color: #fff; background: ${p.nk_approved ? 'var(--positive)' : 'var(--danger)'};">NK</span>
+                                <span style="font-size: 10px; font-weight: 800; padding: 2px 6px; border-radius: 4px; color: #fff; background: ${p.ag_approved ? 'var(--positive)' : 'var(--danger)'};">AG</span>
+                            </div>
                         </div>
                     </div>
                     <div class="product-preview" onclick="event.stopPropagation();">
@@ -4524,6 +4548,11 @@ let promoScrollInterval;
             document.getElementById("modal-product").classList.add("active");
             document.getElementById("btn-delete-product").style.display = "none";
             
+            //approved
+            document.getElementById("prod-hd-approved").checked = false;
+            document.getElementById("prod-nk-approved").checked = false;
+            document.getElementById("prod-ag-approved").checked = false;
+
             ["prod-promo-modal", "prod-promo-start", "prod-promo-end"].forEach(id => document.getElementById(id).value = "");
             const checkPromo = document.getElementById("check-promo-global");
             if(checkPromo) { checkPromo.checked = false; document.getElementById("global-promo-container").style.display = "none"; }
@@ -4563,6 +4592,10 @@ let promoScrollInterval;
             document.getElementById("prod-modal").value = p.modal || "";
             document.getElementById("prod-stock").value = p.stock || 0; 
             document.getElementById("prod-supplier").value = p.supplier || "";
+
+            document.getElementById("prod-hd-approved").checked = p.hd_approved || false;
+            document.getElementById("prod-nk-approved").checked = p.nk_approved || false;
+            document.getElementById("prod-ag-approved").checked = p.ag_approved || false;
             
             // ================= FIX TANGGAL PROMO =================
             document.getElementById("prod-promo-modal").value = p.promoModal || "";
@@ -4760,6 +4793,14 @@ let promoScrollInterval;
                         historyLogDetail.push(`Mengedit Admin Fee`);
                     }
 
+                    // ✅ SENSOR BARU: DETEKSI Approved
+                    const hd = document.getElementById("prod-hd-approved").checked;
+                    const nk = document.getElementById("prod-nk-approved").checked;
+                    const ag = document.getElementById("prod-ag-approved").checked;
+                    if (oldP.hd_approved !== hd || oldP.nk_approved !== nk || oldP.ag_approved !== ag) {
+                        historyLogDetail.push(`Mengedit Status Approval Brand (HD/NK/AG)`);
+                    }
+
                     // ✅ SENSOR BARU: DETEKSI GRATIS ONGKIR
                     const ongkirAktif = document.getElementById("prod-gratis-ongkir")?.checked;
                     const newOngShp = parseFloat(document.getElementById("prod-ongkir-shopee")?.value) || 0;
@@ -4810,6 +4851,13 @@ let promoScrollInterval;
                 ongkirLazada: parseFloat(document.getElementById("prod-ongkir-lazada")?.value) || 0,
                 ongkirBlibli: parseFloat(document.getElementById("prod-ongkir-blibli")?.value) || 0,
                 ongkirTiktok: parseFloat(document.getElementById("prod-ongkir-tiktok")?.value) || 0,
+
+                // --- approved
+                hd_approved: document.getElementById("prod-hd-approved").checked,
+                nk_approved: document.getElementById("prod-nk-approved").checked,
+                ag_approved: document.getElementById("prod-ag-approved").checked,
+                approved_update: true,
+                // ------------------------
 
                 photo: photoUrl,
                 createdAt: editingProductId ? products.find(p=>p.id===editingProductId).createdAt : Date.now(),
