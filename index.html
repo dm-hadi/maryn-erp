@@ -3115,6 +3115,22 @@
                 renderHistoryList();
                 document.getElementById("history-date-popover").style.display = "none";
             }
+
+            // ==============================================================
+            // FITUR ANTI SCROLL BLEED (KUNCI BACKGROUND SAAT MODAL TERBUKA)
+            // ==============================================================
+            const modalObserver = new MutationObserver(() => {
+                // Cek apakah ada minimal 1 modal yang sedang memiliki class 'active'
+                const hasActiveModal = document.querySelectorAll('.modal-overlay.active').length > 0;
+                
+                // Jika ada, matikan scroll layar utama (body). Jika tidak ada, kembalikan normal.
+                document.body.style.overflow = hasActiveModal ? 'hidden' : '';
+            });
+
+            // Pasang CCTV (Observer) ke semua elemen yang punya class .modal-overlay
+            document.querySelectorAll('.modal-overlay').forEach(modal => {
+                modalObserver.observe(modal, { attributes: true, attributeFilter: ['class'] });
+            });
             
         });
 
