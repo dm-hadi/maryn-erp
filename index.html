@@ -662,9 +662,19 @@
         .page.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-thumb { background: var(--text-tert); border-radius: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
+        /* ==============================================================
+           Menyembunyikan Visual Scrollbar (Biar mirip aplikasi asli)
+        ============================================================== */
+        /* Untuk Chrome, Safari, dan Opera */
+        ::-webkit-scrollbar { 
+            display: none; 
+        }
+
+        /* Untuk Firefox, IE, dan Edge */
+        * {
+            -ms-overflow-style: none;  /* IE dan Edge */
+            scrollbar-width: none;     /* Firefox */
+        }
 
         .toast { position: fixed; top: 80px; left: 50%; transform: translateX(-50%) translateY(-20px); background: var(--accent); color: #fff; padding: 12px 24px; border-radius: 30px; font-size: 14px; font-weight: 700; z-index: 300; opacity: 0; transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55); pointer-events: none; white-space: nowrap; box-shadow: 0 10px 25px var(--accent-glow); }
         .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
@@ -1537,6 +1547,78 @@
 .numInputWrapper span.arrowUp:hover:after { border-bottom-color: var(--accent) !important; }
 .numInputWrapper span.arrowDown:hover:after { border-top-color: var(--accent) !important; }
 
+/* ==============================================================
+   KOTAK ANGKA PAGINASI (SLIDING WINDOW) & RESPONSIF
+============================================================== */
+.page-num-btn {
+    padding: 8px 14px;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    background: var(--card-bg);
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+}
+.page-num-btn.active {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+    box-shadow: 0 4px 10px var(--accent-glow);
+}
+.page-num-btn:hover:not(.active) {
+    background: var(--hover-bg);
+    color: var(--accent);
+    border-color: var(--accent);
+}
+.page-dots {
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--text-tert);
+    padding: 0 4px;
+}
+
+/* Class baru khusus tombol Prev & Next agar mudah diatur ukurannya */
+.page-nav-btn {
+    border-radius: 20px !important;
+    padding: 8px 16px !important;
+    font-weight: 700;
+    transition: all 0.2s ease;
+}
+
+.pag-numbers-container {
+        gap: 4px !important;
+        padding: 0 4px !important;
+    }
+    .page-nav-btn {
+        padding: 6px 10px !important;
+        font-size: 11px;
+    }
+
+/* ======= MODE HP / LAYAR KECIL ======= */
+@media (max-width: 600px) {
+    .page-num-btn {
+        padding: 6px 6px; /* Padding dikecilkan */
+        font-size: 12px;   /* Huruf dikecilkan */
+        border-radius: 8px;
+    }
+    .page-nav-btn {
+        padding: 6px 10px !important;
+        font-size: 12px;
+    }
+    .page-dots {
+        padding: 0 2px;
+        font-size: 12px;
+    }
+    /* Mempersempit jarak antar tombol saat di HP */
+    #pagination-top, #pagination-bottom {
+        gap: 4px !important; 
+        margin-bottom: 12px !important;
+    }
+}
+
     </style>
 </head>
 <body>
@@ -1718,6 +1800,9 @@
                     <div id="product-total-info">Total: 0 Produk</div>
                 </div>  
 
+                <!-- PAGINASI ATAS -->
+                <div id="pagination-top" style="display: none; justify-content: space-between; align-items: center; margin-bottom: 16px; width: 100%;"></div>
+
                 <div id="product-list"></div>
 
                 <!-- Modal Preview Gambar -->
@@ -1725,6 +1810,9 @@
                     <span class="close-modal-btn">&times;</span>
                     <img id="previewModalImage" class="image-modal-content" src="" alt="Preview Produk">
                 </div>
+
+                <!-- PAGINASI BAWAH -->
+                <div id="pagination-bottom" style="display: none; justify-content: space-between; align-items: center; margin-top: 20px; width: 100%;"></div>
 
                 <!-- Navigasi Halaman (Paginasi) -->
                 <div id="product-pagination" style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px; display: none;">
@@ -3410,20 +3498,6 @@
             const btnWa = document.getElementById("btn-action-wa");
             if (btnWa) btnWa.addEventListener("click", shareOtomatisPilihAplikasi);
 
-            document.getElementById("btn-prev-page").addEventListener("click", () => {
-                if (currentProductPage > 1) {
-                    currentProductPage--;
-                    renderProducts();
-                    window.scrollTo({ top: 0, behavior: 'smooth' }); 
-                }
-            });
-
-            document.getElementById("btn-next-page").addEventListener("click", () => {
-                currentProductPage++;
-                renderProducts();
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            });
-
             document.getElementById("product-search").addEventListener("input", () => {
                 currentProductPage = 1;
                 renderProducts();
@@ -4255,6 +4329,65 @@ let promoScrollInterval;
             });
         }
 
+        // Fungsi mengubah halaman
+        window.changePage = function(page) {
+            currentProductPage = page;
+            renderProducts();
+            // Scroll ke atas dengan halus setelah pindah halaman
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        // Fungsi membuat deret angka Paginasi (Prev Mentok Kiri, Angka Tengah, Next Mentok Kanan)
+        function generatePaginationHTML(totalPages) {
+            // --- 1. BAGIAN KIRI (Tombol PREV) ---
+            // flex-shrink: 0 memastikan tombol tidak menyusut tertekan
+            let html = `<div style="flex-shrink: 0;">
+                <button class="btn btn-outline btn-sm page-nav-btn" onclick="changePage(${currentProductPage - 1})" ${currentProductPage <= 1 ? 'disabled style="opacity: 0.4; cursor: not-allowed;"' : ''}>&laquo; Prev</button>
+            </div>`;
+            
+            // --- 2. BAGIAN TENGAH (Angka Halaman) ---
+            // flex: 1 membuat wadah ini otomatis membentang dan menekan tombol ke ujung kiri-kanan
+            html += `<div class="pag-numbers-container" style="display: flex; justify-content: center; flex-wrap: wrap; gap: 6px; flex: 1; padding: 0 10px;">`;
+            
+            let startPage = Math.max(1, currentProductPage - 2);
+            let endPage = Math.min(totalPages, currentProductPage + 2);
+            
+            if (endPage - startPage < 4) {
+                if (startPage === 1) {
+                    endPage = Math.min(totalPages, startPage + 4);
+                } else if (endPage === totalPages) {
+                    startPage = Math.max(1, endPage - 4);
+                }
+            }
+
+            if (startPage > 1) {
+                html += `<button class="page-num-btn" onclick="changePage(1)">1</button>`;
+                if (startPage > 2) html += `<span class="page-dots">...</span>`;
+            }
+            
+            for (let i = startPage; i <= endPage; i++) {
+                if (i === currentProductPage) {
+                    html += `<button class="page-num-btn active">${i}</button>`;
+                } else {
+                    html += `<button class="page-num-btn" onclick="changePage(${i})">${i}</button>`;
+                }
+            }
+            
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) html += `<span class="page-dots">...</span>`;
+                html += `<button class="page-num-btn" onclick="changePage(${totalPages})">${totalPages}</button>`;
+            }
+            
+            html += `</div>`; // Tutup div bagian tengah
+            
+            // --- 3. BAGIAN KANAN (Tombol NEXT) ---
+            html += `<div style="flex-shrink: 0; text-align: right;">
+                <button class="btn btn-outline btn-sm page-nav-btn" onclick="changePage(${currentProductPage + 1})" ${currentProductPage >= totalPages ? 'disabled style="opacity: 0.4; cursor: not-allowed;"' : ''}>Next &raquo;</button>
+            </div>`;
+            
+            return html;
+        }
+
         function renderProducts() {
             const list = document.getElementById("product-list");
             const paginationDiv = document.getElementById("product-pagination");
@@ -4302,13 +4435,17 @@ let promoScrollInterval;
                 }
             }
 
-            if (paginationDiv) {
-                paginationDiv.style.display = totalPages > 1 ? "flex" : "none";
-                pageIndicator.textContent = `Halaman ${currentProductPage} / ${totalPages}`;
-                prevBtn.disabled = currentProductPage === 1;
-                nextBtn.disabled = currentProductPage === totalPages;
-                prevBtn.style.opacity = currentProductPage === 1 ? "0.4" : "1";
-                nextBtn.style.opacity = currentProductPage === totalPages ? "0.4" : "1";
+            // Render Paginasi Baru
+            const topPag = document.getElementById("pagination-top");
+            const botPag = document.getElementById("pagination-bottom");
+            
+            if (totalPages > 1) {
+                const pagHTML = generatePaginationHTML(totalPages);
+                if (topPag) { topPag.innerHTML = pagHTML; topPag.style.display = "flex"; }
+                if (botPag) { botPag.innerHTML = pagHTML; botPag.style.display = "flex"; }
+            } else {
+                if (topPag) topPag.style.display = "none";
+                if (botPag) botPag.style.display = "none";
             }
 
             const paginatedProducts = filtered.slice((currentProductPage - 1) * productsPerPage, currentProductPage * productsPerPage);
