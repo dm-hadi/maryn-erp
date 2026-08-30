@@ -4354,7 +4354,7 @@ let promoScrollInterval;
                             <div><strong>Barcode:</strong> ${escapeHtml(p.barcode || '-')}</div>
                             <div><strong>Supplier:</strong> ${escapeHtml(p.supplier || '-')}</div>
                             <div><strong>Dimensi:</strong> ${p.length || 0} x ${p.width || 0} x ${p.height || 0} cm (${p.weight || 0} gram)</div>
-                            <div style="margin-top: 4px;"><strong>Deskripsi:</strong><br>${escapeHtml(p.description || 'Tidak ada deskripsi')}</div>
+                            <div style="margin-top: 4px; white-space: pre-wrap; word-break: break-word;"><strong>Deskripsi:</strong><br>${escapeHtml(p.description || 'Tidak ada deskripsi')}</div>
                         </div>
                         ${generateDualFeeHtml(p)}
                     </div>
@@ -6611,6 +6611,7 @@ async function autoFillOngkir() {
         }
 
         // Fungsi membuka pop-up dari Dashboard Promo
+        
         function openProductDetailModal(id) {
             const p = products.find(x => x.id === id);
             if (!p) return;
@@ -6630,9 +6631,11 @@ async function autoFillOngkir() {
                         </div>
                     </div>
                 </div>
-                <div style="font-size:12px; color:var(--text-sec); margin-bottom:16px; line-height:1.5; padding: 12px; background: var(--bg); border-radius: 12px; border: 1px solid var(--border-color);">
-                    <b>Deskripsi:</b><br>${escapeHtml(p.description || 'Tidak ada deskripsi')}
-                </div>
+                
+                <!-- PERBAIKAN DESKRIPSI DI BAWAH INI -->
+                <div style="font-size:12px; color:var(--text-sec); margin-bottom:16px; line-height:1.5; padding: 12px; background: var(--bg); border-radius: 12px; border: 1px solid var(--border-color); white-space: pre-wrap; word-break: break-word;"><strong>Deskripsi:</strong><br>${escapeHtml(p.description || 'Tidak ada deskripsi')}
+        </div>
+                
                 ${generateDualFeeHtml(p)}
             `;
             
