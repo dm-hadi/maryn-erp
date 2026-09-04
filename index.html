@@ -2194,9 +2194,15 @@
                     </div>
                 </div>
 
-                <span class="label">SKU-ID</span>
-                <div style="display: flex; gap: 10px; margin-bottom: 12px;">
-                    <input class="input" type="text" placeholder="Masukkan SKU Produk" id="prod-sku" style="border-radius: 12px; margin-bottom: 0; flex: 1;" />
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+                    <div>
+                        <span class="label">SKU-ID</span>
+                        <input class="input" type="text" placeholder="Masukkan SKU Utama" id="prod-sku" style="border-radius: 12px; margin-bottom: 0;" />
+                    </div>
+                    <div>
+                        <span class="label">SKU-VAR</span>
+                        <input class="input" type="text" placeholder="SKU Variasi" id="prod-sku-var" style="border-radius: 12px; margin-bottom: 0;" />
+                    </div>
                 </div>
 
                 <span class="label">Barcode</span>
@@ -4691,7 +4697,7 @@ let promoScrollInterval;
         function openAddProduct() {
             editingProductId = null;
             document.getElementById("product-modal-title").textContent = "+ Tambah Produk";
-            ["prod-sku","prod-barcode", "prod-name", "prod-modal", "prod-supplier"].forEach(id => document.getElementById(id).value = "");
+            ["prod-sku","prod-sku-var","prod-barcode", "prod-name", "prod-modal", "prod-supplier"].forEach(id => document.getElementById(id).value = "");
             
             ["prod-description", "prod-length", "prod-width", "prod-height", "prod-weight"].forEach(id => document.getElementById(id).value = "");
             
@@ -4737,7 +4743,8 @@ let promoScrollInterval;
 
             editingProductId = id;
             document.getElementById("product-modal-title").textContent = "✎ Edit Produk";
-            document.getElementById("prod-sku").value = p.sku || ""; // TAMBAHKAN BARIS INI
+            document.getElementById("prod-sku").value = p.sku || "";
+            document.getElementById("prod-sku-var").value = p.skuVar || "";
             document.getElementById("prod-barcode").value = p.barcode || "";
             document.getElementById("prod-name").value = p.name || "";
             
@@ -4915,6 +4922,8 @@ let promoScrollInterval;
                     if (oldP.stock !== parseInt(inputStock)) historyLogDetail.push(`Stok: ${oldP.stock} -> ${parseInt(inputStock)}`);
                     const newSku = document.getElementById("prod-sku").value.trim();
                     if (oldP.sku !== newSku) historyLogDetail.push(`SKU-ID: ${oldP.sku || '-'} -> ${newSku || '-'}`);
+                    const newSkuVar = document.getElementById("prod-sku-var").value.trim();
+                    if (oldP.skuVar !== newSkuVar) historyLogDetail.push(`SKU-VAR: ${oldP.skuVar || '-'} -> ${newSkuVar || '-'}`);
                     const newBarcode = document.getElementById("prod-barcode").value.trim();
                     if (oldP.barcode !== newBarcode) historyLogDetail.push(`Barcode: ${oldP.barcode || '-'} -> ${newBarcode || '-'}`);
                     
@@ -4985,6 +4994,7 @@ let promoScrollInterval;
             const productData = { 
                 id: editingProductId || generateProductId(),
                 sku: document.getElementById("prod-sku").value.trim(),
+                skuVar: document.getElementById("prod-sku-var").value.trim(),
                 barcode: document.getElementById("prod-barcode").value.trim(), 
                 name: name, 
                 description: document.getElementById("prod-description").value.trim(),
