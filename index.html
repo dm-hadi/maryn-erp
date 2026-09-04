@@ -551,6 +551,19 @@
         .tx-badge.expense { background: rgba(255, 59, 48, 0.15); color: var(--danger); }
         .tx-badge.platform { background: var(--bg); color: var(--text-sec); border: 1px solid var(--border-color); }
 
+        /* WARNA SPESIFIK PLATFORM */
+        .tx-badge.platform-shopee { background: rgba(238, 77, 45, 0.15); color: #EE4D2D; border: 1px solid rgba(238, 77, 45, 0.3); }
+        .tx-badge.platform-lazada { background: rgba(15, 20, 109, 0.15); color: #0F146D; border: 1px solid rgba(15, 20, 109, 0.3); }
+        .tx-badge.platform-blibli { background: rgba(0, 149, 218, 0.15); color: #0095DA; border: 1px solid rgba(0, 149, 218, 0.3); }
+        .tx-badge.platform-tiktok { background: rgba(3, 172, 14, 0.15); color: #03AC0E; border: 1px solid rgba(3, 172, 14, 0.3); } /* Menggunakan Hijau Tokopedia */
+        .tx-badge.platform-offline { background: var(--hover-bg); color: var(--text-tert); border: 1px dashed var(--border-color); }
+        
+        /* Penyesuaian agar warna tetap enak dilihat di Mode Gelap */
+        [data-theme="dark"] .tx-badge.platform-shopee { background: rgba(238, 77, 45, 0.2); color: #ff7b5c; }
+        [data-theme="dark"] .tx-badge.platform-lazada { background: rgba(43, 53, 196, 0.2); color: #6b76ff; }
+        [data-theme="dark"] .tx-badge.platform-blibli { background: rgba(0, 149, 218, 0.2); color: #3db8ff; }
+        [data-theme="dark"] .tx-badge.platform-tiktok { background: rgba(3, 172, 14, 0.2); color: #34d640; }
+
         .tx-card-body {
             background: var(--bg);
             border-radius: 14px;
@@ -4065,7 +4078,14 @@
                     </div>`
                 ).join("");
 
-                const platformBadgeHtml = isIncome ? `<span class="tx-badge platform">${platformName}</span>` : "";
+                // Tentukan class warna berdasarkan nama platform
+                let platClass = "offline"; // Default
+                if (platformName.toLowerCase().includes("shopee")) platClass = "shopee";
+                else if (platformName.toLowerCase().includes("lazada")) platClass = "lazada";
+                else if (platformName.toLowerCase().includes("blibli")) platClass = "blibli";
+                else if (platformName.toLowerCase().includes("tiktok") || platformName.toLowerCase().includes("tokopedia")) platClass = "tiktok";
+
+                const platformBadgeHtml = isIncome ? `<span class="tx-badge platform-${platClass}">${platformName}</span>` : "";
 
                 return `
                 <div class="tx-card">
@@ -5549,7 +5569,14 @@
                     </div>`
                 ).join("");
 
-                const platformBadgeHtml = isIncome ? `<span class="tx-badge platform">${platformName}</span>` : "";
+                // Tentukan class warna berdasarkan nama platform
+                let platClass = "offline"; // Default
+                if (platformName.toLowerCase().includes("shopee")) platClass = "shopee";
+                else if (platformName.toLowerCase().includes("lazada")) platClass = "lazada";
+                else if (platformName.toLowerCase().includes("blibli")) platClass = "blibli";
+                else if (platformName.toLowerCase().includes("tiktok") || platformName.toLowerCase().includes("tokopedia")) platClass = "tiktok";
+
+                const platformBadgeHtml = isIncome ? `<span class="tx-badge platform-${platClass}">${platformName}</span>` : "";
 
                 return `
                 <div class="tx-card">
