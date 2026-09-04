@@ -2193,6 +2193,12 @@
                         <button class="btn btn-outline btn-sm" id="btn-prod-del-photo" style="border-radius: 10px; padding: 6px 10px; color: var(--danger); border-color: rgba(255, 59, 48, 0.3); background: rgba(255, 59, 48, 0.05); display: none;" title="Hapus Foto">&#128465;</button>
                     </div>
                 </div>
+
+                <span class="label">SKU-ID</span>
+                <div style="display: flex; gap: 10px; margin-bottom: 12px;">
+                    <input class="input" type="text" placeholder="Masukkan SKU Produk" id="prod-sku" style="border-radius: 12px; margin-bottom: 0; flex: 1;" />
+                </div>
+
                 <span class="label">Barcode</span>
                 <div style="display: flex; gap: 10px; margin-bottom: 16px;">
                     <input class="input" style="flex: 1; margin-bottom: 0; border-radius: 12px;" type="text" placeholder="Scan atau ketik barcode" id="prod-barcode" />
@@ -2681,19 +2687,6 @@
                 updateHistoryBadge();
             }
         });
-        // SAMPAI SINI
-
-        // ==========================================
-        // 1. AKTIFKAN FIREBASE OFFLINE PERSISTENCE
-        // ==========================================
-        // db.enablePersistence()
-        //     .catch(function(err) {
-        //         if (err.code == 'failed-precondition') {
-        //             console.warn("Mode offline gagal: Terbuka di banyak tab.");
-        //         } else if (err.code == 'unimplemented') {
-        //             console.warn("Mode offline gagal: Browser/Webview tidak mendukung.");
-        //         }
-        //     });
 
         // GANTI DENGAN URL WEB APP DARI GOOGLE APPS SCRIPT-MU APPSCRIPT
         const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzNLOtC8E4i5PXkj4dHjWURJNcJKAafSb9VH-j6BWxouRGiG0xBDlNJfTbrUv0logl-KQ/exec";
@@ -4504,6 +4497,7 @@ let promoScrollInterval;
                     <div class="product-preview" onclick="event.stopPropagation();">
                         <button class="btn-edit-corner" onclick="editProduct('${p.id}')" title="Edit Produk">✏️</button>
                         <div style="font-size: 12px; margin-bottom: 12px; line-height: 1.5;">
+                            <div><strong>SKU-ID:</strong> ${escapeHtml(p.sku || '-')}</div>
                             <div><strong>Barcode:</strong> ${escapeHtml(p.barcode || '-')}</div>
                             <div><strong>Supplier:</strong> ${escapeHtml(p.supplier || '-')}</div>
                             <div><strong>Dimensi:</strong> ${p.length || 0} x ${p.width || 0} x ${p.height || 0} cm (${p.weight || 0} gram)</div>
@@ -4697,7 +4691,7 @@ let promoScrollInterval;
         function openAddProduct() {
             editingProductId = null;
             document.getElementById("product-modal-title").textContent = "+ Tambah Produk";
-            ["prod-barcode", "prod-name", "prod-modal", "prod-supplier"].forEach(id => document.getElementById(id).value = "");
+            ["prod-sku","prod-barcode", "prod-name", "prod-modal", "prod-supplier"].forEach(id => document.getElementById(id).value = "");
             
             ["prod-description", "prod-length", "prod-width", "prod-height", "prod-weight"].forEach(id => document.getElementById(id).value = "");
             
@@ -4743,6 +4737,7 @@ let promoScrollInterval;
 
             editingProductId = id;
             document.getElementById("product-modal-title").textContent = "✎ Edit Produk";
+            document.getElementById("prod-sku").value = p.sku || ""; // TAMBAHKAN BARIS INI
             document.getElementById("prod-barcode").value = p.barcode || "";
             document.getElementById("prod-name").value = p.name || "";
             
@@ -4918,7 +4913,8 @@ let promoScrollInterval;
                     if (oldP.name !== name) historyLogDetail.push(`Nama: ${oldP.name} -> ${name}`);
                     if (oldP.modal !== parseFloat(inputModal)) historyLogDetail.push(`Modal: ${formatRupiah(oldP.modal)} -> ${formatRupiah(parseFloat(inputModal))}`);
                     if (oldP.stock !== parseInt(inputStock)) historyLogDetail.push(`Stok: ${oldP.stock} -> ${parseInt(inputStock)}`);
-                    
+                    const newSku = document.getElementById("prod-sku").value.trim();
+                    if (oldP.sku !== newSku) historyLogDetail.push(`SKU-ID: ${oldP.sku || '-'} -> ${newSku || '-'}`);
                     const newBarcode = document.getElementById("prod-barcode").value.trim();
                     if (oldP.barcode !== newBarcode) historyLogDetail.push(`Barcode: ${oldP.barcode || '-'} -> ${newBarcode || '-'}`);
                     
@@ -4988,6 +4984,7 @@ let promoScrollInterval;
             // 3. Lanjutkan penyimpanan normal dengan photoUrl yang sudah bersih (hanya link)
             const productData = { 
                 id: editingProductId || generateProductId(),
+                sku: document.getElementById("prod-sku").value.trim(),
                 barcode: document.getElementById("prod-barcode").value.trim(), 
                 name: name, 
                 description: document.getElementById("prod-description").value.trim(),
@@ -5016,11 +5013,13 @@ let promoScrollInterval;
                 ongkirBlibli: parseFloat(document.getElementById("prod-ongkir-blibli")?.value) || 0,
                 ongkirTiktok: parseFloat(document.getElementById("prod-ongkir-tiktok")?.value) || 0,
 
-                // --- approved
+                // --- approved (Simpan ke memory lokal & kirim ke kolom Sheet)
                 hd_approved: document.getElementById("prod-hd-approved").checked,
                 nk_approved: document.getElementById("prod-nk-approved").checked,
                 ag_approved: document.getElementById("prod-ag-approved").checked,
-                approved_update: true,
+                "Hadina": document.getElementById("prod-hd-approved").checked,
+                "Nasma Khaira": document.getElementById("prod-nk-approved").checked,
+                "Aktsar Ghani": document.getElementById("prod-ag-approved").checked,
                 // ------------------------
 
                 photo: photoUrl,
@@ -6778,6 +6777,7 @@ async function autoFillOngkir() {
                     <div style="flex:1; min-width:0;">
                         <div style="font-size:15px; font-weight:800; color:var(--text); margin-bottom:6px; line-height:1.3;">${escapeHtml(p.name)}</div>
                         <div style="font-size:12px; color:var(--text-tert); line-height:1.6;">
+                            <b>SKU-ID:</b> ${escapeHtml(p.sku || '-')}<br>
                             <b>Barcode:</b> ${escapeHtml(p.barcode || '-')}<br>
                             <b>Supplier:</b> ${escapeHtml(p.supplier || '-')}<br>
                             <b>Dimensi:</b> ${p.length || 0} x ${p.width || 0} x ${p.height || 0} cm (${p.weight || 0} gram)
