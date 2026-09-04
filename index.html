@@ -1805,10 +1805,13 @@
 
                 <div id="product-list"></div>
 
-                <!-- Modal Preview Gambar -->
-                <div id="imagePreviewModal" class="image-modal-overlay" onclick="closeImagePreview()">
-                    <span class="close-modal-btn">&times;</span>
-                    <img id="previewModalImage" class="image-modal-content" src="" alt="Preview Produk">
+                <!-- Modal Preview Gambar (Slider) -->
+                <div id="imagePreviewModal" class="image-modal-overlay" onclick="closeImagePreview(event)">
+                    <span class="close-modal-btn" onclick="closeImagePreview(event)">&times;</span>
+                    <button id="prevImageBtn" onclick="changePreviewImage(-1, event)" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.5); color: white; border: none; font-size: 30px; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; z-index: 10001;">&#10094;</button>
+                    <img id="previewModalImage" class="image-modal-content" src="" alt="Preview Produk" onclick="event.stopPropagation()">
+                    <button id="nextImageBtn" onclick="changePreviewImage(1, event)" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.5); color: white; border: none; font-size: 30px; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; z-index: 10001;">&#10095;</button>
+                    <div id="previewImageCounter" style="position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); color: white; font-weight: bold; background: rgba(0,0,0,0.5); padding: 4px 12px; border-radius: 12px; z-index: 10001;">1/1</div>
                 </div>
 
                 <!-- PAGINASI BAWAH -->
@@ -2168,29 +2171,42 @@
                 <div class="modal-header">
                     <div class="modal-title" id="product-modal-title">+ Tambah Produk</div>
                     <button class="close-btn" data-close="modal-product">&#10005;</button>
-                </div>
-                <span class="label">Foto Produk</span>
-                            
-                <!-- AREA DRAG & DROP BARU (LEBIH COMPACT) -->
-                <div id="drop-zone" style="border: 2px dashed var(--border-color); border-radius: 12px; padding: 12px; margin-bottom: 16px; transition: all 0.3s ease; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;">
-                    
-                    <!-- Sisi Kiri: Preview & Teks -->
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        <div id="prod-preview" style="width: 92px; height: 92px; border-radius: 10px; background: var(--hover-bg); display: none; align-items: center; justify-content: center; overflow: hidden; border: 1px solid var(--border-color); flex-shrink: 0;">
-                            <img id="prod-preview-img" style="width: 100%; height: 100%; object-fit: cover" />
-                        </div>
-                        <div id="drop-text" style="color: var(--text-tert); font-size: 11px; font-weight: 600; pointer-events: none; line-height: 1.4;">
-                            <span style="font-size: 13px; color: var(--text); font-weight: 700;">Tarik Foto Kemari</span><br>
-                            Atau gunakan tombol ➡️
-                        </div>
+                </div>        
+                <span class="label">Foto Produk (Maks 3)</span>         
+                <!-- KOTAK UNIFIED DROP ZONE (SEPERTI REFERENSI GAMBAR) -->
+                <div id="unified-drop-zone" style="border: 1px dashed var(--border-color); border-radius: 12px; padding: 16px; display: flex; align-items: center; justify-content: space-between; background: var(--bg); margin-bottom: 12px; transition: 0.3s;">
+                    <div style="display: flex; flex-direction: column;">
+                        <span style="font-size: 14px; font-weight: 800; color: var(--text);">Tarik Foto Kemari</span>
+                        <span style="font-size: 11px; color: var(--text-tert); font-weight: 600;">Atau gunakan tombol ➡️</span>
                     </div>
-
-                    <!-- Sisi Kanan: Tombol Aksi -->
                     <div style="display: flex; gap: 8px;">
-                        <button class="btn btn-outline btn-sm" id="btn-prod-upload" style="border-radius: 10px; padding: 6px 12px;">&#128444; Upload</button>
-                        <input type="file" id="prod-file" style="display: none" accept="image/*" />
-                        <button class="btn btn-outline btn-sm" id="btn-prod-link" style="border-radius: 10px; padding: 6px 12px;">&#128279; Link</button>
-                        <button class="btn btn-outline btn-sm" id="btn-prod-del-photo" style="border-radius: 10px; padding: 6px 10px; color: var(--danger); border-color: rgba(255, 59, 48, 0.3); background: rgba(255, 59, 48, 0.05); display: none;" title="Hapus Foto">&#128465;</button>
+                        <button class="btn btn-outline btn-sm" onclick="document.getElementById('multi-file-input').click()" style="border-radius: 8px; padding: 6px 12px; font-size: 12px; display: flex; align-items: center; gap: 4px;">
+                            <span style="font-size: 14px;">🗃️</span> Upload
+                        </button>
+                        <button class="btn btn-outline btn-sm" onclick="promptMultiLink()" style="border-radius: 8px; padding: 6px 12px; font-size: 12px; display: flex; align-items: center; gap: 4px;">
+                            <span style="font-size: 14px;">🔗</span> Link
+                        </button>
+                    </div>
+                    <!-- Input rahasia untuk menampung multi file -->
+                    <input type="file" id="multi-file-input" multiple accept="image/*" onchange="handleMultiUpload(event)" style="display: none;" />
+                </div>
+
+                <!-- PREVIEW CONTAINER (Tempat munculnya 3 thumbnail di bawah kotak drop) -->
+                <div id="photo-preview-container" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 16px;">
+                    <!-- Slot 1 -->
+                    <div id="preview-slot-1" style="position: relative; height: 100px; display: none; border-radius: 12px; border: 1px solid var(--border-color); background: var(--hover-bg);">
+                        <img id="prod-preview-img-1" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" />
+                        <button style="position: absolute; top: -8px; right: -8px; background: var(--danger); color: white; border: none; border-radius: 50%; width: 24px; height: 24px; font-weight: bold; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.2); z-index: 2;" onclick="removePhoto(1)">×</button>
+                    </div>
+                    <!-- Slot 2 -->
+                    <div id="preview-slot-2" style="position: relative; height: 100px; display: none; border-radius: 12px; border: 1px solid var(--border-color); background: var(--hover-bg);">
+                        <img id="prod-preview-img-2" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" />
+                        <button style="position: absolute; top: -8px; right: -8px; background: var(--danger); color: white; border: none; border-radius: 50%; width: 24px; height: 24px; font-weight: bold; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.2); z-index: 2;" onclick="removePhoto(2)">×</button>
+                    </div>
+                    <!-- Slot 3 -->
+                    <div id="preview-slot-3" style="position: relative; height: 100px; display: none; border-radius: 12px; border: 1px solid var(--border-color); background: var(--hover-bg);">
+                        <img id="prod-preview-img-3" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" />
+                        <button style="position: absolute; top: -8px; right: -8px; background: var(--danger); color: white; border: none; border-radius: 50%; width: 24px; height: 24px; font-weight: bold; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.2); z-index: 2;" onclick="removePhoto(3)">×</button>
                     </div>
                 </div>
 
@@ -3638,44 +3654,84 @@
         }
 
         function setupDragAndDrop() {
-            const dropZone = document.getElementById('drop-zone');
-            if (!dropZone) return;
+            // Menerapkan fitur drag & drop ke ke-3 slot foto
+            [1, 2, 3].forEach(slot => {
+                // Cari elemen input file, lalu ambil elemen pembungkusnya (div kotak putus-putus)
+                const fileInput = document.getElementById(`prod-file-${slot}`);
+                if (!fileInput) return;
+                const dropZone = fileInput.parentElement;
 
-            // 1. Mencegah browser membuka gambar di tab baru saat file di-drag
-            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-                dropZone.addEventListener(eventName, preventDefaults, false);
-                document.body.addEventListener(eventName, preventDefaults, false);
-            });
+                // 1. Mencegah browser membuka gambar di tab baru saat file di-drag
+                ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                    dropZone.addEventListener(eventName, preventDefaults, false);
+                });
 
-            function preventDefaults(e) {
-                e.preventDefault();
-                e.stopPropagation();
-            }
-
-            // 2. Efek visual saat file mengambang di atas kotak (Warna kotak berubah)
-            ['dragenter', 'dragover'].forEach(eventName => {
-                dropZone.addEventListener(eventName, () => {
-                    dropZone.style.borderColor = 'var(--accent)';
-                    dropZone.style.backgroundColor = 'var(--hover-bg)';
-                }, false);
-            });
-
-            // 3. Kembalikan warna kotak ke semula jika file menjauh atau sudah dilepas
-            ['dragleave', 'drop'].forEach(eventName => {
-                dropZone.addEventListener(eventName, () => {
-                    dropZone.style.borderColor = 'var(--border-color)';
-                    dropZone.style.backgroundColor = 'transparent';
-                }, false);
-            });
-
-            // 4. Proses file yang dilepaskan (Drop)
-            dropZone.addEventListener('drop', (e) => {
-                const files = e.dataTransfer.files;
-                if (files && files.length > 0) {
-                    // Gunakan fungsi kompresimu dengan membuat 'event' tiruan
-                    handleFileUpload({ target: { files: files } });
+                function preventDefaults(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
                 }
-            }, false);
+
+                // 2. Efek visual saat file mengambang di atas kotak
+                ['dragenter', 'dragover'].forEach(eventName => {
+                    dropZone.addEventListener(eventName, () => {
+                        dropZone.style.borderColor = 'var(--accent)';
+                        dropZone.style.backgroundColor = 'rgba(255, 51, 119, 0.1)'; // Beri warna pink transparan
+                    }, false);
+                });
+
+                // 3. Kembalikan warna kotak ke semula jika file menjauh atau sudah dilepas
+                ['dragleave', 'drop'].forEach(eventName => {
+                    dropZone.addEventListener(eventName, () => {
+                        dropZone.style.borderColor = 'var(--border-color)';
+                        dropZone.style.backgroundColor = 'var(--hover-bg)';
+                    }, false);
+                });
+
+                // 4. Proses item yang dilepaskan (Drop)
+                dropZone.addEventListener('drop', (e) => {
+                    // Skenario A: User drag file gambar dari folder laptop/komputer
+                    const files = e.dataTransfer.files;
+                    if (files && files.length > 0) {
+                        handleFileUploadMulti({ target: { files: files } }, slot);
+                        return;
+                    }
+
+                    // Skenario B: User drag gambar langsung dari tab web/internet lain
+                    const htmlText = e.dataTransfer.getData('text/html');
+                    const urlText = e.dataTransfer.getData('text/uri-list') || e.dataTransfer.getData('text/plain');
+
+                    let imageUrl = "";
+
+                    // Prioritas 1: Ekstrak link dari dalam tag <img> html
+                    if (htmlText) {
+                        const div = document.createElement('div');
+                        div.innerHTML = htmlText;
+                        const img = div.querySelector('img');
+                        if (img && img.src) {
+                            imageUrl = img.src;
+                        }
+                    }
+
+                    // Prioritas 2: Jika tidak ada tag html, ambil link teks murni
+                    if (!imageUrl && urlText && (urlText.startsWith('http://') || urlText.startsWith('https://') || urlText.startsWith('data:image'))) {
+                        imageUrl = urlText;
+                    }
+
+                    if (imageUrl) {
+                        // Langsung pasangkan link dari internet ke preview kotak!
+                        document.getElementById(`prod-preview-img-${slot}`).src = imageUrl;
+                        document.getElementById(`prod-preview-img-${slot}`).style.display = "block";
+                        document.getElementById(`btn-del-photo-${slot}`).style.display = "block";
+                        showToast(`📸 Gambar web masuk ke slot ${slot}!`);
+                    } else {
+                        showToast("⚠️ Tidak dapat mengenali gambar yang ditarik.");
+                    }
+                }, false);
+            });
+
+            // 5. KEAMANAN TAMBAHAN: Cegah gambar malah terbuka di browser jika user "meleset" saat melepaskan mouse di luar kotak
+            window.addEventListener("dragover", function(e) { e.preventDefault(); }, false);
+            window.addEventListener("drop", function(e) { e.preventDefault(); }, false);
         }
 
         function updateHistoryBadge() {
@@ -4481,7 +4537,7 @@ let promoScrollInterval;
                 <div class="product-card" onclick="this.classList.toggle('active-preview')" style="cursor: pointer; position: relative;">
                     <div class="product-item" style="border: none; margin-bottom: 0; align-items: center;">
                         <div class="product-img">
-                            ${p.photo ? `<img src="${p.photo}" onclick="openImagePreview(this, event)" style="width:100%;height:100%;object-fit:cover;border-radius:14px; cursor: zoom-in;">` : "IMG"}
+                            ${p.photo ? `<img src="${p.photo}" onclick="openImagePreview(['${p.photo}', '${p.photo2 || ''}', '${p.photo3 || ''}'], event)" style="width:100%;height:100%;object-fit:cover;border-radius:14px; cursor: zoom-in;">` : "IMG"}
                         </div>
                         <div class="product-info" style="width:100%;">
                             <div class="product-name" style="margin-bottom: 3px;">${escapeHtml(p.name)}</div>
@@ -4705,8 +4761,13 @@ let promoScrollInterval;
             document.getElementById("prod-category").value = "";
             ["shopee", "lazada", "blibli", "tiktok"].forEach(p => { document.getElementById("prod-" + p).value = ""; document.getElementById("display-" + p).value = ""; });
             document.getElementById("prod-markup").value = "0";
-            document.getElementById("prod-preview").style.display = "none";
-            document.getElementById("prod-preview-img").setAttribute("src", "");
+            
+            // PERBAIKAN: Hapus pemanggilan id lama ("prod-preview") di sini.
+            // Gunakan perulangan untuk mereset ke-3 slot foto baru.
+            // Cukup panggil ini untuk membersihkan 3 slot
+            [1, 2, 3].forEach(slot => {
+                removePhoto(slot);
+            });
             
             calculatePreview();
             document.getElementById("modal-product").classList.add("active");
@@ -4722,7 +4783,7 @@ let promoScrollInterval;
             if(checkPromo) { checkPromo.checked = false; document.getElementById("global-promo-container").style.display = "none"; }
 
             isPhotoCleared = false;
-            document.getElementById("btn-prod-del-photo").style.display = "none";
+            // PERBAIKAN: Hapus pemanggilan id lama ("btn-prod-del-photo") di sini.
 
             // KODE BARU: Cek setting global, tampilkan/sembunyikan form ongkir
             const isGlobalOngkirActive = settings.global?.gratisOngkirActive || false;
@@ -4810,16 +4871,14 @@ let promoScrollInterval;
             document.getElementById("prod-markup").value = p.markup || "0";
 
             // KODE PREVIEW FOTO YANG BARU
-            isPhotoCleared = false;
-            if (p.photo && p.photo.trim() !== "") { 
-                document.getElementById("prod-preview").style.display = "flex"; 
-                document.getElementById("prod-preview-img").setAttribute("src", p.photo); // Wajib pakai setAttribute
-                document.getElementById("btn-prod-del-photo").style.display = "block";
-            } else { 
-                document.getElementById("prod-preview").style.display = "none"; 
-                document.getElementById("prod-preview-img").setAttribute("src", "");
-                document.getElementById("btn-prod-del-photo").style.display = "none";
-            }
+            [1, 2, 3].forEach(slot => {
+                let photoSrc = slot === 1 ? p.photo : (slot === 2 ? p.photo2 : p.photo3);
+                if (photoSrc && photoSrc.trim() !== "") {
+                    setPreviewSlot(slot, photoSrc);
+                } else {
+                    removePhoto(slot);
+                }
+            });
             
             calculatePreview();
             document.getElementById("modal-product").classList.add("active");
@@ -4856,142 +4915,130 @@ let promoScrollInterval;
             btnSave.disabled = true; 
             btnSave.innerHTML = "⏳ Memproses Gambar & Menyimpan...";
 
-            // 1. Dapatkan SRC gambar yang aman (Gunakan getAttribute agar tidak nyasar)
-            let photoUrl = "";
-            // Hanya baca gambar JIKA kotak preview-nya benar-benar tampil di layar
-            if (document.getElementById("prod-preview").style.display !== "none") {
-                photoUrl = document.getElementById("prod-preview-img").getAttribute("src") || "";
-            }
-            
-            // Jika user klik hapus foto atau fotonya kosong, bersihkan secara tegas
-            if (isPhotoCleared || photoUrl.trim() === "") {
-                photoUrl = "";
-            }
+            // 1. Kumpulkan 3 Foto
+            let newPhotos = ["", "", ""];
+            [1, 2, 3].forEach(slot => {
+                const wrapper = document.getElementById(`preview-slot-${slot}`);
+                const imgEl = document.getElementById(`prod-preview-img-${slot}`);
+                if (wrapper.style.display !== "none" && imgEl.src) {
+                    newPhotos[slot-1] = imgEl.getAttribute("src") || "";
+                }
+            });
 
-            // --- LOGIKA CERDAS: DETEKSI FILE LAMA UNTUK DIHAPUS DARI DRIVE ---
-            let oldPhotoUrl = editingProductId ? products.find(p => p.id === editingProductId).photo : "";
-            let needToDeleteOldDrivePhoto = false;
-            
-            if (oldPhotoUrl && oldPhotoUrl.includes("googleusercontent.com/d/")) {
-                if (isPhotoCleared || (photoUrl && photoUrl !== oldPhotoUrl)) {
-                    needToDeleteOldDrivePhoto = true; 
+            // 2. Upload Gambar Baru (Jika format Base64)
+            for (let i = 0; i < 3; i++) {
+                if (newPhotos[i].startsWith("data:image")) {
+                    try {
+                        const mimeType = newPhotos[i].split(";")[0].split(":")[1];
+                        const base64Data = newPhotos[i].split(",")[1];
+                        const filename = "MARYN_" + Date.now() + "_P" + (i+1);
+                        const uploadRes = await fetch(GOOGLE_SCRIPT_URL, {
+                            method: "POST",
+                            headers: { "Content-Type": "text/plain;charset=utf-8" },
+                            body: JSON.stringify({ action: "UPLOAD_IMAGE", filename, mimeType, base64Data })
+                        });
+                        const uploadResult = await uploadRes.json();
+                        if (uploadResult.status === "success") newPhotos[i] = uploadResult.url;
+                    } catch (err) { console.warn("Upload langsung gagal, masuk antrean SYNC."); }
                 }
             }
 
-            // 2. PROSES UPLOAD FOTO BARU (Jika Ada)
-            if (photoUrl.startsWith("data:image")) {
-                try {
-                    const mimeType = photoUrl.split(";")[0].split(":")[1];
-                    const base64Data = photoUrl.split(",")[1];
-                    const filename = "MARYN_" + Date.now();
+            // ================= PERBAIKAN BUG DIMULAI DARI SINI =================
 
-                    const uploadRes = await fetch(GOOGLE_SCRIPT_URL, {
-                        method: "POST",
-                        headers: { "Content-Type": "text/plain;charset=utf-8" },
-                        body: JSON.stringify({ action: "UPLOAD_IMAGE", filename, mimeType, base64Data })
-                    });
-                    const uploadResult = await uploadRes.json();
-                    if (uploadResult.status === "success") {
-                        photoUrl = uploadResult.url;
+            // 3. Ambil data produk lama TERLEBIH DAHULU jika sedang mode edit
+            const oldP = editingProductId ? products.find(p => p.id === editingProductId) : null;
+
+            // 4. Hapus Gambar Lama di Google Drive secara diam-diam
+            let oldPhotos = oldP ? [oldP.photo, oldP.photo2, oldP.photo3] : ["", "", ""];
+            oldPhotos.forEach((oldP_url, idx) => {
+                if (oldP_url && oldP_url.includes("googleusercontent.com/d/")) {
+                    if (newPhotos[idx] !== oldP_url) {
+                        fetch(GOOGLE_SCRIPT_URL, {
+                            method: "POST",
+                            headers: { "Content-Type": "text/plain;charset=utf-8" },
+                            body: JSON.stringify({ action: "DELETE_IMAGE", url: oldP_url })
+                        }).catch(e => {}); 
                     }
-                } catch (err) {
-                    // JANGAN RETURN/BATALKAN DISINI! 
-                    // Jika jaringan lemot atau offline, biarkan photoUrl berbentuk 'data:image...' (Base64)
-                    // Nanti akan diunggah otomatis di latar belakang oleh fungsi SYNC antrean Offline.
-                    console.warn("Upload langsung gagal (mungkin offline), dialihkan ke antrean SYNC.");
                 }
-            }
-
-            // 3. PROSES HAPUS FOTO LAMA DI DRIVE SECARA GAIB (Background Process)
-            if (needToDeleteOldDrivePhoto) {
-                fetch(GOOGLE_SCRIPT_URL, {
-                    method: "POST",
-                    headers: { "Content-Type": "text/plain;charset=utf-8" },
-                    body: JSON.stringify({ action: "DELETE_IMAGE", url: oldPhotoUrl })
-                }).catch(e => console.log("Gagal hapus foto lama dari drive")); 
-                // Kita abaikan errornya agar tidak mengganggu proses save
-            }
+            });
 
             // --- LOGIKA CERDAS: MENDETEKSI PERUBAHAN DETAIL (DIFFING) ---
             let historyLogDetail = [];
-            if (editingProductId) {
-                const oldP = products.find(p => p.id === editingProductId);
-                if (oldP) {
-                    if (oldP.name !== name) historyLogDetail.push(`Nama: ${oldP.name} -> ${name}`);
-                    if (oldP.modal !== parseFloat(inputModal)) historyLogDetail.push(`Modal: ${formatRupiah(oldP.modal)} -> ${formatRupiah(parseFloat(inputModal))}`);
-                    if (oldP.stock !== parseInt(inputStock)) historyLogDetail.push(`Stok: ${oldP.stock} -> ${parseInt(inputStock)}`);
-                    const newSku = document.getElementById("prod-sku").value.trim();
-                    if (oldP.sku !== newSku) historyLogDetail.push(`SKU-ID: ${oldP.sku || '-'} -> ${newSku || '-'}`);
-                    const newSkuVar = document.getElementById("prod-sku-var").value.trim();
-                    if (oldP.skuVar !== newSkuVar) historyLogDetail.push(`SKU-VAR: ${oldP.skuVar || '-'} -> ${newSkuVar || '-'}`);
-                    const newBarcode = document.getElementById("prod-barcode").value.trim();
-                    if (oldP.barcode !== newBarcode) historyLogDetail.push(`Barcode: ${oldP.barcode || '-'} -> ${newBarcode || '-'}`);
-                    
-                    if (oldP.category !== category) historyLogDetail.push(`Kategori: ${oldP.category || '-'} -> ${category}`);
-                    
-                    const newMarkup = parseFloat(document.getElementById("prod-markup").value) || 0;
-                    if (oldP.markup !== newMarkup) historyLogDetail.push(`Markup: ${oldP.markup}% -> ${newMarkup}%`);
-                    
-                    const nL = parseFloat(document.getElementById("prod-length").value) || 0;
-                    const nW = parseFloat(document.getElementById("prod-width").value) || 0;
-                    const nH = parseFloat(document.getElementById("prod-height").value) || 0;
-                    const nWt = parseFloat(document.getElementById("prod-weight").value) || 0;
-                    if (oldP.length !== nL || oldP.width !== nW || oldP.height !== nH || oldP.weight !== nWt) {
-                        historyLogDetail.push(`Dimensi/Berat: (${oldP.length}x${oldP.width}x${oldP.height}cm, ${oldP.weight}g) -> (${nL}x${nW}x${nH}cm, ${nWt}g)`);
-                    }
-                    
-                    const newPromo = parseFloat(document.getElementById("prod-promo-modal").value) || 0;
-                    if (oldP.promoModal !== newPromo) historyLogDetail.push(`Promo: ${formatRupiah(oldP.promoModal || 0)} -> ${formatRupiah(newPromo)}`);
-                    
-                    if (oldP.photo !== photoUrl) {
-                        if (!photoUrl) historyLogDetail.push(`Foto: Dihapus`);
-                        else if (!oldP.photo) historyLogDetail.push(`Foto: Ditambahkan`);
-                        else historyLogDetail.push(`Foto: Diperbarui`);
-                    }
+            if (oldP) {
+                if (oldP.name !== name) historyLogDetail.push(`Nama: ${oldP.name} -> ${name}`);
+                if (oldP.modal !== parseFloat(inputModal)) historyLogDetail.push(`Modal: ${formatRupiah(oldP.modal)} -> ${formatRupiah(parseFloat(inputModal))}`);
+                if (oldP.stock !== parseInt(inputStock)) historyLogDetail.push(`Stok: ${oldP.stock} -> ${parseInt(inputStock)}`);
+                const newSku = document.getElementById("prod-sku").value.trim();
+                if (oldP.sku !== newSku) historyLogDetail.push(`SKU-ID: ${oldP.sku || '-'} -> ${newSku || '-'}`);
+                const newSkuVar = document.getElementById("prod-sku-var").value.trim();
+                if (oldP.skuVar !== newSkuVar) historyLogDetail.push(`SKU-VAR: ${oldP.skuVar || '-'} -> ${newSkuVar || '-'}`);
+                const newBarcode = document.getElementById("prod-barcode").value.trim();
+                if (oldP.barcode !== newBarcode) historyLogDetail.push(`Barcode: ${oldP.barcode || '-'} -> ${newBarcode || '-'}`);
+                
+                if (oldP.category !== category) historyLogDetail.push(`Kategori: ${oldP.category || '-'} -> ${category}`);
+                
+                const newMarkup = parseFloat(document.getElementById("prod-markup").value) || 0;
+                if (oldP.markup !== newMarkup) historyLogDetail.push(`Markup: ${oldP.markup}% -> ${newMarkup}%`);
+                
+                const nL = parseFloat(document.getElementById("prod-length").value) || 0;
+                const nW = parseFloat(document.getElementById("prod-width").value) || 0;
+                const nH = parseFloat(document.getElementById("prod-height").value) || 0;
+                const nWt = parseFloat(document.getElementById("prod-weight").value) || 0;
+                if (oldP.length !== nL || oldP.width !== nW || oldP.height !== nH || oldP.weight !== nWt) {
+                    historyLogDetail.push(`Dimensi/Berat: (${oldP.length}x${oldP.width}x${oldP.height}cm, ${oldP.weight}g) -> (${nL}x${nW}x${nH}cm, ${nWt}g)`);
+                }
+                
+                const newPromo = parseFloat(document.getElementById("prod-promo-modal").value) || 0;
+                if (oldP.promoModal !== newPromo) historyLogDetail.push(`Promo: ${formatRupiah(oldP.promoModal || 0)} -> ${formatRupiah(newPromo)}`);
+                
+                // FIX: Menggunakan newPhotos[0] alih-alih photoUrl yang tidak ada
+                if (oldP.photo !== newPhotos[0]) {
+                    if (!newPhotos[0]) historyLogDetail.push(`Foto: Dihapus`);
+                    else if (!oldP.photo) historyLogDetail.push(`Foto: Ditambahkan`);
+                    else historyLogDetail.push(`Foto: Diperbarui`);
+                }
 
-                    // ✅ SENSOR BARU: DETEKSI DESKRIPSI
-                    const newDesc = document.getElementById("prod-description").value.trim();
-                    if (oldP.description !== newDesc) historyLogDetail.push(`Mengedit Deskripsi Produk`);
+                const newDesc = document.getElementById("prod-description").value.trim();
+                if (oldP.description !== newDesc) historyLogDetail.push(`Mengedit Deskripsi Produk`);
 
-                    // ✅ SENSOR BARU: DETEKSI ADMIN FEE
-                    const newShp = document.getElementById("prod-shopee").value;
-                    const newLzd = document.getElementById("prod-lazada").value;
-                    const newBli = document.getElementById("prod-blibli").value;
-                    const newTtk = document.getElementById("prod-tiktok").value;
-                    if (oldP.shopeeFee !== newShp || oldP.lazadaFee !== newLzd || oldP.blibliFee !== newBli || oldP.tiktokFee !== newTtk) {
-                        historyLogDetail.push(`Mengedit Admin Fee`);
-                    }
+                const newShp = document.getElementById("prod-shopee").value;
+                const newLzd = document.getElementById("prod-lazada").value;
+                const newBli = document.getElementById("prod-blibli").value;
+                const newTtk = document.getElementById("prod-tiktok").value;
+                if (oldP.shopeeFee !== newShp || oldP.lazadaFee !== newLzd || oldP.blibliFee !== newBli || oldP.tiktokFee !== newTtk) {
+                    historyLogDetail.push(`Mengedit Admin Fee`);
+                }
 
-                    // ✅ SENSOR BARU: DETEKSI Approved
-                    const hd = document.getElementById("prod-hd-approved").checked;
-                    const nk = document.getElementById("prod-nk-approved").checked;
-                    const ag = document.getElementById("prod-ag-approved").checked;
-                    if (oldP.hd_approved !== hd || oldP.nk_approved !== nk || oldP.ag_approved !== ag) {
-                        historyLogDetail.push(`Mengedit Status Approval Brand (HD/NK/AG)`);
-                    }
+                const hd = document.getElementById("prod-hd-approved").checked;
+                const nk = document.getElementById("prod-nk-approved").checked;
+                const ag = document.getElementById("prod-ag-approved").checked;
+                if (oldP.hd_approved !== hd || oldP.nk_approved !== nk || oldP.ag_approved !== ag) {
+                    historyLogDetail.push(`Mengedit Status Approval Brand (HD/NK/AG)`);
+                }
 
-                    // ✅ SENSOR BARU: DETEKSI GRATIS ONGKIR
-                    const ongkirAktif = document.getElementById("prod-gratis-ongkir")?.checked;
-                    const newOngShp = parseFloat(document.getElementById("prod-ongkir-shopee")?.value) || 0;
-                    const newOngLzd = parseFloat(document.getElementById("prod-ongkir-lazada")?.value) || 0;
-                    const newOngBli = parseFloat(document.getElementById("prod-ongkir-blibli")?.value) || 0;
-                    const newOngTtk = parseFloat(document.getElementById("prod-ongkir-tiktok")?.value) || 0;
-                    
-                    if (oldP.gratisOngkir !== ongkirAktif || oldP.ongkirShopee !== newOngShp || oldP.ongkirLazada !== newOngLzd || oldP.ongkirBlibli !== newOngBli || oldP.ongkirTiktok !== newOngTtk) {
-                        historyLogDetail.push(`Mengedit Pengaturan Gratis Ongkir`);
-                    }
+                const ongkirAktif = document.getElementById("prod-gratis-ongkir")?.checked;
+                const newOngShp = parseFloat(document.getElementById("prod-ongkir-shopee")?.value) || 0;
+                const newOngLzd = parseFloat(document.getElementById("prod-ongkir-lazada")?.value) || 0;
+                const newOngBli = parseFloat(document.getElementById("prod-ongkir-blibli")?.value) || 0;
+                const newOngTtk = parseFloat(document.getElementById("prod-ongkir-tiktok")?.value) || 0;
+                
+                if (oldP.gratisOngkir !== ongkirAktif || oldP.ongkirShopee !== newOngShp || oldP.ongkirLazada !== newOngLzd || oldP.ongkirBlibli !== newOngBli || oldP.ongkirTiktok !== newOngTtk) {
+                    historyLogDetail.push(`Mengedit Pengaturan Gratis Ongkir`);
                 }
             } else {
                 historyLogDetail.push(`Menambahkan produk baru: ${name}`);
                 historyLogDetail.push(`Modal: ${formatRupiah(parseFloat(inputModal))} | Stok: ${inputStock}`);
             }
             
-
             const finalHistoryString = historyLogDetail.length > 0 ? historyLogDetail.join("<br>") : "Diperbarui tanpa spesifik";
-            // -----------------------------------------------------------
 
-            // 3. Lanjutkan penyimpanan normal dengan photoUrl yang sudah bersih (hanya link)
-            const productData = { 
+            // 5. Lanjutkan penyimpanan normal
+            const productData = {
+                // FIX: Menggunakan newPhotos langsung, tidak perlu memanggil photoUrl
+                photo: newPhotos[0],
+                photo2: newPhotos[1],
+                photo3: newPhotos[2],
+                
                 id: editingProductId || generateProductId(),
                 sku: document.getElementById("prod-sku").value.trim(),
                 skuVar: document.getElementById("prod-sku-var").value.trim(),
@@ -5023,18 +5070,15 @@ let promoScrollInterval;
                 ongkirBlibli: parseFloat(document.getElementById("prod-ongkir-blibli")?.value) || 0,
                 ongkirTiktok: parseFloat(document.getElementById("prod-ongkir-tiktok")?.value) || 0,
 
-                // --- approved (Simpan ke memory lokal & kirim ke kolom Sheet)
                 hd_approved: document.getElementById("prod-hd-approved").checked,
                 nk_approved: document.getElementById("prod-nk-approved").checked,
                 ag_approved: document.getElementById("prod-ag-approved").checked,
                 "Hadina": document.getElementById("prod-hd-approved").checked,
                 "Nasma Khaira": document.getElementById("prod-nk-approved").checked,
                 "Aktsar Ghani": document.getElementById("prod-ag-approved").checked,
-                // ------------------------
 
-                photo: photoUrl,
-                createdAt: editingProductId ? products.find(p=>p.id===editingProductId).createdAt : Date.now(),
-                
+                // FIX: Menghapus duplikasi key `photo: photoUrl` yang error
+                createdAt: editingProductId ? oldP.createdAt : Date.now(),
                 detailLogString: finalHistoryString 
             };
 
@@ -6779,7 +6823,8 @@ async function autoFillOngkir() {
             if (!p) return;
             
             const content = document.getElementById("product-detail-content");
-            const imgStr = p.photo ? `<img src="${p.photo}" style="width:100px; height:100px; object-fit:cover; border-radius:12px; border: 1px solid var(--border-color); flex-shrink: 0;">` : `<div style="width:100px; height:100px; background:var(--bg); border-radius:12px; display:flex; align-items:center; justify-content:center; border: 1px solid var(--border-color); font-size:10px; color:var(--text-tert); flex-shrink: 0;">No Image</div>`;
+            const imgArrayStr = `['${p.photo || ''}', '${p.photo2 || ''}', '${p.photo3 || ''}']`;
+            const imgStr = p.photo ? `<img src="${p.photo}" onclick="openImagePreview(${imgArrayStr}, event)" style="width:100px; height:100px; object-fit:cover; border-radius:12px; border: 1px solid var(--border-color); flex-shrink: 0; cursor: zoom-in;">` : `<div style="...">No Image</div>`;
 
             content.innerHTML = `
                 <div style="display:flex; gap:14px; margin-bottom:16px;">
@@ -6803,6 +6848,228 @@ async function autoFillOngkir() {
             `;
             
             document.getElementById("modal-product-detail").classList.add("active");
+        }
+
+        let currentPreviewImages = [];
+        let currentPreviewIndex = 0;
+
+        function openImagePreview(imagesArray, event) {
+            if(event) event.stopPropagation(); 
+            currentPreviewImages = imagesArray.filter(url => url && url.trim() !== "" && url !== "undefined");
+            if(currentPreviewImages.length === 0) return;
+            currentPreviewIndex = 0;
+            updatePreviewModalUI();
+            document.getElementById("imagePreviewModal").style.display = "flex";
+        }
+
+        function changePreviewImage(direction, event) {
+            if(event) event.stopPropagation();
+            currentPreviewIndex += direction;
+            if (currentPreviewIndex < 0) currentPreviewIndex = currentPreviewImages.length - 1;
+            if (currentPreviewIndex >= currentPreviewImages.length) currentPreviewIndex = 0;
+            updatePreviewModalUI();
+        }
+
+        function updatePreviewModalUI() {
+            document.getElementById("previewModalImage").src = currentPreviewImages[currentPreviewIndex];
+            document.getElementById("previewImageCounter").innerText = (currentPreviewIndex + 1) + " / " + currentPreviewImages.length;
+            const showArrows = currentPreviewImages.length > 1 ? "block" : "none";
+            document.getElementById("prevImageBtn").style.display = showArrows;
+            document.getElementById("nextImageBtn").style.display = showArrows;
+        }
+
+        function closeImagePreview(event) {
+            if(event && event.target.id === 'previewModalImage') return; 
+            document.getElementById("imagePreviewModal").style.display = "none";
+        }
+
+        function removePhoto(slot) {
+            document.getElementById(`prod-preview-img-${slot}`).src = "";
+            document.getElementById(`prod-preview-img-${slot}`).style.display = "none";
+            document.getElementById(`btn-del-photo-${slot}`).style.display = "none";
+        }
+
+        function handleFileUploadMulti(e, slot) {
+            const file = e.target.files[0];
+            if (!file) return;
+            if (!file.type.startsWith('image/')) return showToast("⚠️ File harus gambar!");
+
+            const btnSave = document.getElementById("btn-save-product");
+            btnSave.disabled = true; btnSave.innerHTML = "⏳ Memproses...";
+            
+            const reader = new FileReader();
+            reader.onload = function (ev) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement("canvas");
+                    let width = img.width, height = img.height;
+                    if (width > 1200 || height > 1200) {
+                        if (width > height) { height *= 1200 / width; width = 1200; } 
+                        else { width *= 1200 / height; height = 1200; }
+                    }
+                    canvas.width = width; canvas.height = height;
+                    canvas.getContext("2d").drawImage(img, 0, 0, width, height);
+
+                    document.getElementById(`prod-preview-img-${slot}`).src = canvas.toDataURL("image/jpeg", 0.8);
+                    document.getElementById(`prod-preview-img-${slot}`).style.display = "block";
+                    document.getElementById(`btn-del-photo-${slot}`).style.display = "block";
+                    btnSave.disabled = false; btnSave.innerHTML = "Simpan";
+                };
+                img.src = ev.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // ==============================================================
+        // SISTEM MANAJEMEN FOTO TERPADU (UNIFIED UPLOAD & DRAG)
+        // ==============================================================
+
+        // Mencari slot foto yang masih kosong (1, 2, atau 3)
+        function getNextEmptySlot() {
+            for (let i = 1; i <= 3; i++) {
+                if (document.getElementById(`preview-slot-${i}`).style.display === "none") return i;
+            }
+            return -1; // -1 artinya penuh
+        }
+
+        function setPreviewSlot(slot, url) {
+            document.getElementById(`prod-preview-img-${slot}`).src = url;
+            document.getElementById(`preview-slot-${slot}`).style.display = "block";
+        }
+
+        function removePhoto(slot) {
+            document.getElementById(`prod-preview-img-${slot}`).src = "";
+            document.getElementById(`preview-slot-${slot}`).style.display = "none";
+        }
+
+        // Upload Banyak Gambar Sekaligus
+        function handleMultiUpload(e) {
+            const files = e.target.files;
+            if (!files || files.length === 0) return;
+            
+            const btnSave = document.getElementById("btn-save-product");
+            btnSave.disabled = true; btnSave.innerHTML = "⏳ Memproses...";
+
+            let fileArray = Array.from(files);
+            let processedCount = 0;
+
+            fileArray.forEach(file => {
+                if (!file.type.startsWith('image/')) return;
+                const slot = getNextEmptySlot();
+                if (slot !== -1) {
+                    // Kunci sementara agar slot berikutnya dipakai
+                    document.getElementById(`preview-slot-${slot}`).style.display = "block"; 
+                    
+                    const reader = new FileReader();
+                    reader.onload = function (ev) {
+                        const img = new Image();
+                        img.onload = function() {
+                            const canvas = document.createElement("canvas");
+                            let width = img.width, height = img.height;
+                            if (width > 1200 || height > 1200) {
+                                if (width > height) { height *= 1200 / width; width = 1200; } 
+                                else { width *= 1200 / height; height = 1200; }
+                            }
+                            canvas.width = width; canvas.height = height;
+                            canvas.getContext("2d").drawImage(img, 0, 0, width, height);
+
+                            setPreviewSlot(slot, canvas.toDataURL("image/jpeg", 0.8));
+                            btnSave.disabled = false; btnSave.innerHTML = "Simpan";
+                        };
+                        img.src = ev.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                    processedCount++;
+                }
+            });
+
+            if (processedCount < fileArray.length) {
+                showToast("⚠️ Slot penuh. Maksimal 3 foto disimpan.");
+            } else if (processedCount === 0) {
+                 btnSave.disabled = false; btnSave.innerHTML = "Simpan";
+            }
+            e.target.value = ""; // Bersihkan memori input
+        }
+
+        // Sistem Link Berulang
+        function promptMultiLink() {
+            const slot = getNextEmptySlot();
+            if (slot === -1) {
+                showToast("⚠️ Slot foto sudah penuh (Maks 3).");
+                return;
+            }
+            const url = prompt(`Masukkan URL gambar (Slot ${slot}/3):`);
+            if (url && url.trim() !== "") {
+                setPreviewSlot(slot, url.trim());
+                showToast("✅ Gambar Link berhasil ditambahkan!");
+            }
+        }
+
+        // Fitur Drag and Drop Pintar
+        function setupDragAndDrop() {
+            const dropZone = document.getElementById('unified-drop-zone');
+            if (!dropZone) return;
+
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, preventDefaults, false);
+            });
+
+            function preventDefaults(e) { e.preventDefault(); e.stopPropagation(); }
+
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropZone.addEventListener(eventName, () => {
+                    dropZone.style.borderColor = 'var(--accent)';
+                    dropZone.style.backgroundColor = 'rgba(255, 51, 119, 0.1)';
+                }, false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, () => {
+                    dropZone.style.borderColor = 'var(--border-color)';
+                    dropZone.style.backgroundColor = 'var(--bg)';
+                }, false);
+            });
+
+            dropZone.addEventListener('drop', (e) => {
+                const files = e.dataTransfer.files;
+                
+                // Jika ditarik dari file manager (Bisa banyak sekaligus)
+                if (files && files.length > 0) {
+                    handleMultiUpload({ target: { files: files } });
+                    return;
+                }
+
+                // Jika ditarik dari web lain (Bisa ditarik 1 per 1 berulang kali)
+                const htmlText = e.dataTransfer.getData('text/html');
+                const urlText = e.dataTransfer.getData('text/uri-list') || e.dataTransfer.getData('text/plain');
+
+                let imageUrl = "";
+                if (htmlText) {
+                    const div = document.createElement('div');
+                    div.innerHTML = htmlText;
+                    const img = div.querySelector('img');
+                    if (img && img.src) imageUrl = img.src;
+                }
+                
+                if (!imageUrl && urlText && (urlText.startsWith('http://') || urlText.startsWith('https://') || urlText.startsWith('data:image'))) {
+                    imageUrl = urlText;
+                }
+
+                if (imageUrl) {
+                    const slot = getNextEmptySlot();
+                    if (slot !== -1) {
+                        setPreviewSlot(slot, imageUrl);
+                        showToast(`📸 Gambar web masuk ke slot ${slot}!`);
+                    } else {
+                        showToast("⚠️ Slot foto sudah penuh (Maks 3).");
+                    }
+                } else {
+                    showToast("⚠️ Tidak dapat mengenali gambar yang ditarik.");
+                }
+            }, false);
+
+            window.addEventListener("dragover", function(e) { e.preventDefault(); }, false);
+            window.addEventListener("drop", function(e) { e.preventDefault(); }, false);
         }
     </script>
 </body>
