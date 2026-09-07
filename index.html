@@ -404,12 +404,12 @@
             color: var(--accent);
         }
         .btn-danger { background: var(--danger); color: white; box-shadow: 0 4px 15px rgba(255, 59, 48, 0.3); }
-        .btn-sm { padding: 8px 12px; font-size: 12px; border-radius: var(--radius-xs); }
+        .btn-sm { padding: 6px 8px; font-size: 12px; border-radius: var(--radius-xs); }
 
         /* INPUTS */
         .search-box, .input, .select {
             width: 100%;
-            padding: 14px 16px;
+            padding: 8px 8px;
             border-radius: var(--radius-sm);
             border: 1px solid var(--border-color);
             background: var(--bg);
@@ -1842,27 +1842,35 @@
                     <button class="btn btn-outline" id="btn-import-csv" style="border-radius: 20px;">&#128229; Import</button>
                     <button class="btn btn-outline" id="btn-export-csv" style="border-radius: 20px;">&#128228; Export</button>
                 </div>
-                
-                <div style="display: flex; gap: 10px; margin-bottom: 12px;">
-                    <input type="text" class="search-box" placeholder="Cari produk..." id="product-search" style="margin-bottom: 0; border-radius: 20px;" />
-                    <select class="select" id="product-sort" style="width: auto; margin-bottom: 0; border-radius: 20px;">
-                        <option value="newest">Terbaru</option>
-                        <option value="oldest">Terlama</option>
-                        <option value="az">A - Z</option>
-                        <option value="za">Z - A</option>
-                    </select>
+                                
+                <!-- AREA PENCARIAN & FILTER (Grid 2 Baris Statis) -->
+                <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; width: 100%;">
                     
-                    <!-- Dropdown Filter Kategori -->
-                    <select id="category-filter" class="input" style="width: auto; margin-bottom: 0; padding: 8px 8px; border-radius: 20px; color: var(--text); border: 1px solid var(--border-color);">
-                        <option value="all">Semua Kategori</option>
-                        <option value="Personal Care">Personal Care</option>
-                        <option value="Home Care">Home Care</option>
-                        <option value="Mom & Baby">Mom & Baby</option>
-                        <option value="Elder Care">Elder Care</option>
-                        <option value="Pantry Essentials">Pantry Essentials</option>
-                        <option value="Food and Beverages">Food & Beverages</option>
-                        <option value="Pet Care">Pet Care</option>
-                    </select>
+                    <!-- Baris 1: Search + Scan -->
+                    <div style="display: flex; gap: 8px; width: 100%;">
+                        <input type="text" class="search-box" placeholder="Cari produk (Nama/Barcode)..." id="product-search" style="margin-bottom: 0; border-radius: 20px; flex: 1; height: 44px;" />
+                        <button class="btn btn-outline btn-sm" id="btn-scan-search-product" style="border-radius: 16px; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; font-size: 25px; align-items: baseline; padding: 0; flex-shrink: 0;" title="Scan Barcode">&#128247;</button>
+                    </div>
+
+                    <!-- Baris 2: Sort + Category -->
+                    <div style="display: flex; gap: 8px; width: 100%;">
+                        <select class="select" id="product-sort" style="margin-bottom: 0; border-radius: 20px; flex: 1; height: 30px; padding: 0 12px;">
+                            <option value="newest">Terbaru</option>
+                            <option value="oldest">Terlama</option>
+                            <option value="az">A - Z</option>
+                            <option value="za">Z - A</option>
+                        </select>
+                        <select id="category-filter" class="input" style="margin-bottom: 0; border-radius: 20px; color: var(--text); border: 1px solid var(--border-color); flex: 1.5; height: 30px; padding: 0 12px;">
+                            <option value="all">Semua Kategori</option>
+                            <option value="Personal Care">Personal Care</option>
+                            <option value="Home Care">Home Care</option>
+                            <option value="Mom & Baby">Mom & Baby</option>
+                            <option value="Elder Care">Elder Care</option>
+                            <option value="Pantry Essentials">Pantry Essentials</option>
+                            <option value="Food and Beverages">Food & Beverages</option>
+                            <option value="Pet Care">Pet Care</option>
+                        </select>
+                    </div>
 
                 </div>
 
@@ -2282,7 +2290,7 @@
                 <span class="label">Barcode</span>
                 <div style="display: flex; gap: 10px; margin-bottom: 16px;">
                     <input class="input" style="flex: 1; margin-bottom: 0; border-radius: 12px;" type="text" placeholder="Scan atau ketik barcode" id="prod-barcode" />
-                    <button class="btn btn-outline btn-sm" id="btn-prod-camera" style="height: 48px; width: 64px; border-radius: 12px; font-size: 16px;">&#128247;</button>
+                    <button class="btn btn-outline btn-sm" id="btn-prod-camera" style="height: 44px; width: 64px; border-radius: 12px; font-size: 30px; align-items:self-end;justify-content: center;">&#128247;</button>
                 </div>
 
                 <span class="label">Nama Produk</span>
@@ -3376,6 +3384,8 @@
             document.getElementById("history-start-date")?.addEventListener("change", renderHistoryList);
             document.getElementById("history-end-date")?.addEventListener("change", renderHistoryList);
 
+            document.getElementById("btn-scan-search-product").addEventListener("click", () => startScanner("product-search"));
+
             // 1. Membuka/Menutup popover kalender saat ikon 📅 diklik
             document.getElementById("btn-history-date-menu")?.addEventListener("click", function(e) {
                 const popover = document.getElementById("history-date-popover");
@@ -3747,19 +3757,28 @@
             }
         }
 
-        // UBAH FUNGSI INI DI INDEX.HTML
         function startScanner(targetInputId) {
             document.getElementById("modal-scanner").classList.add("active");
             if(!html5QrCode) html5QrCode = new Html5Qrcode("reader");
 
-            isScannerRunning = true; // Set TRUE SEBELUM dipanggil, bukan setelah Then()
+            isScannerRunning = true; 
 
             html5QrCode.start(
                 { facingMode: "environment" },
                 { fps: 10, qrbox: { width: 250, height: 250 } },
                 (decodedText) => {
+                    // Masukkan teks hasil scan ke input yang dituju
                     document.getElementById(targetInputId).value = decodedText;
-                    if(targetInputId === "tx-search") searchTxProduct();
+                    
+                    // Trigger pencarian sesuai kolom yang sedang aktif
+                    if (targetInputId === "tx-search") {
+                        searchTxProduct();
+                    } else if (targetInputId === "product-search") {
+                        // KODE BARU: Reset halaman ke 1 dan langsung filter daftar produk
+                        currentProductPage = 1;
+                        renderProducts();
+                    }
+                    
                     closeModal("modal-scanner");
                     showToast("Barcode berhasil disalin!");
                 },
@@ -5216,7 +5235,30 @@
             const finalHistoryString = historyLogDetail.length > 0 ? historyLogDetail.join("<br>") : "Diperbarui tanpa spesifik";
             // -----------------------------------------------------------
 
+            
+
             // 3. Lanjutkan penyimpanan normal dengan photoUrl yang sudah bersih (hanya link)
+            const tempProductForPrice = {
+                modal: parseFloat(inputModal),
+                markup: parseFloat(document.getElementById("prod-markup").value) || 0,
+                length: parseFloat(document.getElementById("prod-length").value) || 0,
+                width: parseFloat(document.getElementById("prod-width").value) || 0,
+                height: parseFloat(document.getElementById("prod-height").value) || 0,
+                weight: parseFloat(document.getElementById("prod-weight").value) || 0,
+                shopeeFee: document.getElementById("prod-shopee").value,
+                lazadaFee: document.getElementById("prod-lazada").value,
+                blibliFee: document.getElementById("prod-blibli").value,
+                tiktokFee: document.getElementById("prod-tiktok").value,
+                promoModal: null, // Paksa null agar sistem MENGABAIKAN harga promo
+                promoStartDate: null,
+                promoEndDate: null
+            };
+
+            const finalShopee = calculateSellPrice(tempProductForPrice, "shopee") || 0;
+            const finalLazada = calculateSellPrice(tempProductForPrice, "lazada") || 0;
+            const finalBlibli = calculateSellPrice(tempProductForPrice, "blibli") || 0;
+            const finalTiktok = calculateSellPrice(tempProductForPrice, "tiktok") || 0;
+            
             const productData = { 
                 id: editingProductId || generateProductId(),
                 sku: document.getElementById("prod-sku").value.trim(),
@@ -5242,6 +5284,13 @@
                 lazadaFee: document.getElementById("prod-lazada").value, 
                 blibliFee: document.getElementById("prod-blibli").value, 
                 tiktokFee: document.getElementById("prod-tiktok").value, 
+                
+                // --- HARGA JUAL FINAL UNTUK UPLOAD MASSAL ---
+                Shopee: finalShopee,
+                Lazada: finalLazada,
+                Blibli: finalBlibli,
+                Tiktok: finalTiktok,
+                // --------------------------------------------
                 
                 gratisOngkir: document.getElementById("prod-gratis-ongkir")?.checked || false, 
                 ongkirShopee: parseFloat(document.getElementById("prod-ongkir-shopee")?.value) || 0,
