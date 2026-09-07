@@ -174,7 +174,7 @@
 
         .main {
             flex: 1;
-            padding: 85px 12px 95px 12px;
+            padding: 83px 12px 80px 12px;
             overflow-y: auto;
         }
 
@@ -338,7 +338,7 @@
         .filter-tabs {
             display: flex;
             gap: 8px;
-            margin-bottom: 20px;
+            margin-bottom: 17px;
             background: var(--card-bg);
             padding: 6px;
             border-radius: 20px;
@@ -668,7 +668,7 @@
         .chart-area { height: 300px; border: 1px solid var(--border-color); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; color: var(--text-quat); font-size: 12px; margin-bottom: 16px; background: var(--bg); box-shadow: inset 0 2px 10px rgba(0,0,0,0.02); }
         [data-theme="dark"] .chart-area { background: var(--card-bg); box-shadow: inset 0 2px 15px rgba(0,0,0,0.2); }
         
-        .action-row { display: flex; gap: 12px; margin-bottom: 20px; }
+        .action-row { display: flex; gap: 12px; margin-bottom: 15px; }
         .action-row .btn { flex: 1; justify-content: center; }
 
         .page { display: none; animation: fadeIn 0.4s ease; }
@@ -1838,29 +1838,29 @@
 
             <div id="page-product" class="page">
                 <div class="action-row">
-                    <button class="btn btn-primary" id="btn-add-product" style="border-radius: 20px;">+ Tambah</button>
-                    <button class="btn btn-outline" id="btn-import-csv" style="border-radius: 20px;">&#128229; Import</button>
-                    <button class="btn btn-outline" id="btn-export-csv" style="border-radius: 20px;">&#128228; Export</button>
+                    <button class="btn btn-primary" id="btn-add-product" style="border-radius: 15px;">+ Tambah</button>
+                    <button class="btn btn-outline" id="btn-import-csv" style="border-radius: 15px;">&#128229; Import</button>
+                    <button class="btn btn-outline" id="btn-export-csv" style="border-radius: 15px;">&#128228; Export</button>
                 </div>
                                 
                 <!-- AREA PENCARIAN & FILTER (Grid 2 Baris Statis) -->
-                <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; width: 100%;">
+                <div style="display: flex; flex-direction: column; gap: 13px; margin-bottom: 12px; width: 100%;">
                     
                     <!-- Baris 1: Search + Scan -->
                     <div style="display: flex; gap: 8px; width: 100%;">
-                        <input type="text" class="search-box" placeholder="Cari produk (Nama/Barcode)..." id="product-search" style="margin-bottom: 0; border-radius: 20px; flex: 1; height: 44px;" />
-                        <button class="btn btn-outline btn-sm" id="btn-scan-search-product" style="border-radius: 16px; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; font-size: 25px; align-items: baseline; padding: 0; flex-shrink: 0;" title="Scan Barcode">&#128247;</button>
+                        <input type="text" class="search-box" placeholder="Cari produk (Nama/Barcode)..." id="product-search" style="margin-bottom: 0; border-radius: 15px; flex: 1; height: 44px;" />
+                        <button class="btn btn-outline btn-sm" id="btn-scan-search-product" style="border-radius: 15px; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; font-size: 25px; align-items: baseline; padding: 0; flex-shrink: 0;" title="Scan Barcode">&#128247;</button>
                     </div>
 
                     <!-- Baris 2: Sort + Category -->
                     <div style="display: flex; gap: 8px; width: 100%;">
-                        <select class="select" id="product-sort" style="margin-bottom: 0; border-radius: 20px; flex: 1; height: 30px; padding: 0 12px;">
+                        <select class="select" id="product-sort" style="margin-bottom: 0; border-radius: 12px; flex: 1; height: 35px; padding: 0 12px;">
                             <option value="newest">Terbaru</option>
                             <option value="oldest">Terlama</option>
                             <option value="az">A - Z</option>
                             <option value="za">Z - A</option>
                         </select>
-                        <select id="category-filter" class="input" style="margin-bottom: 0; border-radius: 20px; color: var(--text); border: 1px solid var(--border-color); flex: 1.5; height: 30px; padding: 0 12px;">
+                        <select id="category-filter" class="input" style="margin-bottom: 0; border-radius: 12px; color: var(--text); border: 1px solid var(--border-color); flex: 1.5; height: 35px; padding: 0 12px;">
                             <option value="all">Semua Kategori</option>
                             <option value="Personal Care">Personal Care</option>
                             <option value="Home Care">Home Care</option>
