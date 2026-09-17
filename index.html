@@ -2403,6 +2403,31 @@
                     <option value="Pet Care">Pet Care</option>
                 </select>
 
+                <!-- ========================================== -->
+                <!-- FORM LINK FOTO UNTUK UPLOAD MASSAL         -->
+                <!-- ========================================== -->
+                <div style="margin-top: 15px; padding: 15px; border: 1px solid var(--border-color); border-radius: 12px; background: rgba(255,255,255,0.02);">
+                    <p style="font-weight: 600; margin-bottom: 12px; font-size: 14px; color: var(--primary);">🔗 Link Foto (Mass Upload)</p>
+                    
+                    <div class="form-group">
+                        <label style="font-size: 12px;">Link foto Ghani Utama</label>
+                        <input type="text" id="prod-link-ghani-utama" class="input" placeholder="Masukkan URL gambar utama Ghani..." />
+                    </div>
+                    <div class="form-group">
+                        <label style="font-size: 12px;">Link foto variasi (Ghani)</label>
+                        <input type="text" id="prod-link-ghani-var" class="input" placeholder="Masukkan URL gambar variasi Ghani..." />
+                    </div>
+                    <div class="form-group">
+                        <label style="font-size: 12px;">Link Foto Nasma Utama</label>
+                        <input type="text" id="prod-link-nasma-utama" class="input" placeholder="Masukkan URL gambar utama Nasma..." />
+                    </div>
+                    <div class="form-group">
+                        <label style="font-size: 12px;">Link Foto Variasi (Nasma)</label>
+                        <input type="text" id="prod-link-nasma-var" class="input" placeholder="Masukkan URL gambar variasi Nasma..." />
+                    </div>
+                </div>
+                <!-- ========================================== -->
+
                 <!-- FITUR BARU: APPROVAL KODE -->
                 <span class="label" style="margin-top: 16px;">Status Approval (Brand)</span>
                 <div style="display: flex; gap: 15px; margin-bottom: 16px; background: var(--bg); padding: 12px; border-radius: 12px; border: 1px solid var(--border-color);">
@@ -2508,38 +2533,6 @@
                             <input class="input" type="text" id="display-tiktok" placeholder="Ketik kategori..." autocomplete="off" style="margin-bottom:0; border-radius: 12px;" />
                             <input type="hidden" id="prod-tiktok" />
                             <div id="drop-tiktok" style="display:none; position:absolute; top:calc(100% + 4px); left:0; width:100%; max-height:200px; overflow-y:auto; background:var(--card-bg); border:1px solid var(--border-color); border-radius:12px; z-index:100; box-shadow:var(--shadow-lg);"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- GRID 2x2 UNTUK PREVIEW MASTER (HILANG JIKA ADA VARIASI) -->
-                <div id="master-preview-container" style="background: var(--bg); padding: 12px; border-radius: 16px; margin: 16px 0 24px 0; display:grid; grid-template-columns: 1fr 1fr; gap:10px; border: 1px solid var(--border-color);">
-                    <div style="background: var(--card-bg); padding: 10px; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: var(--shadow-sm);">
-                        <div style="font-size: 10px; color: var(--text-tert); font-weight:800; margin-bottom:4px;">SHOPEE</div>
-                        <div style="font-size: 14px; font-weight: 800; color:var(--chart2); text-shadow:var(--glow);" id="preview-shopee-harga">Rp 0</div>
-                        <div style="font-size: 10px; color: var(--text-sec); margin-top:4px; font-weight:600;">
-                            Hasil: <b id="preview-shopee-hasil">Rp 0</b><br>Profit: <b style="color: var(--positive)" id="preview-shopee-profit">Rp 0</b>
-                        </div>
-                    </div>
-                    <div style="background: var(--card-bg); padding: 10px; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: var(--shadow-sm);">
-                        <div style="font-size: 10px; color: var(--text-tert); font-weight:800; margin-bottom:4px;">LAZADA</div>
-                        <div style="font-size: 14px; font-weight: 800; color:var(--chart1); text-shadow:var(--glow);" id="preview-lazada-harga">Rp 0</div>
-                        <div style="font-size: 10px; color: var(--text-sec); margin-top:4px; font-weight:600;">
-                            Hasil: <b id="preview-lazada-hasil">Rp 0</b><br>Profit: <b style="color: var(--positive)" id="preview-lazada-profit">Rp 0</b>
-                        </div>
-                    </div>
-                    <div style="background: var(--card-bg); padding: 10px; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: var(--shadow-sm);">
-                        <div style="font-size: 10px; color: var(--text-tert); font-weight:800; margin-bottom:4px;">BLIBLI</div>
-                        <div style="font-size: 14px; font-weight: 800; color:var(--chart3); text-shadow:var(--glow);" id="preview-blibli-harga">Rp 0</div>
-                        <div style="font-size: 10px; color: var(--text-sec); margin-top:4px; font-weight:600;">
-                            Hasil: <b id="preview-blibli-hasil">Rp 0</b><br>Profit: <b style="color: var(--positive)" id="preview-blibli-profit">Rp 0</b>
-                        </div>
-                    </div>
-                    <div style="background: var(--card-bg); padding: 10px; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: var(--shadow-sm);">
-                        <div style="font-size: 10px; color: var(--text-tert); font-weight:800; margin-bottom:4px;">TIKTOK</div>
-                        <div style="font-size: 14px; font-weight: 800; color:var(--text); text-shadow:var(--glow);" id="preview-tiktok-harga">Rp 0</div>
-                        <div style="font-size: 10px; color: var(--text-sec); margin-top:4px; font-weight:600;">
-                            Hasil: <b id="preview-tiktok-hasil">Rp 0</b><br>Profit: <b style="color: var(--positive)" id="preview-tiktok-profit">Rp 0</b>
                         </div>
                     </div>
                 </div>
@@ -3600,8 +3593,6 @@
             document.getElementById("btn-add-product").addEventListener("click", openAddProduct);
             document.getElementById("btn-import-csv").addEventListener("click", importCSV);
             document.getElementById("btn-export-csv").addEventListener("click", exportCSV);
-            document.getElementById("product-search").addEventListener("input", renderProducts);
-            document.getElementById("product-sort").addEventListener("change", renderProducts);
 
             ["prod-modal", "prod-markup", "prod-promo-modal", "prod-shopee", "prod-lazada", "prod-blibli", "prod-tiktok"].forEach(id => {
                 document.getElementById(id).addEventListener(id.includes("prod-m") ? "input" : "change", calculatePreview);
@@ -4928,7 +4919,7 @@
         function openAddProduct() {
             editingProductId = null;
             document.getElementById("product-modal-title").textContent = "+ Tambah Produk";
-            ["prod-sku","prod-sku-var","prod-barcode", "prod-name", "prod-modal", "prod-supplier"].forEach(id => document.getElementById(id).value = "");
+            ["prod-sku","prod-sku-var","prod-barcode", "prod-name", "prod-modal", "prod-supplier", "prod-link-ghani-utama", "prod-link-ghani-var", "prod-link-nasma-utama", "prod-link-nasma-var"].forEach(id => document.getElementById(id).value = "");
             
             ["prod-description", "prod-length", "prod-width", "prod-height", "prod-weight"].forEach(id => document.getElementById(id).value = "");
             
@@ -4991,6 +4982,11 @@
             document.getElementById("prod-modal").value = p.modal || "";
             document.getElementById("prod-stock").value = p.stock || 0; 
             document.getElementById("prod-supplier").value = p.supplier || "";
+
+            document.getElementById("prod-link-ghani-utama").value = p["Link foto Ghani Utama"] || "";
+            document.getElementById("prod-link-ghani-var").value = p["Link foto variasi Ghani"] || "";
+            document.getElementById("prod-link-nasma-utama").value = p["Link Foto Nasma Utama"] || "";
+            document.getElementById("prod-link-nasma-var").value = p["Link Foto Variasi Nasma"] || "";
 
             document.getElementById("prod-hd-approved").checked = p.hd_approved || false;
             document.getElementById("prod-nk-approved").checked = p.nk_approved || false;
@@ -5297,6 +5293,13 @@
                 ongkirLazada: parseFloat(document.getElementById("prod-ongkir-lazada")?.value) || 0,
                 ongkirBlibli: parseFloat(document.getElementById("prod-ongkir-blibli")?.value) || 0,
                 ongkirTiktok: parseFloat(document.getElementById("prod-ongkir-tiktok")?.value) || 0,
+
+                // --- FIELD BARU UNTUK LINK MASS UPLOAD ---
+                "Link foto Ghani Utama": document.getElementById("prod-link-ghani-utama").value.trim(),
+                "Link foto variasi Ghani": document.getElementById("prod-link-ghani-var").value.trim(),
+                "Link Foto Nasma Utama": document.getElementById("prod-link-nasma-utama").value.trim(),
+                "Link Foto Variasi Nasma": document.getElementById("prod-link-nasma-var").value.trim(),
+                // ------------------------------------------
 
                 // --- approved (Simpan ke memory lokal & kirim ke kolom Sheet)
                 hd_approved: document.getElementById("prod-hd-approved").checked,
