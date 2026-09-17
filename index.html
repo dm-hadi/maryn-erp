@@ -2406,27 +2406,33 @@
                 <!-- ========================================== -->
                 <!-- FORM LINK FOTO UNTUK UPLOAD MASSAL         -->
                 <!-- ========================================== -->
-                <div style="margin-top: 15px; padding: 15px; border: 1px solid var(--border-color); border-radius: 12px; background: rgba(255,255,255,0.02);">
-                    <p style="font-weight: 600; margin-bottom: 12px; font-size: 14px; color: var(--primary);">🔗 Link Foto (Mass Upload)</p>
+                <span class="label" style="margin-top: 16px;">Link Mass Upload </span>
+                <div style="padding: 12px; border: 1px solid var(--border-color); border-radius: 12px; background: var(--bg); margin-bottom: 16px;">
                     
-                    <div class="form-group">
-                        <label style="font-size: 12px;">Link foto Ghani Utama</label>
-                        <input type="text" id="prod-link-ghani-utama" class="input" placeholder="Masukkan URL gambar utama Ghani..." />
-                    </div>
-                    <div class="form-group">
-                        <label style="font-size: 12px;">Link foto variasi (Ghani)</label>
-                        <input type="text" id="prod-link-ghani-var" class="input" placeholder="Masukkan URL gambar variasi Ghani..." />
-                    </div>
-                    <div class="form-group">
-                        <label style="font-size: 12px;">Link Foto Nasma Utama</label>
-                        <input type="text" id="prod-link-nasma-utama" class="input" placeholder="Masukkan URL gambar utama Nasma..." />
-                    </div>
-                    <div class="form-group">
-                        <label style="font-size: 12px;">Link Foto Variasi (Nasma)</label>
-                        <input type="text" id="prod-link-nasma-var" class="input" placeholder="Masukkan URL gambar variasi Nasma..." />
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        
+                        <!-- Baris 1 -->
+                        <div>
+                            <span class="label" style="text-transform: none;">Link foto Ghani Utama</span>
+                            <input type="text" id="prod-link-ghani-utama" class="input" placeholder="Masukkan URL..." style="border-radius: 12px; margin-bottom: 0;" />
+                        </div>
+                        <div>
+                            <span class="label" style="text-transform: none;">Link foto variasi (Ghani)</span>
+                            <input type="text" id="prod-link-ghani-var" class="input" placeholder="Masukkan URL..." style="border-radius: 12px; margin-bottom: 0;" />
+                        </div>
+                        
+                        <!-- Baris 2 -->
+                        <div>
+                            <span class="label" style="text-transform: none;">Link Foto Nasma Utama</span>
+                            <input type="text" id="prod-link-nasma-utama" class="input" placeholder="Masukkan URL..." style="border-radius: 12px; margin-bottom: 0;" />
+                        </div>
+                        <div>
+                            <span class="label" style="text-transform: none;">Link Foto variasi (Nasma)</span>
+                            <input type="text" id="prod-link-nasma-var" class="input" placeholder="Masukkan URL..." style="border-radius: 12px; margin-bottom: 0;" />
+                        </div>
+
                     </div>
                 </div>
-                <!-- ========================================== -->
 
                 <!-- FITUR BARU: APPROVAL KODE -->
                 <span class="label" style="margin-top: 16px;">Status Approval (Brand)</span>
@@ -2533,6 +2539,38 @@
                             <input class="input" type="text" id="display-tiktok" placeholder="Ketik kategori..." autocomplete="off" style="margin-bottom:0; border-radius: 12px;" />
                             <input type="hidden" id="prod-tiktok" />
                             <div id="drop-tiktok" style="display:none; position:absolute; top:calc(100% + 4px); left:0; width:100%; max-height:200px; overflow-y:auto; background:var(--card-bg); border:1px solid var(--border-color); border-radius:12px; z-index:100; box-shadow:var(--shadow-lg);"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- GRID 2x2 UNTUK PREVIEW MASTER (HILANG JIKA ADA VARIASI) -->
+                <div id="master-preview-container" style="background: var(--bg); padding: 12px; border-radius: 16px; margin: 16px 0 24px 0; display:grid; grid-template-columns: 1fr 1fr; gap:10px; border: 1px solid var(--border-color);">
+                    <div style="background: var(--card-bg); padding: 10px; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: var(--shadow-sm);">
+                        <div style="font-size: 10px; color: var(--text-tert); font-weight:800; margin-bottom:4px;">SHOPEE</div>
+                        <div style="font-size: 14px; font-weight: 800; color:var(--chart2); text-shadow:var(--glow);" id="preview-shopee-harga">Rp 0</div>
+                        <div style="font-size: 10px; color: var(--text-sec); margin-top:4px; font-weight:600;">
+                            Hasil: <b id="preview-shopee-hasil">Rp 0</b><br>Profit: <b style="color: var(--positive)" id="preview-shopee-profit">Rp 0</b>
+                        </div>
+                    </div>
+                    <div style="background: var(--card-bg); padding: 10px; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: var(--shadow-sm);">
+                        <div style="font-size: 10px; color: var(--text-tert); font-weight:800; margin-bottom:4px;">LAZADA</div>
+                        <div style="font-size: 14px; font-weight: 800; color:var(--chart1); text-shadow:var(--glow);" id="preview-lazada-harga">Rp 0</div>
+                        <div style="font-size: 10px; color: var(--text-sec); margin-top:4px; font-weight:600;">
+                            Hasil: <b id="preview-lazada-hasil">Rp 0</b><br>Profit: <b style="color: var(--positive)" id="preview-lazada-profit">Rp 0</b>
+                        </div>
+                    </div>
+                    <div style="background: var(--card-bg); padding: 10px; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: var(--shadow-sm);">
+                        <div style="font-size: 10px; color: var(--text-tert); font-weight:800; margin-bottom:4px;">BLIBLI</div>
+                        <div style="font-size: 14px; font-weight: 800; color:var(--chart3); text-shadow:var(--glow);" id="preview-blibli-harga">Rp 0</div>
+                        <div style="font-size: 10px; color: var(--text-sec); margin-top:4px; font-weight:600;">
+                            Hasil: <b id="preview-blibli-hasil">Rp 0</b><br>Profit: <b style="color: var(--positive)" id="preview-blibli-profit">Rp 0</b>
+                        </div>
+                    </div>
+                    <div style="background: var(--card-bg); padding: 10px; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: var(--shadow-sm);">
+                        <div style="font-size: 10px; color: var(--text-tert); font-weight:800; margin-bottom:4px;">TIKTOK</div>
+                        <div style="font-size: 14px; font-weight: 800; color:var(--text); text-shadow:var(--glow);" id="preview-tiktok-harga">Rp 0</div>
+                        <div style="font-size: 10px; color: var(--text-sec); margin-top:4px; font-weight:600;">
+                            Hasil: <b id="preview-tiktok-hasil">Rp 0</b><br>Profit: <b style="color: var(--positive)" id="preview-tiktok-profit">Rp 0</b>
                         </div>
                     </div>
                 </div>
@@ -7191,7 +7229,7 @@ async function autoFillOngkir() {
                     validPhotoUrl = p.photo; 
                 }
             }
-            // -------------------------------------------
+            
 
             const content = document.getElementById("product-detail-content");
             
